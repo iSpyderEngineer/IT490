@@ -1,0 +1,16 @@
+version: '3'
+services:
+    messaging:
+        image: 'rabbitmq:3-management'
+    mysql:
+        image: 'mysql'
+        environment:
+            MYSQL_ROOT_PASSWORD: changeme
+    mariadb:
+        image: 'mariadb'
+        environment:
+            MYSQL_ROOT_PASSWORD: changeme
+    postgres:
+        image: 'postgres'
+        environment:
+            POSTGRES_PASSWORD: changeme
