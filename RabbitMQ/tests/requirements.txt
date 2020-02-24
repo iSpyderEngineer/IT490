@@ -1,0 +1,5 @@
+pika
+netifaces
+requests
+mysql-connector-python
+psycopg2
