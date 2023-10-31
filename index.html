@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>    
+    <div id="failure"></div>
+
+    <div>
+        <form id="login">
+            <h4>Log In</h4>
+            <table>
+                <tr>
+                    <th>Username:</th>
+                    <td><input type="text" id="username" name="username" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Password:</th>
+                    <td><input type="password" id="password" name="password" size="16" required></td>
+                </tr>
+            </table>
+            <button type="button" onclick="validate()" name="submit" id="submit">Submit</button>
+        </form>
+        <p>Don't have an account? <a href="register.html">Register here</a>.</p>
+    </div>
+    <script>
+        function validate() {
+            let formData = new FormData($("#login")[0]);
+            formData.append("type", "login");
+            let uname = formData.get("username");
+            console.log("Logging in");
+    
+            $.ajax({
+                url: 'userValidate.php',
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(result) {
+                    console.log(result);
+    
+                    if (result.returnCode == "1") {
+                        console.log("Login successful");
+                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
+                        document.cookie = "username=" + uname;
+                        console.log("Redirecting to home.html");
+                        location.href = "home.html";
+                    }
+    
+                    showMessage(result.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showMessage(errorThrown);
+                }
+            });
+        }
+    
+        function showMessage(message) {
+            $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
+        }
+    </script>    
+</body>
+</html>

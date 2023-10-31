@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Register</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="navigation"></div>
+    
+    <div id="error"></div>
+    
+    <div>
+        <form id="register">
+            <h4>Register</h4>
+            <table>
+                <tr>
+                    <th>First Name:</th>
+                    <td><input type="text" id="firstname" name="firstname" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Last Name:</th>
+                    <td><input type="text" id="lastname" name="lastname" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Username:</th>
+                    <td><input type="text" id="username" name="username" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td><input type="email" id="email" name="email" size="30" required></td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td><input type="text" id="address" name="address" size="50" required></td>
+                </tr>
+                <tr>
+                    <th>City:</th>
+                    <td><input type="text" id="city" name="city" size="30" required></td>
+                </tr>
+                <tr>
+                    <th>Country:</th>
+                    <td><input type="text" id="country" name="country" size="30" required></td>
+                </tr>
+                <tr>
+                    <th>Zip Code:</th>
+                    <td><input type="text" id="firsname" name="firstname" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Password:</th>
+                    <td><input type="password" id="password" name="password" size="16" required></td>
+                </tr>
+            </table>
+            <button type="submit" name="submit" id="submit">Submit</button>
+        </form>
+    </div>
+    
+    <script>
+        let form = $("#register");
+        let error = $("#error");
+
+        form.on("submit", async function (event) {
+            event.preventDefault();
+
+            let formData = new FormData(form[0]);
+            formData.append("type", "register");
+            console.log("Trying registration");
+
+            try {
+                let response = await $.ajax({
+                    url: 'userValidate.php',
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json'
+                });
+
+                console.log(response);
+                showMessage(response.message, response.returnCode == "1" ? "success" : "error");
+
+                if (response.returnCode == "1") {
+                    location.href = "index.html";
+                }
+            } catch (error) {
+                showMessage(error.message, "error");
+            }
+        });
+
+        function showMessage(message, result) {
+            error.html("<div class='alert alert-" + result + "'>" + message + "</div>");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Scene Sync Home</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<nav class="navigation">
+        <ul>
+            <li><a href="search.html">Search</a></li>
+            <li>Profile</li>
+            <li>Watch List</li>
+            <li>Watched List</li>
+            <li>Rating Score Board</li>
+            <li><a href="logout()">Log Out</a></li>
+        </ul>
+    </nav>
+
+    <br>
+    
+    <div id="welcomeMessage"></div>
+
+    <script>
+        const sessionid = ('; ' + document.cookie).split('; sessionid=').pop().split(';')[0];
+        const username = ('; ' + document.cookie).split('; username=').pop().split(';')[0];
+        console.log(sessionid);
+        console.log(username);
+        let sessionData = {
+            sessionid: sessionid
+        };
+
+        function validateSession() {
+            sessionData.type = "validate_session";
+            console.log(sessionData);
+
+            $.ajax({
+                url: 'sessionValidate.php',
+                method: 'POST',
+                data: sessionData,
+                dataType: 'json',
+                success: function (result) {
+                    if (result.returnCode != "1") {
+                        document.cookie = "sessionid=;username=;path='/'";
+                        location.href = "index.html";
+                    }
+                },
+                error: function () {
+                    console.log("Error validating session");
+                }
+            });
+        }
+
+        validateSession();
+
+        function goToProfile() {
+            location.href = "profile.php?u=" + encodeURIComponent(username);
+        }
+
+        function logout() {
+            sessionData.type = "logout";
+
+            $.ajax({
+                url: 'sessionValidate.php',
+                method: 'POST',
+                data: sessionData,
+                success: function () {
+                    document.cookie = "sessionid=;path='/'";
+                    document.cookie = "username=;path='/'";
+                    location.href = "index.html";
+                },
+                error: function () {
+                    console.log("Error logging out");
+                }
+            });
+        }
+
+        function setWelcomeMessage() {
+            let welcomeMessage = document.getElementById("welcomeMessage");
+            welcomeMessage.innerHTML = `Welcome, ${username} to Scene Sync! Try and find some movies you'd like based on ur preferences.`;
+        }
+
+        setWelcomeMessage();
+    </script>
+    <h2>Recommendations Based on Watched List...</h2>
+        <p>This feature is currently being developed.</p>
+    <h2>Recommendations Based on Ratings...</h2>
+        <p>This feature is currently being developed.</p>
+    <h2>Top 10 on your Watch List!</h2>
+        <p>This feature is currently being developed.</p>
+</body>
+</html>
