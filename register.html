@@ -45,7 +45,7 @@
                 </tr>
                 <tr>
                     <th>Zip Code:</th>
-                    <td><input type="text" id="firsname" name="firstname" size="25" required></td>
+                    <td><input type="text" id="zipcode" name="zipcode" size="10" required></td>
                 </tr>
                 <tr>
                     <th>Password:</th>
@@ -69,7 +69,7 @@
 
             try {
                 let response = await $.ajax({
-                    url: 'userValidate.php',
+                    url: 'userRegistration.php',
                     method: "POST",
                     data: formData,
                     processData: false,

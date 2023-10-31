@@ -14,9 +14,10 @@ function requestProcessor($request) {
     return "ERROR: unsupported message type";
   }
   switch ($request['type']){
-    case "testRabbit":
-      $request["message"] = "sent";
-        return testRabbit($request["message"]);
+    case "login":
+      return validateLogin($request['username'], $request['password']);
+    case "register":
+      return registerUser($request['firstname'], $request['lastname'], $request['username'], $request['email'], $request['address'], $request['city'], $request['country'], $request['zipcode'], $request['password']);
   }
   return json_encode(array("returnCode" => '0', 'message'=>"Server message recieved but type not defined"));
 }
