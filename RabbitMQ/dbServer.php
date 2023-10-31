@@ -3,7 +3,6 @@
 require_once('rabbitFunctions.inc');
 require_once('../Database/dbConnection.inc');
 require_once('../Backend/dbFunctions.inc');
-require_once('testRabbit.php');
 
 function requestProcessor($request) {
   $response = '';
