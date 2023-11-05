@@ -1,0 +1,19 @@
+Collective MySQL Document:
+- Should have every MySQL Call the back-end could need.
+
+Login:
+SELECT PasswordHash FROM Accounts WHERE Username = "INSERT USER FROM SEAN HERE" OR EMAIL = "INSERT EMAIL HERE";
+
+Registration
+INSERT INTO Accounts (FirstName, LastName, Username, Email, Address, City, Country, ZipCode, PasswordHash) VALUES ( INSET FROM SEAN HERE );
+
+Setting Profile:
+SELECT AccountID FROM Accounts WHERE Username = '$username';
+INSERT INTO Profiles(AccountID, FavoriteGenres, FavoriteDirector, Biography, FavoriteActor, FavoriteMovie) VALUES ('$AccountId', '$FavoriteGenres', '$FavoriteDirector', '$Biography', '$FavoriteActor', '$FavoriteMovie');
+
+Calling Profiles:
+
+SELECT Accounts.AccountID, Accounts.Username, Profiles.FavoriteGenres, Profiles.FavoriteDirector, Profiles.Biography, Profiles.RateScore, Profiles.FavoriteActor, Profiles.FavoriteMovie FROM Accounts RIGHT JOIN Profiles WHERE Accounts.AccountID = Profiles.AccountID;
+
+
+
