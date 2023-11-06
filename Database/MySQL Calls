@@ -15,5 +15,18 @@ Calling Profiles:
 
 SELECT Accounts.AccountID, Accounts.Username, Profiles.FavoriteGenres, Profiles.FavoriteDirector, Profiles.Biography, Profiles.RateScore, Profiles.FavoriteActor, Profiles.FavoriteMovie FROM Accounts RIGHT JOIN Profiles WHERE Accounts.AccountID = Profiles.AccountID;
 
+Adding a Movie to Watch List:
+[
+If account ID is not stored somewhere else already:
+SELECT Accounts.AccountID, Profiles.ProfileID FROM Accounts  WHERE Accounts.Username = '$username';
 
+INSERT INTO WatchList(AccountID, ProfileID, EntertainmentID, isMovie, isTV) VALUES ('$AccountID', '$ProfileID', '$EntertainmentID', '$isMovie', '$isTV');
+]
 
+Adding a Movie to Watched List:
+[
+If account ID is not stored somewhere else already:
+SELECT Accounts.AccountID, Profiles.ProfileID FROM Accounts  WHERE Accounts.Username = '$username';
+
+INSERT INTO WatchedList(AccountID, ProfileID, EntertainmentID, isMovie, isTV) VALUES ('$AccountID', '$ProfileID', '$EntertainmentID', '$isMovie', '$isTV');
+]
