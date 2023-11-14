@@ -145,7 +145,7 @@ function getWatchedListData($accountId) {
 
     return $watchListData;
 }
-function addToWatchList($accountId, $title, $year, $isMovie, $isTV) {
+function addToWatchList($accountId, $movie, $year) {
     global $servername, $username, $password, $dbname;
 
     $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
@@ -156,9 +156,9 @@ function addToWatchList($accountId, $title, $year, $isMovie, $isTV) {
         $status['success'] = false;
         $status['message'] = "Connection failed: " . $conn->connect_error;
     } else {
-        $sql = "INSERT INTO WatchList (AccountID, Name, Year, isMovie, isTV, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO WatchList (AccountID, Movie, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isiii", $accountId, $title, $year, $isMovie, $isTV);
+        $stmt->bind_param("isiii", $accountId, $movie, $year);
 
         if ($stmt->execute()) {
             $status['success'] = true;
@@ -178,15 +178,15 @@ function addToWatchList($accountId, $title, $year, $isMovie, $isTV) {
 }
 
 
-function addToWatchedList($accountId, $title, $year, $isMovie, $isTV) {
+function addToWatchedList($accountId, $movie, $year) {
     global $servername, $username, $password, $dbname;
     $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-    $sql = "INSERT INTO WatchList (AccountID, Name, Year, isMovie, isTV, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+    $sql = "INSERT INTO WatchList (AccountID, Movie, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isiii", $accountId, $title, $year, $isMovie, $isTV);
+    $stmt->bind_param("isiii", $accountId, $movie, $year);
     $stmt->execute();
     $stmt->close();
     $conn->close();
