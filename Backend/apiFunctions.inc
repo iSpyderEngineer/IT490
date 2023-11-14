@@ -75,6 +75,20 @@ function processRequest() {
         echo json_encode(["message" => "Session ID not found in cookies or request data."]);
     }
 }
+function searchMoviesAndTVShows($query) {
+    $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+    $url = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query={$query}";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $result = json_decode($response, true);
+    if (isset($result['results'])) {
+        return $result['results'];
+    } else {
+        return null;
+    }
+}
 
 processRequest();
 ?>
