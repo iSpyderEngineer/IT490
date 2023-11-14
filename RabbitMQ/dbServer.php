@@ -30,7 +30,7 @@ function requestProcessor($request) {
             echo "updating profile settings";
             return updateProfileSettings($request['sessionID'], $request['data']);
 
-        case "getWatchList":
+        case "populate_watchlist":
             echo "getting watch list data";
             return getWatchListData($request['accountId']);
 
@@ -38,7 +38,7 @@ function requestProcessor($request) {
             echo "getting watched list data";
             return getWatchedListData($request['accountId']);
 
-        case "addToWatchList":
+        case "add_to_watchlist":
             echo "adding to watch list";
             return addToWatchList($request['accountId'], $request['title'], $request['year'], $request['isMovie'], $request['isTV']);
 
