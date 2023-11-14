@@ -94,6 +94,120 @@ function updateProfileSettings($sessionID, $data) {
     return ["status" => 500, "message" => "Failed to update settings"]; 
 }
 
+ $mysqli = dbConnect();
+    $mysqli->close(); 
+}
+function getWatchListData($accountId) {
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT * FROM WatchList WHERE AccountID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $accountId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    $watchListData = array();
+    while ($row = $result->fetch_assoc()) {
+        $watchListData[] = $row;
+    }
+
+    $stmt->close();
+    $conn->close();
+
+    return $watchListData;
+}
+function getWatchedListData($accountId) {
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT * FROM WatchedList WHERE AccountID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $accountId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    $watchListData = array();
+    while ($row = $result->fetch_assoc()) {
+        $watchListData[] = $row;
+    }
+
+    $stmt->close();
+    $conn->close();
+
+    return $watchListData;
+}
+function addToWatchList($accountId, $movie, $year) {
+    global $servername, $username, $password, $dbname;
+
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+
+    $status = []; 
+
+    if ($conn->connect_error) {
+        $status['success'] = false;
+        $status['message'] = "Connection failed: " . $conn->connect_error;
+    } else {
+        $sql = "INSERT INTO WatchList (AccountID, Movie, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("isiii", $accountId, $movie, $year);
+
+        if ($stmt->execute()) {
+            $status['success'] = true;
+            $status['message'] = "Added successfully.";
+        } else {
+            $status['success'] = false;
+            $status['message'] = "Error: " . $stmt->error;
+        }
+
+        $stmt->close();
+    }
+    $conn->close();
+
+    sendStatusToRabbitMQ(json_encode($status));
+
+    return $status;
+}
+
+
+function addToWatchedList($accountId, $movie, $year) {
+    global $servername, $username, $password, $dbname;
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $sql = "INSERT INTO WatchList (AccountID, Movie, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isiii", $accountId, $movie, $year);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
+    if ($stmt->execute()) {
+        $status['success'] = true;
+        $status['message'] = "Added successfully.";
+    } else {
+        $status['success'] = false;
+        $status['message'] = "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+
+$conn->close();
+
+sendStatusToRabbitMQ(json_encode($status));
+
+return $status;
+}
+
+
 function handlePostRequest() {
     $data = json_decode(file_get_contents('php://input'), true);
 
