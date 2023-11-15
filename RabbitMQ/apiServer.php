@@ -26,6 +26,10 @@ function requestProcessor($request){
       echo "Updating user preferences";
       return updateUserPreferences($request['userID'], $request['preferences']);
 
+    case "search":
+      echo "Searching for tv shows and movies";
+      return searchMoviesandTVShows($request['query']);
+
     default:
       echo "Request type not handled";
       return ["error" => "Request type not supported"];

@@ -20,7 +20,9 @@ if ($_POST) {
   } elseif ($request['type'] === "updateUserPreferences") {
     $request['userID'] = $_POST['userID'];
     $request['preferences'] = $_POST['preferences'];
-  } else {
+  } elseif ($request['type'] == 'search'){
+    $request['query'] = $_POST['query']
+  }  else {
     echo json_encode(["error" => "Invalid request type"]);
     exit;
   }
