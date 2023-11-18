@@ -54,9 +54,12 @@ class rabbitMQServer
     {
         $attempts = count($this->BROKER_HOSTS);
         while ($attempts > 0) {
+            $host = $this->getNextHost();
             try {
+                error_log("Attempting to connect to host: " . $host);
+
                 $params = [
-                    'host' => $this->getNextHost(),
+                    'host' => $host,
                     'port' => $this->BROKER_PORT,
                     'login' => $this->USER,
                     'password' => $this->PASSWORD,
@@ -70,13 +73,15 @@ class rabbitMQServer
                     return $connection;
                 }
             } catch (Exception $e) {
-                error_log("Connection failed: " . $e->getMessage());
+                error_log("Connection attempt failed: " . $e->getMessage());
             }
             $attempts--;
         }
 
         throw new Exception("Unable to connect to any RabbitMQ host");
     }
+
+
 
 	    function process_message($msg)
     {
@@ -199,9 +204,12 @@ class rabbitMQClient
     {
         $attempts = count($this->BROKER_HOSTS);
         while ($attempts > 0) {
+            $host = $this->getNextHost();
             try {
+                error_log("Attempting to connect to host: " . $host);
+
                 $params = [
-                    'host' => $this->getNextHost(),
+                    'host' => $host,
                     'port' => $this->BROKER_PORT,
                     'login' => $this->USER,
                     'password' => $this->PASSWORD,
@@ -215,7 +223,7 @@ class rabbitMQClient
                     return $connection;
                 }
             } catch (Exception $e) {
-                error_log("Connection failed: " . $e->getMessage());
+                error_log("Connection attempt failed: " . $e->getMessage());
             }
             $attempts--;
         }
@@ -249,45 +257,55 @@ class rabbitMQClient
         $json_message = json_encode($message);
 
         try {
-            $publishChannel = new AMQPChannel($this->conn);
-            $exchange = new AMQPExchange($publishChannel);
+            $this->conn = $this->connectToRabbitMQ();
+            if (!$this->conn) {
+                throw new Exception("Connection failed");
+            }
+            $this->channel = new AMQPChannel($this->conn);
+
+            $exchange = new AMQPExchange($this->channel);
             $exchange->setName($this->exchange);
             $exchange->setType($this->exchange_type);
 
-            $this->conn_queue = new AMQPQueue($publishChannel);
+            $this->conn_queue = new AMQPQueue($this->channel);
             $this->conn_queue->setName($this->queue);
             $this->conn_queue->bind($exchange->getName(), $this->routing_key);
 
             $exchange->publish($json_message, $this->routing_key, AMQP_NOPARAM, array('reply_to' => $this->queue . "_response", 'correlation_id' => $uid));
 
-            $responseChannel = new AMQPChannel($this->conn);
-            $callback_queue = new AMQPQueue($responseChannel);
+            $callback_queue = new AMQPQueue($this->channel);
             $callback_queue->setName($this->queue . "_response");
             $callback_queue->bind($exchange->getName(), $this->routing_key . ".response");
 
             $this->response_queue[$uid] = "waiting";
 
-            $callback_queue->consume(function($response) use ($uid) {
-                if ($response->getCorrelationId() == $uid) {
-                    $this->response_queue[$uid] = json_decode($response->getBody(), true);
-                    $response->delivery_info['channel']->basic_ack($response->delivery_info['delivery_tag']);
-                    $response->delivery_info['channel']->basic_cancel($response->consumer_tag);
+            $callback_queue->consume(function($envelope, $queue) use ($uid) {
+                if ($envelope->getCorrelationId() == $uid) {
+                    $this->response_queue[$uid] = json_decode($envelope->getBody(), true);
+                    $queue->ack($envelope->getDeliveryTag());
+                    $queue->cancel($envelope->getConsumerTag());
                 }
-            }, AMQP_AUTOACK);
+            });
 
             $response = $this->response_queue[$uid];
             unset($this->response_queue[$uid]);
             return $response;
         } catch (Exception $e) {
             error_log("Failed to send message: " . $e->getMessage());
+            return null;
         }
     }
-
 
     function publish($message)
     {
         $json_message = json_encode($message);
         try {
+            $this->conn = $this->connectToRabbitMQ();
+            if (!$this->conn) {
+                throw new Exception("Connection failed");
+            }
+            $this->channel = new AMQPChannel($this->conn);
+
             $exchange = new AMQPExchange($this->channel);
             $exchange->setName($this->exchange);
             $exchange->setType($this->exchange_type);
@@ -297,10 +315,11 @@ class rabbitMQClient
             $this->conn_queue->bind($exchange->getName(), $this->routing_key);
             
             return $exchange->publish($json_message, $this->routing_key);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             error_log("Failed to publish message: " . $e->getMessage());
         }
     }
+
 
     function __destruct()
     {
