@@ -2,11 +2,12 @@
 require_once('dbConnection.inc');
 require_once('rabbitFunctions.inc');
 require_once('SessionID.inc');
+$apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
 
 
 
 function searchMoviesAndTVShows($query) {
-    $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+    global $apiKey;
     $url = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query={$query}";
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -20,24 +21,9 @@ function searchMoviesAndTVShows($query) {
     }
 }
 
-function processRequest() {
-    $sessionID = $_COOKIE['session_id'] ?? $_POST['session_id']; 
-    if ($sessionID) {
-        $userData = getUserProfileData($sessionID);
-        if ($userData) {
-            echo json_encode($userData);
-        } else {
-            echo json_encode(["message" => "User not found or an error occurred."]);
-        }
-    } else {
-        echo json_encode(["message" => "Session ID not found in cookies or request data."]);
-    }
-}
-
-processRequest();
 
 function searchPerson($actorName) {
-    $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+    global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
     $response = file_get_contents($apiUrl);
     $result = json_decode($response, true);
@@ -71,7 +57,7 @@ function recommendationActorDirector($username) {
         $favoriteActor = $row['favorite_actor'];
         $favoriteDirector = $row['favorite_director'];
         $conn->close();
-        $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+        global $apiKey;
         $actorRecommendations = searchMoviesByPerson($favoriteActor, 'actor', $apiKey);
         $directorRecommendations = searchMoviesByPerson($favoriteDirector, 'director', $apiKey);
         return array_merge($actorRecommendations, $directorRecommendations);
@@ -80,6 +66,63 @@ function recommendationActorDirector($username) {
         return array('error' => 'User preferences not found.');
     }
 }
+
+function getMoviesByActor($favoriteActor, $apiKey) {
+    global $apiKey;
+    $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteActor);
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+    if ($result && isset($result['results'][0])) {
+        $personId = $result['results'][0]['id'];
+        $creditsUrl = "https://api.themoviedb.org/3/person/{$personId}/movie_credits?api_key={$apiKey}";
+        $creditsResponse = file_get_contents($creditsUrl);
+        $creditsResult = json_decode($creditsResponse, true);
+        if ($creditsResult) {
+            $recommendations = array();
+            foreach ($creditsResult['cast'] as $movie) {
+                $recommendations[] = array(
+                    'Title' => $movie['title'],
+                    'PosterURL' => isset($movie['poster_path']) ? "https://image.tmdb.org/t/p/w500{$movie['poster_path']}" : 'Not available',
+                );
+            }
+            return $recommendations;
+        } else {
+            return array('error' => 'Error retrieving movie credits.');
+        }
+    } else {
+        return array('error' => 'Actor not found.');
+    }
+}
+
+function getMoviesByDirector($favoriteDirector, $apiKey) {
+    global $apiKey;
+    $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteDirector);
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+    if ($result && isset($result['results'][0])) {
+        $personId = $result['results'][0]['id'];
+        $creditsUrl = "https://api.themoviedb.org/3/person/{$personId}/movie_credits?api_key={$apiKey}";
+        $creditsResponse = file_get_contents($creditsUrl);
+        $creditsResult = json_decode($creditsResponse, true);
+        if ($creditsResult) {
+            $recommendations = array();
+            foreach ($creditsResult['crew'] as $movie) {
+                if (isset($movie['job']) && $movie['job'] == 'Director') {
+                    $recommendations[] = array(
+                        'Title' => $movie['title'],
+                        'PosterURL' => isset($movie['poster_path']) ? "https://image.tmdb.org/t/p/w500{$movie['poster_path']}" : 'Not available',
+                    );
+                }
+            }
+            return $recommendations;
+        } else {
+            return array('error' => 'Error retrieving movie credits.');
+        }
+    } else {
+        return array('error' => 'Director not found.');
+    }
+}
+
 
 
 function getAccountIdByUsername($username) {
