@@ -9,7 +9,6 @@ function fetchUserProfile($sessionID) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$sessionID]);
     $userPreferences = $stmt->fetch(PDO::FETCH_ASSOC);
-
     if (!$userPreferences) {
         echo "User preferences not found.";
     } else {
@@ -17,14 +16,11 @@ function fetchUserProfile($sessionID) {
         $favoriteGenre = $userPreferences['FavoriteGenre'];
         $favoriteActor = $userPreferences['FavoriteActor'];
         $favoriteDirector = $userPreferences['FavoriteDirector'];
-
         $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c'; 
         $baseUrl = 'https://api.themoviedb.org/3';
-
         $genreTopMovies = getTopMovies($baseUrl, '/movie/top_rated', $apiKey, $favoriteGenre);
         $actorDirectorTopMovies = getTopMovies($baseUrl, '/discover/movie', $apiKey, $favoriteActor, $favoriteDirector);
         $criteriaTopMovies = getTopMovies($baseUrl, '/discover/movie', $apiKey, $favoriteActor, $favoriteMovie, $favoriteDirector);
-
         displayRecommendedMovies($genreTopMovies, 'Genre');
         displayRecommendedMovies($actorDirectorTopMovies, 'Actor and Director');
         displayRecommendedMovies($criteriaTopMovies, 'Actor, Movie, and Director');
@@ -36,7 +32,6 @@ function getTopMovies($baseUrl, $endpoint, $apiKey, $criteria1, $criteria2 = nul
     if ($criteria2) {
         $url .= '&with_cast=' . $criteria2 . '&with_crew=' . $criteria3;
     }
-
     $response = file_get_contents($url);
     $data = json_decode($response, true);
     return $data;
@@ -45,7 +40,6 @@ function getTopMovies($baseUrl, $endpoint, $apiKey, $criteria1, $criteria2 = nul
 function displayRecommendedMovies($movieData, $source) {
     if ($movieData && isset($movieData['results'])) {
         $topMovies = $movieData['results'];
-
         $movieCount = 0;
         echo "<h3>Top 10 Recommended Movies Based on $source</h3>";
         foreach ($topMovies as $movie) {
@@ -77,10 +71,8 @@ function searchMoviesAndTVShows($query) {
 
 function processRequest() {
     $sessionID = $_COOKIE['session_id'] ?? $_POST['session_id']; 
-
     if ($sessionID) {
         $userData = getUserProfileData($sessionID);
-
         if ($userData) {
             echo json_encode($userData);
         } else {
@@ -92,4 +84,22 @@ function processRequest() {
 }
 
 processRequest();
+
+function searchActor($actorName) {
+    $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+    $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+    if ($result && isset($result['results'][0])) {
+        $actor = $result['results'][0];
+        $actorDetails = array(
+            'Name' => $actor['name'],
+            'ID' => $actor['id'],
+            'Popularity' => $actor['popularity'],
+        );
+        return $actorDetails;
+    } else {
+        return array('error' => 'Actor not found.');
+    }
+}
 ?>
