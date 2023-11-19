@@ -202,13 +202,9 @@ function addToWatchedList($accountId, $movie, $year) {
         $status['success'] = false;
         $status['message'] = "Error: " . $stmt->error;
     }
-
     $stmt->close();
-
 $conn->close();
-
 sendStatusToRabbitMQ(json_encode($status));
-
 return $status;
 }
 
@@ -240,6 +236,28 @@ function processRequest() {
     $mysqli = dbConnect();
     $mysqli->close(); 
 }
+
+function addUserBioToDatabase($userId, $userBio) {
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $userId = $conn->real_escape_string($userId);
+    $userBio = $conn->real_escape_string($userBio);
+   // update sql statement $sql = "UPDATE users SET bio = '$userBio' WHERE id = '$userId'";
+    if ($conn->query($sql) === TRUE) {
+        echo "User bio added successfully";
+    } else {
+        echo "Error updating user bio: " . $conn->error;
+    }
+    $conn->close();
+}
+
+
+
+
+
+
 
 
 
