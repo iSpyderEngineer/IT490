@@ -75,6 +75,49 @@ function getUserProfileData($sessionID) {
     return null; 
 }
 
+
+
+//updated get user profile data function
+function getUserProfileData($sessionID) {
+    $mysqli = dbConnect();
+// change sql statement   $query = " SELECT U.FavoriteDirector, U.FavoriteGenre, U.FavoriteMovie, U.FavoriteActor, U.Bio, R.MovieTitle, R.RateScore FROM Users U LEFT JOIN user_ratings R ON U.UserID = R.UserID WHERE U.SessionID = ? ";
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param("s", $sessionID);
+        $stmt->execute();
+        $stmt->bind_result($favoriteDirector, $favoriteGenre, $favoriteMovie, $favoriteActor, $bio, $movieTitle, $rateScore);
+        $userData = [
+            "FavoriteDirector" => $favoriteDirector,
+            "FavoriteGenre" => $favoriteGenre,
+            "FavoriteMovie" => $favoriteMovie,
+            "FavoriteActor" => $favoriteActor,
+            "Bio" => $bio,
+            "RatedMovies" => [],
+        ];
+        while ($stmt->fetch()) {
+            $userData['RatedMovies'][] = [
+                'MovieTitle' => $movieTitle,
+                'RateScore' => $rateScore,
+            ];
+        }
+        $stmt->close();
+        $mysqli->close();
+        return $userData;
+    }
+    return null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 function updateProfileSettings($username, $favActor, $favGenre, $favDirector, $favMovie, $biography) {
     $mysqli = dbConnect(); 
     $AccountID - getAccountID($username);
@@ -254,9 +297,46 @@ function addUserBioToDatabase($userId, $userBio) {
 }
 
 
+function updateUserProfile($username, $favoriteActor, $favoriteMovie, $favoriteDirector, $favoriteGenres, $biography) {
+    $mysqli = dbConnect();
+    $accountID = getAccountIdByUsername($username);
+    if (!$accountID) {
+        return false; // User not found
+    }
+  //update statement  $query = " UPDATE Users SET FavoriteActor = ?, FavoriteMovie = ?, FavoriteDirector = ?, FavoriteGenres = ?, Biography = ? WHERE UserID = ? ";
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param("sssssi", $favoriteActor, $favoriteMovie, $favoriteDirector, $favoriteGenres, $biography, $accountID);
+        if ($stmt->execute()) {
+            $stmt->close();
+            $mysqli->close();
+            return true; // Success
+        } else {
+            $stmt->close();
+            $mysqli->close();
+            return false; // Error
+        }
+    }
+    return false; // Error
+}
 
-
-
+function getAccountIdByUsername($username) {
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $username = $conn->real_escape_string($username);
+ //update sql statement to match   $sql = "SELECT id FROM users WHERE username = '$username'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $accountId = $row['id'];
+        $conn->close();
+        return $accountId;
+    } else {
+        $conn->close();
+        return false; // Username not found
+    }
+}
 
 
 
