@@ -101,4 +101,55 @@ function searchPerson($actorName) {
         return array('error' => 'Person not found.');
     }
 }
+
+
+
+function recommendationActorDirector($username) {
+    $accountId = getAccountIdByUsername($username);
+    if (!$accountId) {
+        return array('error' => 'Username not found.');
+    }
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+  //update sql to match  $sql = "SELECT favorite_actor, favorite_director FROM user_preferences WHERE user_id = '$accountId'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $favoriteActor = $row['favorite_actor'];
+        $favoriteDirector = $row['favorite_director'];
+        $conn->close();
+        $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
+        $actorRecommendations = searchMoviesByPerson($favoriteActor, 'actor', $apiKey);
+        $directorRecommendations = searchMoviesByPerson($favoriteDirector, 'director', $apiKey);
+        return array_merge($actorRecommendations, $directorRecommendations);
+    } else {
+        $conn->close();
+        return array('error' => 'User preferences not found.');
+    }
+}
+
+
+
+
+function getAccountIdByUsername($username) {
+    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $username = $conn->real_escape_string($username);
+ //update sql statement to match   $sql = "SELECT id FROM users WHERE username = '$username'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $accountId = $row['id'];
+        $conn->close();
+        return $accountId;
+    } else {
+        $conn->close();
+        return false; // Username not found
+    }
+}
+
 ?>
