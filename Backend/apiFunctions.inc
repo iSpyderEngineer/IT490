@@ -85,21 +85,20 @@ function processRequest() {
 
 processRequest();
 
-function searchActor($actorName) {
+function searchPerson($actorName) {
     $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
     $response = file_get_contents($apiUrl);
     $result = json_decode($response, true);
     if ($result && isset($result['results'][0])) {
-        $actor = $result['results'][0];
-        $actorDetails = array(
-            'Name' => $actor['name'],
-            'ID' => $actor['id'],
-            'Popularity' => $actor['popularity'],
+        $person = $result['results'][0];
+        $personDetails = array(
+            'Name' => $person['name'],
+            'ID' => $person['id'],
         );
-        return $actorDetails;
+        return $personDetails;
     } else {
-        return array('error' => 'Actor not found.');
+        return array('error' => 'Person not found.');
     }
 }
 ?>
