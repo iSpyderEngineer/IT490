@@ -300,7 +300,6 @@ function getAccountIdByUsername($username) {
         return false; // Username not found
     }
 }
-<?php
 $connection = new mysqli($servername, $username, $password, $dbname);
 
 if ($connection->connect_error) {
@@ -329,9 +328,5 @@ function calculateRateScoreAndLeaderboard($connection) {
 $topUsers = calculateRateScoreAndLeaderboard($connection);
 $connection->close();
 print_r($topUsers);
-?>
-
-
-
 
 ?>
