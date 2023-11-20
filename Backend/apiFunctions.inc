@@ -6,18 +6,25 @@ $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
 
 
 
-function searchMoviesAndTVShows($query) {
+
+function searchMoviesandTVShows($query, $apiKey) {
+    $apiUrl = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query=" . urlencode($query);
     global $apiKey;
-    $url = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query={$query}";
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
+    $response = file_get_contents($apiUrl);
     $result = json_decode($response, true);
-    if (isset($result['results'])) {
-        return $result['results'];
+    if ($result && isset($result['results'])) {
+        // Extract relevant information from the results
+        $mediaList = array();
+        foreach ($result['results'] as $media) {
+            $mediaList[] = array(
+                'Title' => $media['original_title'] ?? $media['original_name'],
+                'Type' => $media['media_type'],
+                'PosterURL' => isset($media['poster_path']) ? "https://image.tmdb.org/t/p/w500{$media['poster_path']}" : 'Not available',
+            );
+        }
+        return $mediaList;
     } else {
-        return null;
+        return array('error' => 'No results found.');
     }
 }
 
