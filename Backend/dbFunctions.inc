@@ -328,5 +328,4 @@ function calculateRateScoreAndLeaderboard($connection) {
 $topUsers = calculateRateScoreAndLeaderboard($connection);
 $connection->close();
 print_r($topUsers);
-
 ?>
