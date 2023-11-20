@@ -13,7 +13,6 @@ function searchMoviesandTVShows($query, $apiKey) {
     $response = file_get_contents($apiUrl);
     $result = json_decode($response, true);
     if ($result && isset($result['results'])) {
-        // Extract relevant information from the results
         $mediaList = array();
         foreach ($result['results'] as $media) {
             $mediaList[] = array(
@@ -29,7 +28,8 @@ function searchMoviesandTVShows($query, $apiKey) {
 }
 
 
-function searchPerson($actorName) {
+
+function searchPerson($actorName, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
     $response = file_get_contents($apiUrl);
@@ -45,7 +45,6 @@ function searchPerson($actorName) {
         return array('error' => 'Person not found.');
     }
 }
-
 
 
 function recommendationActorDirector($username) {
