@@ -107,6 +107,7 @@ function getUserProfileData($username) {
 }
 
 //isfar
+/*
 function updateProfileSettings($username, $favActor, $favGenre, $favDirector, $favMovie, $biography) {
     $mysqli = dbConnect(); 
     $AccountID - getAccountID($username);
@@ -134,6 +135,7 @@ function updateProfileSettings($username, $favActor, $favGenre, $favDirector, $f
  $mysqli = dbConnect();
     $mysqli->close(); 
 }
+*/
 
 //isfar
 function getWatchListData($username) {
@@ -146,7 +148,7 @@ function getWatchListData($username) {
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     } else {
-//change sql?        $sql = "SELECT MovieTitle, PosterURL, Year FROM WatchList WHERE AccountID = ?";
+        $sql = "SELECT Movie, PosterURL, Year FROM WatchList WHERE AccountID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $accountId);
         $stmt->execute();
@@ -175,7 +177,7 @@ function getWatchedListData($username) {
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     } else {
- //update sql/       $sql = "SELECT MovieTitle, PosterURL, Year FROM WatchedList WHERE AccountID = ?";
+     $sql = "SELECT Movie, PosterURL, Year FROM WatchedList WHERE AccountID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $accountId);
         $stmt->execute();
@@ -205,7 +207,7 @@ function addToWatchList($username, $movieTitle, $posterURL, $year) {
         $status['success'] = false;
         $status['message'] = "Connection failed: " . $conn->connect_error;
     } else {
-  //update sql      $sql = "INSERT INTO WatchList (AccountID, MovieTitle, PosterURL, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO WatchList (AccountID, Movie, PosterURL, Year, TimeCreated, LastModified) VALUES ('$accountId', '$movieTitle', '$posterURL', '$year', NOW(), NOW())";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("isss", $accountId, $movieTitle, $posterURL, $year);
         if ($stmt->execute()) {
@@ -234,9 +236,9 @@ function addToWatchedList($username, $movieTitle, $posterURL, $year) {
         $status['success'] = false;
         $status['message'] = "Connection failed: " . $conn->connect_error;
     } else {
- //change sql       $sql = "INSERT INTO WatchedList (AccountID, MovieTitle, PosterURL, Year, TimeCreated, LastModified) VALUES (?, ?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO WatchedList (AccountID, Movie, PosterURL, Year, TimeCreated, LastModified) VALUES ('$accountId', '$movieTitle', '$posterURL', '$year', NOW(), NOW())";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isss", $accountId, $movieTitle, $posterURL, $year);
+       // $stmt->bind_param("isss", $accountId, $movieTitle, $posterURL, $year);
         if ($stmt->execute()) {
             $status['success'] = true;
             $status['message'] = "Added to watched list successfully.";
@@ -280,36 +282,15 @@ function processRequest() {
 }
 
 //isfar
-function addUserBioToDatabase($userId, $userBio) {
- $accountID = getAccountIdByUsername($username);
-    if (!$accountID) {
-        return null;
-    }
-    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-    $userId = $conn->real_escape_string($userId);
-    $userBio = $conn->real_escape_string($userBio);
-   // update sql statement $sql = "UPDATE users SET bio = '$userBio' WHERE id = '$userId'";
-    if ($conn->query($sql) === TRUE) {
-        echo "User bio added successfully";
-    } else {
-        echo "Error updating user bio: " . $conn->error;
-    }
-    $conn->close();
-}
-
-//isfar
 function updateUserProfile($username, $favoriteActor, $favoriteMovie, $favoriteDirector, $favoriteGenres, $biography) {
     $mysqli = dbConnect();
     $accountID = getAccountIdByUsername($username);
     if (!$accountID) {
         return false;
 }
-  //update statement  $query = " UPDATE Users SET FavoriteActor = ?, FavoriteMovie = ?, FavoriteDirector = ?, FavoriteGenres = ?, Biography = ? WHERE UserID = ? ";
+    $query = "UPDATE Profiles SET FavoriteActor = '$favoriteActor', FavoriteMovie = '$favoriteMovie', FavoriteDirector= '$favoriteDirector', FavoriteGenres = '$favoriteGenres', Biography = '$biography' WHERE AccountID = '$accountID'; ";
     if ($stmt = $mysqli->prepare($query)) {
-        $stmt->bind_param("sssssi", $favoriteActor, $favoriteMovie, $favoriteDirector, $favoriteGenres, $biography, $accountID);
+       // $stmt->bind_param("sssssi", $favoriteActor, $favoriteMovie, $favoriteDirector, $favoriteGenres, $biography, $accountID);
         if ($stmt->execute()) {
             $stmt->close();
             $mysqli->close();
@@ -330,7 +311,7 @@ function getAccountIdByUsername($username) {
         die("Connection failed: " . $conn->connect_error);
     }
     $username = $conn->real_escape_string($username);
- //update sql statement to match   $sql = "SELECT id FROM users WHERE username = '$username'";
+     $sql = "SELECT AccountID FROM Accounts WHERE Username = '$username'";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
