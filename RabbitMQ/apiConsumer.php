@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ . '/server/path.inc');
-require_once(__DIR__ . '/server/get_host_info.inc');
-require_once(__DIR__ . '/server/rabbitMQLib.inc');
+require_once('path.inc');
+require_once('get_host_info.inc');
+require_once('rabbitMQLib.inc');
 
 if ($_POST) {
   $request = array();
