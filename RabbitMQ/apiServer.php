@@ -26,17 +26,35 @@ function requestProcessor($request){
       echo "Updating user preferences";
       return updateUserPreferences($request['userID'], $request['preferences']);
 
-    case "search":
+    case "searchMoviesAndTVShows":
       echo "Searching for tv shows and movies";
       return searchMoviesandTVShows($request['query']);
+
+    case "searchPerson":
+      echo "Searching for a person";
+      return searchPerson($request['personName']);
+
+    case "recommendationActorDirector":
+      echo "Getting recommendations based on actor and director";
+      return recommendationActorDirector($request['username']);
+
+    case "getMoviesByActor":
+      echo "Getting movies by actor";
+      return getMoviesByActor($request['actorName']);
+
+    case "getMoviesByDirector":
+      echo "Getting movies by director";
+      return getMoviesByDirector($request['directorName']);
+
+    case "getMoviesByMovieAndGenre":
+      echo "Getting movies by movie and genre";
+      return getMoviesByMovieAndGenre($request['username']);
 
     default:
       echo "Request type not handled";
       return ["error" => "Request type not supported"];
   }
 }
-
-
 
 $server = new rabbitMQServer("testRabbitMQ.ini","api");
 

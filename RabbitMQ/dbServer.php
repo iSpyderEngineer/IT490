@@ -24,27 +24,27 @@ function requestProcessor($request) {
 
         case "getUserProfile":
             echo "getting user profile";
-            return getUserProfileData($request['sessionID']);
+            return getUserProfileData($request['username']);
 
         case "updateProfile":
             echo "updating profile settings";
-            return updateProfileSettings($request['sessionID'], $request['data']);
+            return updateProfileSettings($request['username'], $request['favActor'], $request['favGenre'], $request['favDirector'], $request['favMovie'], $request['biography']);
 
         case "getWatchList":
             echo "getting watch list data";
-            return getWatchListData($request['accountId']);
+            return getWatchListData($request['username']);
 
         case "getWatchedList":
             echo "getting watched list data";
-            return getWatchedListData($request['accountId']);
+            return getWatchedListData($request['username']);
 
         case "addToWatchList":
             echo "adding to watch list";
-            return addToWatchList($request['accountId'], $request['title'], $request['year'], $request['isMovie'], $request['isTV']);
+            return addToWatchList($request['username'], $request['movieTitle'], $request['posterURL'], $request['year']);
 
         case "addToWatchedList":
             echo "adding to watched list";
-            return addToWatchedList($request['accountId'], $request['title'], $request['year'], $request['isMovie'], $request['isTV']);
+            return addToWatchedList($request['username'], $request['movieTitle'], $request['posterURL'], $request['year']);
     }
 
     return json_encode(array("returnCode" => '0', 'message' => "Server message received but type not defined"));

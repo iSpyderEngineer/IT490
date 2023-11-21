@@ -20,9 +20,26 @@ if ($_POST) {
   } elseif ($request['type'] === "updateUserPreferences") {
     $request['userID'] = $_POST['userID'];
     $request['preferences'] = $_POST['preferences'];
-  } elseif ($request['type'] == 'search'){
-    $request['query'] = $_POST['query']
-  }  else {
+
+  } elseif ($request['type'] === "searchMoviesAndTVShows") {
+    $request['query'] = $_POST['query'];
+
+  } elseif ($request['type'] === "searchPerson") {
+    $request['personName'] = $_POST['personName'];
+
+  } elseif ($request['type'] === "recommendationActorDirector") {
+    $request['username'] = $_POST['username'];
+
+  } elseif ($request['type'] === "getMoviesByActor") {
+    $request['actorName'] = $_POST['actorName'];
+
+  } elseif ($request['type'] === "getMoviesByDirector") {
+    $request['directorName'] = $_POST['directorName'];
+
+  } elseif ($request['type'] === "getMoviesByMovieAndGenre") {
+    $request['username'] = $_POST['username'];
+
+  } else {
     echo json_encode(["error" => "Invalid request type"]);
     exit;
   }
