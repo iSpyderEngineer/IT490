@@ -50,6 +50,30 @@ function validateRegister($firstname, $lastname, $username, $email, $address, $c
     return json_encode(array("returnCode" => '0', 'message' => "Error with registering, try again"));
 }
 
+function validatePreferences($username, $favoriteActor, $favoriteDirector, $favoriteMovie, $favoriteGenre, $biography) {
+    $accountID = getAccountIdByUsername($username);
+    if (!$accountID) {
+        return array('error' => 'Username not found.');
+    }
+    $mysqli = dbConnect();
+    $query = "UPDATE Users SET FavoriteActor = ?, FavoriteDirector = ?, FavoriteMovie = ?, FavoriteGenre = ?, Biography = ? WHERE UserID = ?";
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param("sssssi", $favoriteActor, $favoriteDirector, $favoriteMovie, $favoriteGenre, $biography, $accountID);
+        if ($stmt->execute()) {
+            $stmt->close();
+            $mysqli->close();
+            return array('success' => 'User preferences updated successfully.');
+        } else {
+            $stmt->close();
+            $mysqli->close();
+            return array('error' => 'Error updating user preferences.');
+        }
+    }
+    return array('error' => 'Error updating user preferences.');
+}
+
+
+
 function getUserProfileData($username) {
     $mysqli = dbConnect();
     $accountID = getAccountIdByUsername($username);
