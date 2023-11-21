@@ -129,7 +129,25 @@ function getMoviesByDirector($favoriteDirector, $apiKey) {
     }
 }
 
-
+function getMoviesByMovieAndGenre($username) {
+    global $apiKey;
+    $tmdbApiUrl = 'https://api.themoviedb.org/3/';
+    $tmdbDiscoverEndpoint = 'discover/movie';
+    $accountId = getAccountIdByUsername($username);
+//  SELECT favorite_genre FROM user_preferences WHERE user_id = $accountId
+    $favoriteGenre = 'Science Fiction';
+    $apiEndpoint = $tmdbApiUrl . $tmdbDiscoverEndpoint . '?api_key=' . $tmdbApiKey . '&with_genres=' . urlencode($favoriteGenre);
+    $apiResponse = file_get_contents($apiEndpoint);
+    $moviesData = json_decode($apiResponse, true);
+    $recommendedMovies = array_map(function ($movie) {
+        return [
+            'title' => $movie['title'],
+            'overview' => $movie['overview'],
+            'release_date' => $movie['release_date'],
+        ];
+    }, $moviesData['results']);
+    return array_slice($recommendedMovies, 0, 10);
+}
 
 function getAccountIdByUsername($username) {
     $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
