@@ -220,4 +220,5 @@ function getMoviesBDetails($movieId, $apiKey) {
         return array('error' => 'Movie not found.');
     }
 }
+
 ?>
