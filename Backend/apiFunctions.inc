@@ -167,5 +167,58 @@ function getAccountIdByUsername($username) {
         return false; 
     }
 }
+function getMoviesBDetails($movieId, $apiKey) {
+    global $apiKey;
+    $apiUrl = "https://api.themoviedb.org/3/movie/$movieId?api_key={$apiKey};
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+
+    if ($result && isset($result['results'][0])) {
+        //create a new array to hold the movie data,
+        $recommendations[] = [
+            'Title' => $result['title'],
+            'PosterURL' => isset($result['poster_path']) ? "https://image.tmdb.org/t/p/w500{$result['poster_path']}" : 'Not available',
+            'Genre' => [],
+            'Actors' => [],
+            'Director' => '',
+            'ReleaseDate' => $result['release_date'],
+            'Overview' => $result['overview']
+        ];
+
+        // save each genre to genre array
+        foreach ($movie['genres'] as $genre) {
+            $recommendations['genre'][] = $genre['name'];
+        }
+
+
+        // an API to get credits of a given Movie
+        $creditUrl= "https://api.themoviedb.org/3/movie/$movieId/credits?api_key={$apiKey};
+        $creditResponse = file_get_contents($creditUrl);
+        $creditResult = json_decode($creditResponse, true);
+
+        if ($creditsResult) {
+            // Loop throught the credit data
+            foreach ($creditsResult['credits']['crew'] as $credit) {
+                //check if director exists
+                if (isset($credit['job']) && $credit['job'] == 'Director') {
+                    recommendations['Director'] = $credit['name'];
+                }
+                // If credit is an actor push the actor name to actors array
+                if (isset($credit['job']) && $credit['job'] == 'Actor') {
+                    recommendations['Actors][] = $credit['name']
+                }
+            }
+
+        } else {
+            return array('error' => 'Error retrieving movie credits.');
+        }
+                         
+        return $recommendations;
+        
+        
+    } else {
+        return array('error' => 'Movie not found.');
+    }
+}
 
 ?>
