@@ -323,11 +323,12 @@ function getAccountIdByUsername($username) {
         return false; // Username not found
     }
 }
+
+}
 $connection = new mysqli($servername, $username, $password, $dbname);
 
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
-}
 
 function calculateRateScoreAndLeaderboard($connection) {
     $query = "SELECT Profiles.RateScore, Profiles.AccountID, Accounts.Username 
