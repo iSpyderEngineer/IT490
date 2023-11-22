@@ -6,7 +6,7 @@ $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
 
 
 
-
+//isfar
 function searchMoviesandTVShows($query, $apiKey) {
     $apiUrl = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query=" . urlencode($query);
     global $apiKey;
@@ -28,7 +28,7 @@ function searchMoviesandTVShows($query, $apiKey) {
 }
 
 
-
+//isfar
 function searchPerson($actorName, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
@@ -46,7 +46,7 @@ function searchPerson($actorName, $apiKey) {
     }
 }
 
-
+//isfar
 function recommendationActorDirector($username) {
     $accountId = getAccountIdByUsername($username);
     if (!$accountId) {
@@ -56,7 +56,7 @@ function recommendationActorDirector($username) {
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-  //  update sql to match  $sql = "SELECT favorite_actor, favorite_director FROM user_preferences WHERE user_id = '$accountId'";
+    $sql = "SELECT FavoriteActor, FavoriteDirector FROM Profiles WHERE AccountID = '$accountId'";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -73,6 +73,7 @@ function recommendationActorDirector($username) {
     }
 }
 
+//isfar
 function getMoviesByActor($favoriteActor, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteActor);
@@ -100,6 +101,7 @@ function getMoviesByActor($favoriteActor, $apiKey) {
     }
 }
 
+//isfar
 function getMoviesByDirector($favoriteDirector, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteDirector);
@@ -129,15 +131,34 @@ function getMoviesByDirector($favoriteDirector, $apiKey) {
     }
 }
 
+//isfar
 function getMoviesByMovieAndGenre($username) {
-    global $apiKey;
+global $apiKey;
+$conn = new mysqli('10.244.1.2', 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    if ($conn->connect_error) {
+        return [];
+    }
+    $accountId = getAccountIdByUsername($conn, $username);
+    SELECT FavoriteGenres, FavoriteMovie FROM Profiles WHERE AccountID = '$accountId';
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $accountId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $profileData = $result->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+    if (!$profileData) {
+        return [];
+    }
+    $favoriteGenre = $profileData['FavoriteGenres'];
+    $favoriteMovie = $profileData['FavoriteMovie'];
     $tmdbApiUrl = 'https://api.themoviedb.org/3/';
     $tmdbDiscoverEndpoint = 'discover/movie';
-    $accountId = getAccountIdByUsername($username);
-//  SELECT favorite_genre FROM user_preferences WHERE user_id = $accountId
-    $favoriteGenre = 'Science Fiction';
     $apiEndpoint = $tmdbApiUrl . $tmdbDiscoverEndpoint . '?api_key=' . $tmdbApiKey . '&with_genres=' . urlencode($favoriteGenre);
     $apiResponse = file_get_contents($apiEndpoint);
+    if ($apiResponse === false) {
+        return [];
+    }
     $moviesData = json_decode($apiResponse, true);
     $recommendedMovies = array_map(function ($movie) {
         return [
@@ -149,13 +170,14 @@ function getMoviesByMovieAndGenre($username) {
     return array_slice($recommendedMovies, 0, 10);
 }
 
+//isfar
 function getAccountIdByUsername($username) {
     $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
     $username = $conn->real_escape_string($username);
- //update sql statement to match   $sql = "SELECT id FROM users WHERE username = '$username'";
+    $sql = "SELECT AccountID FROM Accounts WHERE Username = '$username'";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -167,14 +189,13 @@ function getAccountIdByUsername($username) {
         return false; 
     }
 }
+
 function getMoviesBDetails($movieId, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/movie/$movieId?api_key={$apiKey};
     $response = file_get_contents($apiUrl);
     $result = json_decode($response, true);
-
     if ($result && isset($result['results'][0])) {
-        //create a new array to hold the movie data,
         $recommendations[] = [
             'Title' => $result['title'],
             'PosterURL' => isset($result['poster_path']) ? "https://image.tmdb.org/t/p/w500{$result['poster_path']}" : 'Not available',
@@ -184,38 +205,25 @@ function getMoviesBDetails($movieId, $apiKey) {
             'ReleaseDate' => $result['release_date'],
             'Overview' => $result['overview']
         ];
-
-        // save each genre to genre array
         foreach ($movie['genres'] as $genre) {
             $recommendations['genre'][] = $genre['name'];
         }
-
-
-        // an API to get credits of a given Movie
         $creditUrl= "https://api.themoviedb.org/3/movie/$movieId/credits?api_key={$apiKey};
         $creditResponse = file_get_contents($creditUrl);
         $creditResult = json_decode($creditResponse, true);
-
         if ($creditsResult) {
-            // Loop throught the credit data
             foreach ($creditsResult['credits']['crew'] as $credit) {
-                //check if director exists
                 if (isset($credit['job']) && $credit['job'] == 'Director') {
                     recommendations['Director'] = $credit['name'];
                 }
-                // If credit is an actor push the actor name to actors array
                 if (isset($credit['job']) && $credit['job'] == 'Actor') {
                     recommendations['Actors][] = $credit['name']
                 }
             }
-
         } else {
             return array('error' => 'Error retrieving movie credits.');
-        }
-                         
+        }          
         return $recommendations;
-        
-        
     } else {
         return array('error' => 'Movie not found.');
     }
