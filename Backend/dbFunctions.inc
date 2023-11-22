@@ -306,7 +306,7 @@ function updateUserProfile($username, $favoriteActor, $favoriteMovie, $favoriteD
 
 //isfar
 function getAccountIdByUsername($username) {
-    $conn = new mysqli(10.244.1.2, 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+    $conn = new mysqli('10.244.1.2', 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
