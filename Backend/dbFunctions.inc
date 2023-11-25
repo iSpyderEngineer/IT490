@@ -325,7 +325,7 @@ function getAccountIdByUsername($username) {
 }
 
 function calculateRateScoreAndLeaderboard($connection) {
-$connection = new mysqli('10.244.1.2';, 'BackendAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+$connection = new mysqli('10.244.1.2', 'BackendAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
 
 if ($connection->connect_error) {
     die("Connection failed: " . $connection->connect_error);
