@@ -324,8 +324,6 @@ function getAccountIdByUsername($username) {
     }
 }
 
-}
-
 function calculateRateScoreAndLeaderboard($connection) {
 $connection = new mysqli('10.244.1.2';, 'BackendAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
 
