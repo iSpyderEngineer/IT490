@@ -3,7 +3,7 @@ require_once('dbConnection.inc');
 require_once('rabbitFunctions.inc');
 require_once('SessionID.inc');
 $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
-
+//isfar
 function searchMoviesandTVShows($query, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query=" . urlencode($query);
@@ -23,7 +23,7 @@ function searchMoviesandTVShows($query, $apiKey) {
         return array('error' => 'No results found.');
     }
 }
-
+//isfar
 function searchPerson($actorName, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($actorName);
@@ -40,7 +40,7 @@ function searchPerson($actorName, $apiKey) {
         return array('error' => 'Person not found.');
     }
 }
-
+//isfar
 function recommendationActorDirector($username) {
     $accountId = getAccountIdByUsername($username);
     if (!$accountId) {
@@ -67,6 +67,7 @@ function recommendationActorDirector($username) {
     }
 }
 
+//isfar
 function getMoviesByActor($favoriteActor, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteActor);
@@ -94,6 +95,7 @@ function getMoviesByActor($favoriteActor, $apiKey) {
     }
 }
 
+//isfar
 function getMoviesByDirector($favoriteDirector, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/person?api_key={$apiKey}&query=" . urlencode($favoriteDirector);
@@ -123,40 +125,46 @@ function getMoviesByDirector($favoriteDirector, $apiKey) {
     }
 }
 
+//isfar
 function getMoviesByMovieAndGenre($username) {
-    global $apiKey;
-    $conn = new mysqli('10.244.1.2', 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
+global $apiKey;
+$conn = new mysqli('10.244.1.2', 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
     if ($conn->connect_error) {
         return [];
     }
-    $accountId = getAccountIdByUsername($username);
-    $sql = "SELECT FavoriteGenres, FavoriteMovie FROM Profiles WHERE AccountID = '$accountId'";
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        $profileData = $result->fetch_assoc();
-        $favoriteGenre = $profileData['FavoriteGenres'];
-        $favoriteMovie = $profileData['FavoriteMovie'];
-        $tmdbApiUrl = 'https://api.themoviedb.org/3/';
-        $tmdbDiscoverEndpoint = 'discover/movie';
-        $apiEndpoint = $tmdbApiUrl . $tmdbDiscoverEndpoint . '?api_key=' . $apiKey . '&with_genres=' . urlencode($favoriteGenre);
-        $apiResponse = file_get_contents($apiEndpoint);
-        if ($apiResponse === false) {
-            return [];
-        }
-        $moviesData = json_decode($apiResponse, true);
-        $recommendedMovies = array_map(function ($movie) {
-            return [
-                'title' => $movie['title'],
-                'overview' => $movie['overview'],
-                'release_date' => $movie['release_date'],
-            ];
-        }, $moviesData['results']);
-        return array_slice($recommendedMovies, 0, 10);
-    } else {
+    $accountId = getAccountIdByUsername($conn, $username);
+    SELECT FavoriteGenres, FavoriteMovie FROM Profiles WHERE AccountID = '$accountId';
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $accountId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $profileData = $result->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+    if (!$profileData) {
         return [];
     }
+    $favoriteGenre = $profileData['FavoriteGenres'];
+    $favoriteMovie = $profileData['FavoriteMovie'];
+    $tmdbApiUrl = 'https://api.themoviedb.org/3/';
+    $tmdbDiscoverEndpoint = 'discover/movie';
+    $apiEndpoint = $tmdbApiUrl . $tmdbDiscoverEndpoint . '?api_key=' . $tmdbApiKey . '&with_genres=' . urlencode($favoriteGenre);
+    $apiResponse = file_get_contents($apiEndpoint);
+    if ($apiResponse === false) {
+        return [];
+    }
+    $moviesData = json_decode($apiResponse, true);
+    $recommendedMovies = array_map(function ($movie) {
+        return [
+            'title' => $movie['title'],
+            'overview' => $movie['overview'],
+            'release_date' => $movie['release_date'],
+        ];
+    }, $moviesData['results']);
+    return array_slice($recommendedMovies, 0, 10);
 }
 
+//isfar
 function getAccountIdByUsername($username) {
     $conn = new mysqli('10.244.1.2', 'BackEndAdmin', 'Qg5OKQ!?$Q', 'SceneSync');
     if ($conn->connect_error) {
@@ -192,19 +200,16 @@ function getMoviesBDetails($movieId, $apiKey) {
             'ReleaseDate' => $result['release_date'],
             'Overview' => $result['overview']
         ];
-
-        foreach ($result['genres'] as $genre) {
-            $recommendations['Genre'][] = $genre['name'];
+        foreach ($movie['genres'] as $genre) {
+            $recommendations['genre'][] = $genre['name'];
         }
-
-        $creditUrl = "https://api.themoviedb.org/3/movie/{$movieId}/credits?api_key={$apiKey}";
+        $creditUrl= "https://api.themoviedb.org/3/movie/$movieId/credits?api_key={$apiKey};
         $creditResponse = file_get_contents($creditUrl);
         $creditResult = json_decode($creditResponse, true);
-
-        if ($creditResult) {
-            foreach ($creditResult['crew'] as $crewMember) {
-                if (isset($crewMember['job']) && $crewMember['job'] == 'Director') {
-                    $recommendations['Director'] = $crewMember['name'];
+        if ($creditsResult) {
+            foreach ($creditsResult['credits']['crew'] as $credit) {
+                if (isset($credit['job']) && $credit['job'] == 'Director') {
+                    recommendations['Director'] = $credit['name'];
                 }
             }
 

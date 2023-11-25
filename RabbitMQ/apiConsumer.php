@@ -13,11 +13,8 @@ if ($_POST) {
     
   } elseif ($request['type'] === "searchMovies") {
     $request['query'] = $_POST['query'];
-
-  } elseif ($request['type'] === "fetchUserProfile") {
-    $request['sessionID'] = $_POST['sessionID'];
-
-  } elseif ($request['type'] === "updateUserPreferences") {
+    
+  } } elseif ($request['type'] === "updateUserPreferences") {
     $request['userID'] = $_POST['userID'];
     $request['preferences'] = $_POST['preferences'];
 
