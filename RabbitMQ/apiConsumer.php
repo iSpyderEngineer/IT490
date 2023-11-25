@@ -4,48 +4,58 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
 if ($_POST) {
-  $request = array();
-  $request['type'] = $_POST["type"];
-
-  if ($request['type'] === "displayRecommendedMovies") {
-    $request['movieData'] = $_POST['movieData'];
-    $request['source'] = $_POST['source'];
+    $request = array();
+    $request['type'] = $_POST["type"];
     
-  } elseif ($request['type'] === "searchMovies") {
-    $request['query'] = $_POST['query'];
-    
-  } } elseif ($request['type'] === "updateUserPreferences") {
-    $request['userID'] = $_POST['userID'];
-    $request['preferences'] = $_POST['preferences'];
+    switch ($request['type']) {
+        case "displayRecommendedMovies":
+            $request['movieData'] = $_POST['movieData'];
+            $request['source'] = $_POST['source'];
+            break;
 
-  } elseif ($request['type'] === "searchMoviesAndTVShows") {
-    $request['query'] = $_POST['query'];
+        case "searchMovies":
+            $request['query'] = $_POST['query'];
+            break;
 
-  } elseif ($request['type'] === "searchPerson") {
-    $request['personName'] = $_POST['personName'];
+        case "updateUserPreferences":
+            $request['userID'] = $_POST['userID'];
+            $request['preferences'] = $_POST['preferences'];
+            break;
 
-  } elseif ($request['type'] === "recommendationActorDirector") {
-    $request['username'] = $_POST['username'];
+        case "searchMoviesAndTVShows":
+            $request['query'] = $_POST['query'];
+            break;
 
-  } elseif ($request['type'] === "getMoviesByActor") {
-    $request['actorName'] = $_POST['actorName'];
+        case "searchPerson":
+            $request['personName'] = $_POST['personName'];
+            break;
 
-  } elseif ($request['type'] === "getMoviesByDirector") {
-    $request['directorName'] = $_POST['directorName'];
+        case "recommendationActorDirector":
+            $request['username'] = $_POST['username'];
+            break;
 
-  } elseif ($request['type'] === "getMoviesByMovieAndGenre") {
-    $request['username'] = $_POST['username'];
+        case "getMoviesByActor":
+            $request['actorName'] = $_POST['actorName'];
+            break;
 
-  } else {
-    echo json_encode(["error" => "Invalid request type"]);
-    exit;
-  }
+        case "getMoviesByDirector":
+            $request['directorName'] = $_POST['directorName'];
+            break;
 
-  $client = new rabbitMQClient("testRabbitMQ.ini", "api");
-  $response = $client->send_request($request);
-  echo $response;
+        case "getMoviesByMovieAndGenre":
+            $request['username'] = $_POST['username'];
+            break;
+
+        default:
+            echo json_encode(["error" => "Invalid request type"]);
+            exit;
+    }
+
+    $client = new rabbitMQClient("testRabbitMQ.ini", "api");
+    $response = $client->send_request($request);
+    echo $response;
 
 } else {
-  echo json_encode(["error" => "No POST data received"]);
+    echo json_encode(["error" => "No POST data received"]);
 }
 ?>

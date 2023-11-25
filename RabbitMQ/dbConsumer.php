@@ -53,7 +53,7 @@ if ($_POST) {
             exit;
     }
 
-    $client = new rabbitMQClient("testRabbitMQ.ini", "api");
+    $client = new rabbitMQClient("testRabbitMQ.ini", "database");
     $response = $client->send_request($request);
     echo $response;
 
