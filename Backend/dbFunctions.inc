@@ -1,7 +1,6 @@
 <?php
 require_once('dbConnection.inc');
 require_once('rabbitFunctions.inc');
-require_once('SessionID.inc');
 
 //isfar
 function validateLogin($username, $password) {
