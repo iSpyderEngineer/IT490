@@ -347,7 +347,7 @@ if ($connection->connect_error) {
     mysqli_free_result($result);
     return $leaderboard;
 }
-
+}
 //isfar ==== unique identifier for movie?
 /*
 function deleteFromWatchList($watchListID) {
