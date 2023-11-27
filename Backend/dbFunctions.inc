@@ -373,6 +373,51 @@ function deleteFromWatchList($watchListID) {
 }
 */
 
+/**
+ * Inserts a user review into the database
+ * @param int $accountId the account ID of the user who left the review
+ * @param string $movieTitle the title of the movie
+ * @param int $rating a rating (1-5) left by the user
+ * @param string $review movie review left by the user
+ */
+function insertReview($accountId, $movieTitle, $rating, $review){
+    // CREATE TABLE Rating(AccountID INT UNSIGNED NOT NULL, movieTitle VARCHAR(255) NOT NULL, Rating TINYINT UNSIGNED NOT NULL, Review TEXT NOT NULL);
+    $connection = dbConnect();
+    $stmt = $connection->prepare("INSERT INTO Rating(AccountID, movieTitle, Rating, Review) VALUES(?, ?, ?, ?)");
+    $stmt->bind_param("dsds", $accountId, $movieTitle, $rating, $review);
+    $stmt->execute();
+    $succeeded = $stmt->errno === 0;
+    $stmt->close();
+    $connection->close();
+    http_response_code($succeeded ? 200 : 500);
+    return json_encode(["returnCode" => $succeeded ? 1 : 0]);
+}
+
+/**
+ * Searches ratings for a given movie title and returns a JSON array.
+ * @param string $movieTitle the movie title to search ratings for
+ * @return string
+ */
+function searchRatingsByMovie($movieTitle){
+    $result = [];
+    $connection = dbConnect();
+    $stmt = $connection->prepare("SELECT AccountID, movieTitle, Rating, Review FROM Rating WHERE movieTitle=?");
+    $stmt->bind_param("s", $movieTitle);
+    $stmt->execute();
+    $stmt->bind_result($accountId, $movieTitle, $rating, $review);
+    while($stmt->fetch()){
+        $result[] = [
+            "AccountID" => $accountId,
+            "movieTitle" => $movieTitle,
+            "Rating" => $rating,
+            "Review" => $review
+        ];
+    }
+    $stmt->close();
+    $connection->close();
+    http_response_code(200);
+    return json_encode(["returnCode" => '1', "reviews" => $result]);
+}
 
 
 
