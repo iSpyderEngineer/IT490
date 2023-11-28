@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>New Profile</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="error"></div>
+
+    <div>
+        <form id="newProfileForm">
+            <h4>New Profile</h4>
+            <table>
+                <tr>
+                    <th>Favorite Actor:</th>
+                    <td><input type="text" id="favoriteActor" name="favoriteActor" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Favorite Movie:</th>
+                    <td><input type="text" id="favoriteMovie" name="favoriteMovie" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Favorite Director:</th>
+                    <td><input type="text" id="favoriteDirector" name="favoriteDirector" size="25" required></td>
+                </tr>
+                <tr>
+                    <th>Favorite Genre:</th>
+                    <td>
+                        <input type="radio" id="action" name="favoriteGenre" value="Action">
+                        <label for="action">Action</label><br>
+                        <input type="radio" id="comedy" name="favoriteGenre" value="Comedy">
+                        <label for="comedy">Comedy</label><br>
+                        <!-- Add more radio buttons for other genres -->
+                    </td>
+                </tr>
+                <tr>
+                    <th>Biography:</th>
+                    <td><textarea id="biography" name="biography" rows="4" cols="50" required></textarea></td>
+                </tr>
+            </table>
+            <button type="submit" name="submitProfile" id="submitProfile">Submit Profile</button>
+        </form>
+    </div>
+    
+    <script>
+        let form = $("#newProfileForm");
+        let error = $("#error");
+
+        form.on("submit", async function (event) {
+            event.preventDefault();
+
+            let favoriteActor = sanitizeInput($("#favoriteActor").val());
+            let favoriteMovie = sanitizeInput($("#favoriteMovie").val());
+            let favoriteDirector = sanitizeInput($("#favoriteDirector").val());
+            let favoriteGenre = $("input[name='favoriteGenre']:checked").val();
+            let biography = sanitizeBiography($("#biography").val());
+
+            // Check if fields are empty
+            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
+                showMessage("All fields are required!", "error");
+                return;
+            }
+
+            try {
+                let actorExists = await checkActorExists(favoriteActor);
+                let directorExists = await checkDirectorExists(favoriteDirector);
+                let genreExists = await checkGenreExists(favoriteGenre);
+
+                if (actorExists && directorExists && genreExists) {
+                    // All exist, proceed with submission
+                    await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+                    showMessage("Profile submitted successfully!", "success");
+                    sessionStorage.removeItem('profileUser');
+                    window.location.href = "login.html";
+                } else {
+                    if (!actorExists) {
+                        showMessage("Favorite Actor does not exist!", "error");
+                    }
+                    if (!directorExists) {
+                        showMessage("Favorite Director does not exist!", "error");
+                    }
+                    if (!genreExists) {
+                        showMessage("Favorite Genre does not exist!", "error");
+                    }
+                }
+            } catch (error) {
+                showMessage(error.message, "error");
+            }
+        });
+
+        // Placeholder function to simulate RabbitMQ existence checks
+        function checkActorExists(actor) {
+            return new Promise((resolve) => {
+                // Simulate RabbitMQ check for existence
+                // This is a placeholder for your actual RabbitMQ existence check
+                // Replace this with your actual RabbitMQ logic
+                setTimeout(() => {
+                    // Simulated existence check - Replace with your actual RabbitMQ check
+                    let actorExists = true; // Placeholder result for existence check
+                    resolve(actorExists);
+                }, 1000); // Simulating a delay for the existence check
+            });
+        }
+
+        function checkDirectorExists(director) {
+            return new Promise((resolve) => {
+                // Simulate RabbitMQ check for existence
+                // This is a placeholder for your actual RabbitMQ existence check
+                // Replace this with your actual RabbitMQ logic
+                setTimeout(() => {
+                    // Simulated existence check - Replace with your actual RabbitMQ check
+                    let directorExists = true; // Placeholder result for existence check
+                    resolve(directorExists);
+                }, 1000); // Simulating a delay for the existence check
+            });
+        }
+
+        function checkMovieExists(genre) {
+            return new Promise((resolve) => {
+                // Simulate RabbitMQ check for existence
+                // This is a placeholder for your actual RabbitMQ existence check
+                // Replace this with your actual RabbitMQ logic
+                setTimeout(() => {
+                    // Simulated existence check - Replace with actual RabbitMQ check
+                    let movieExists = true; // Placeholder result for existence check
+                    resolve(movieExists);
+                }, 1000); // Simulating a delay for the existence check
+            });
+        }
+
+        // Simulated function to submit profile data to RabbitMQ
+        function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
+            return new Promise((resolve) => {
+                // Simulate submission to RabbitMQ
+                // This is a placeholder for actual RabbitMQ submission
+                setTimeout(() => {
+                    // Simulated submission - Replace with actual RabbitMQ submission
+                    console.log("Profile submitted to RabbitMQ");
+                    resolve();
+                }, 2000); // Simulating a delay for the submission
+            });
+        }
+
+        function sanitizeInput(input) {
+            // Sanitize input to contain only letters and spaces
+            return input.replace(/[^a-zA-Z\s]/g, '');
+        }
+
+        function sanitizeBiography(bio) {
+            // Sanitize biography to allow periods, apostrophes, and spaces
+            return bio.replace(/[^a-zA-Z\s'.]/g, '');
+        }
+
+        function showMessage(message, result) {
+            error.html("<div class='alert alert-" + result + "'>" + message + "</div>");
+        }
+    </script>
+</body>
+</html>

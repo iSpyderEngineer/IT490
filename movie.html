@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Information</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <h1 id="movie-title"></h1>
+
+    <div id="movie-info">
+        <p><strong>Genre:</strong> <span id="genre"></span></p>
+        <p><strong>Director:</strong> <span id="director"></span></p>
+        <p><strong>Year:</strong> <span id="year"></span></p>
+        <p><strong>Bio:</strong> <span id="bio"></span></p>
+        <img src="" id="poster-image" alt="Movie Poster">
+    </div>
+
+    <div id="reviews-container">
+        <h2>Reviews</h2>
+        <ul id="reviews-list"></ul>
+
+        <h3>Add Your Review</h3>
+        <form id="review-form">
+            <label for="review-title">Review Title:</label><br>
+            <input type="text" id="review-title" name="review-title"><br>
+            <label for="review-content">Review Content:</label><br>
+            <textarea id="review-content" name="review-content"></textarea><br>
+            <input type="submit" value="Submit Review">
+        </form>
+    </div>
+
+    <button id="add-to-watchlist">Add to Watchlist</button>
+    <button id="add-to-watched-list">Add to Watched List</button>
+
+    <script>
+        // Load the navbar component
+        const navbarContainer = document.getElementById('navbar-container');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'components/navbar.html', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                navbarContainer.innerHTML = xhr.responseText;
+                loadMovieInfo();
+                fetchUsername(); // Fetch username when the page loads
+            }
+        };
+        xhr.send();
+
+       
+            function loadMovieInfo() {
+            // Get the movie title from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieTitle = urlParams.get('title');
+            if (movieTitle) {
+                $('#movie-title').text(movieTitle);
+
+                // Simulate the API call to fetch movie details
+                $.ajax({
+                    url: '/your-api-endpoint', // Replace with your actual API endpoint
+                    method: 'POST',
+                    dataType: 'json',
+                    data: { title: movieTitle },
+                    success: function (result) {
+                        if (result) {
+                            displayMovieDetails(result);
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading movie info");
+                    }
+                });
+            }
+        }
+        
+
+        function fetchUsername() {
+            // Fetch the username using AJAX from getUserInfo.php
+            $.ajax({
+                url: 'getUserInfo.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.username) {
+                        const username = response.username;
+                        console.log('Logged-in username:', username);
+                        // Here you can use the username for your functionality
+                        // For example, if needed, you can send the username while adding movies to the watchlist
+                    } else {
+                        console.log('User not logged in');
+                        // Handle case where the user is not logged in
+                    }
+                },
+                error: function () {
+                    console.log('Error fetching user info');
+                }
+            });
+        }
+
+        $('#add-to-watchlist').click(function () {
+            const movieTitle = $('#movie-title').text();
+            addToWatchlist(movieTitle);
+        });
+
+        $('#add-to-watched-list').click(function () {
+            const movieTitle = $('#movie-title').text();
+            addToWatchedList(movieTitle);
+        });
+
+        // Fetch movie reviews when the page loads
+        function fetchMovieReviews(movieTitle) {
+            $.ajax({
+                url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
+                method: 'GET',
+                data: { title: movieTitle },
+                dataType: 'json',
+                success: function (reviews) {
+                    if (reviews && reviews.length > 0) {
+                        reviews.forEach(review => {
+                            $('#reviews-list').append(`<li>${review.title}: ${review.content}</li>`);
+                        });
+                    } else {
+                        $('#reviews-list').append('<li>No reviews available</li>');
+                    }
+                },
+                error: function () {
+                    console.log('Error fetching reviews');
+                }
+            });
+        }
+
+        // Submit review function
+        $('#review-form').submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const movieTitle = $('#movie-title').text();
+            const reviewTitle = $('#review-title').val();
+            const reviewContent = $('#review-content').val();
+
+            $.ajax({
+                url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
+                method: 'POST',
+                data: {
+                    title: movieTitle,
+                    reviewTitle: reviewTitle,
+                    reviewContent: reviewContent,
+                },
+                success: function () {
+                    console.log('Review submitted successfully');
+                    // Clear form fields after submission
+                    $('#review-title').val('');
+                    $('#review-content').val('');
+                    // Refresh the reviews list after submission
+                    fetchMovieReviews(movieTitle);
+                },
+                error: function () {
+                    console.log('Error submitting review');
+                }
+            });
+        });
+
+        function displayMovieDetails(movieDetails) {
+            $('#genre').text(movieDetails.Genre.join(', '));
+            $('#director').text(movieDetails.Director);
+            $('#year').text(movieDetails.ReleaseDate.substring(0, 4));
+            $('#bio').text(movieDetails.Overview);
+            $('#poster-image').attr('src', movieDetails.PosterURL); // Update poster image src
+            // Update other elements with additional details if needed
+        }
+
+        function addToWatchedList(movieTitle) {
+            // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
+            // Include username if needed
+            $.ajax({
+                url: 'RabbitMQ/addMovieToWatchedList.php', // Replace with actual URL
+                method: 'POST',
+                data: {
+                    title: movieTitle,
+                    // Include other necessary data like username, etc., if needed
+                },
+                success: function () {
+                    console.log(`Movie added to watched list: ${movieTitle}`);
+                },
+                error: function () {
+                    console.log("Error adding movie to watched list");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

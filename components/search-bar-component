@@ -1,0 +1,46 @@
+<div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search for movies Here!" class="search-input">
+    <button onclick="searchMovies()">Search</button>
+    <div id="search-results"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function searchMovies() {
+        let query = $('#search-input').val();
+
+        // Make an AJAX request to your APIConsumer
+        $.ajax({
+            url: 'RabbitMQ/apiConsumer.php',
+            method: 'POST',
+            data: {
+                type: 'searchMoviesAndTVShows',
+                query: query
+            },
+            dataType: 'json',
+            success: function(response) {
+                // Handle the API response here and display the results as hyperlinks
+                console.log(response); // Example: Logging the response to the console
+                displayResults(response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error(errorThrown);
+                // Handle errors here
+            }
+        });
+    }
+
+    function displayResults(results) {
+        let searchResultsDiv = $('#search-results');
+        searchResultsDiv.empty(); // Clear previous results
+
+        // Loop through each item in the results array and create hyperlinks for titles
+        results.forEach(function(item) {
+            let title = item['Title'];
+            let titleLink = $('<a>').text(title).attr('href', '#'); // You can set the actual URL for each title here
+
+            // Append the title hyperlink to the search results div
+            searchResultsDiv.append(titleLink).append('<br>');
+        });
+    }
+</script>
