@@ -26,10 +26,13 @@ if ($_POST) {
             break;
 
         case "getUserProfile":
+        case "getWatchList":
+        case "getWatchedList":
             $request['username'] = $_POST['username'];
             break;
 
         case "updateProfile":
+        case "updatePreferences":
             $request['username'] = $_POST['username'];
             $request['favActor'] = $_POST['favActor'];
             $request['favGenre'] = $_POST['favGenre'];
@@ -38,14 +41,30 @@ if ($_POST) {
             $request['biography'] = $_POST['biography'];
             break;
 
-        case "getWatchList":
-        case "getWatchedList":
         case "addToWatchList":
         case "addToWatchedList":
             $request['username'] = $_POST['username'];
             $request['movieTitle'] = $_POST['movieTitle'];
             $request['posterURL'] = $_POST['posterURL'];
             $request['year'] = $_POST['year'];
+            break;
+
+        case "searchMovieReviews":
+            $request['movieTitle'] = $_POST['movieTitle'];
+            break;
+
+        case "insertReview":
+            $request['accountId'] = $_POST['accountId'];
+            $request['movieTitle'] = $_POST['movieTitle'];
+            $request['rating'] = $_POST['rating'];
+            $request['review'] = $_POST['review'];
+            break;
+
+        case "deleteFromWatchList":
+            $request['watchListID'] = $_POST['watchListID'];
+            break;
+
+        case "getLeaderboard":
             break;
 
         default:

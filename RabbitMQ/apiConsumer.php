@@ -46,6 +46,10 @@ if ($_POST) {
             $request['username'] = $_POST['username'];
             break;
 
+        case "getMovieByDetails":
+            $request['movieID'] = $_POST['movieID'];
+            break;
+
         default:
             echo json_encode(["error" => "Invalid request type"]);
             exit;

@@ -1,7 +1,6 @@
 <?php
 require_once('dbConnection.inc');
-require_once('rabbitFunctions.inc');
-require_once('SessionID.inc');
+
 $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
 
 function searchMoviesandTVShows($query, $apiKey) {
@@ -176,7 +175,7 @@ function getAccountIdByUsername($username) {
     }
 }
 
-function getMoviesBDetails($movieId, $apiKey) {
+function getMoviesByDetails($movieId, $apiKey) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/movie/{$movieId}?api_key={$apiKey}";
     $response = file_get_contents($apiUrl);

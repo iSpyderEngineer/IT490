@@ -90,58 +90,93 @@
             }
         });
 
-        // Placeholder function to simulate RabbitMQ existence checks
-        function checkActorExists(actor) {
-            return new Promise((resolve) => {
-                // Simulate RabbitMQ check for existence
-                // This is a placeholder for your actual RabbitMQ existence check
-                // Replace this with your actual RabbitMQ logic
-                setTimeout(() => {
-                    // Simulated existence check - Replace with your actual RabbitMQ check
-                    let actorExists = true; // Placeholder result for existence check
-                    resolve(actorExists);
-                }, 1000); // Simulating a delay for the existence check
-            });
-        }
+        async function checkActorExists(actor) {
+    try {
+        let response = await $.ajax({
+            url: 'RabbitMQ/apiConsumer.php',
+            method: "POST",
+            data: {
+                type: "searchPerson",
+                personName: actor
+            },
+            dataType: 'json'
+        });
 
-        function checkDirectorExists(director) {
-            return new Promise((resolve) => {
-                // Simulate RabbitMQ check for existence
-                // This is a placeholder for your actual RabbitMQ existence check
-                // Replace this with your actual RabbitMQ logic
-                setTimeout(() => {
-                    // Simulated existence check - Replace with your actual RabbitMQ check
-                    let directorExists = true; // Placeholder result for existence check
-                    resolve(directorExists);
-                }, 1000); // Simulating a delay for the existence check
-            });
-        }
+        return response && response.success; // Adjust based on your response format
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
 
-        function checkMovieExists(genre) {
-            return new Promise((resolve) => {
-                // Simulate RabbitMQ check for existence
-                // This is a placeholder for your actual RabbitMQ existence check
-                // Replace this with your actual RabbitMQ logic
-                setTimeout(() => {
-                    // Simulated existence check - Replace with actual RabbitMQ check
-                    let movieExists = true; // Placeholder result for existence check
-                    resolve(movieExists);
-                }, 1000); // Simulating a delay for the existence check
-            });
-        }
+async function checkDirectorExists(director) {
+    try {
+        let response = await $.ajax({
+            url: 'RabbitMQ/apiConsumer.php',
+            method: "POST",
+            data: {
+                type: "searchPerson",
+                personName: director
+            },
+            dataType: 'json'
+        });
 
-        // Simulated function to submit profile data to RabbitMQ
-        function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
-            return new Promise((resolve) => {
-                // Simulate submission to RabbitMQ
-                // This is a placeholder for actual RabbitMQ submission
-                setTimeout(() => {
-                    // Simulated submission - Replace with actual RabbitMQ submission
-                    console.log("Profile submitted to RabbitMQ");
-                    resolve();
-                }, 2000); // Simulating a delay for the submission
+        return response && response.success; // Adjust based on your response format
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+async function checkGenreExists(genre) {
+    try {
+        let response = await $.ajax({
+            url: 'RabbitMQ/apiConsumer.php',
+            method: "POST",
+            data: {
+                type: "searchMovies",
+                query: genre
+            },
+            dataType: 'json'
+        });
+
+        return response && response.success; // Adjust based on your response format
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: "POST",
+                data: {
+                    type: "updatePreferences",
+                    favActor: favoriteActor,
+                    favDirector: favoriteDirector,
+                    favGenre: favoriteGenre,
+                    favMovie: favoriteMovie,
+                    biography: biography
+                },
+                dataType: 'json'
             });
+
+            if (response && response.success) {
+                console.log("Profile submitted to dbConsumer via RabbitMQ");
+                resolve();
+            } else {
+                reject(new Error("Failed to submit profile to dbConsumer via RabbitMQ"));
+            }
+        } catch (error) {
+            console.error(error);
+            reject(error);
         }
+    });
+}
+
 
         function sanitizeInput(input) {
             // Sanitize input to contain only letters and spaces
