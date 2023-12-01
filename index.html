@@ -44,8 +44,7 @@
     
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
-                        document.cookie = "username=" + uname;
+                        
                         console.log("Redirecting to home.html");
                         location.href = "home.html";
                     }
