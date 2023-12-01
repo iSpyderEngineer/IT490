@@ -49,28 +49,28 @@
                 dataType: 'json',
                 success: function(result) {
                     console.log(result);
-    
+
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-                        
+
                         console.log("Redirecting to home.html");
                         location.href = "home.html";
                     }
-    
+
                     showMessage(result.message);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    showMessage(errorThrown);
+                    showMessage("AJAX error: " + textStatus + " - " + errorThrown);
                     console.log("there was a problem with the message?");
                     console.log(errorThrown);
                 }
             });
-        }
-    
-        function showMessage(message) {
-            $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
-            console.log("the message has failed");
-            console.log(message);
+
+            function showMessage(message) {
+                $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
+                console.log("the message has failed");
+                console.log(message);
+            }
         }
     </script>    
 </body>
