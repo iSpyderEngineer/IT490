@@ -53,13 +53,14 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showMessage(errorThrown);
-                    console.log("this error was ran");
+                    console.log("there was a problem with the message?");
                 }
             });
         }
     
         function showMessage(message) {
             $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
+            console.log("the message has failed")
         }
     </script>    
 </body>
