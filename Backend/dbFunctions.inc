@@ -1,7 +1,7 @@
 <?php
 require_once('dbConnection.inc');
 
-//isfar
+//isfar + Sean
 function validateLogin($username, $password) {
     $database = dbConnect();
     $sanitizedUsername = $database->real_escape_string($username);
@@ -9,15 +9,34 @@ function validateLogin($username, $password) {
     $query = "SELECT * FROM Accounts WHERE Username = '$sanitizedUsername'";
     $result = $database->query($query);
 
+    $usernameFound = false;
+    $startTime = microtime(true);
+
     while ($row = $result->fetch_assoc()) {
+        $usernameFound = true;
+
         if ($sanitizedPassword === $row["PasswordHash"]) {
-                return json_encode(array("returnCode" => '1', 'message' => "Logged In"));
-            } else {
-                return json_encode(array("returnCode" => '0', 'message' => "Error with generating session"));
+            return json_encode(array("returnCode" => '1', 'message' => "Logged In"));
+        } else {
+            // Check elapsed time
+            $elapsedTime = microtime(true) - $startTime;
+
+            // Set a time limit, e.g., 5 seconds
+            $timeLimit = 5;
+
+            if ($elapsedTime > $timeLimit) {
+                return json_encode(array("returnCode" => '0', 'message' => "Password check is taking too long"));
             }
-        
+
+            // Continue checking passwords
+        }
     }
-    return json_encode(array("returnCode" => '0', 'message' => "No User Match The Given Username"));
+
+    if ($usernameFound) {
+        return json_encode(array("returnCode" => '0', 'message' => "Incorrect Password"));
+    } else {
+        return json_encode(array("returnCode" => '0', 'message' => "No User Match The Given Username"));
+    }
 }
 
 //isfar
