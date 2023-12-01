@@ -1,6 +1,5 @@
 #!/usr/bin/php
 <?php
-require_once('rabbitFunctions.inc');
 require_once('../Backend/dbConnection.inc');
 require_once('../Backend/dbFunctions.inc');
 
@@ -45,6 +44,26 @@ function requestProcessor($request) {
         case "addToWatchedList":
             echo "adding to watched list";
             return addToWatchedList($request['username'], $request['movieTitle'], $request['posterURL'], $request['year']);
+        
+        case "searchMovieReviews":
+            echo "searching movie reviews";
+            return searchRatingsByMovie($request['movieTitle']);
+
+        case "updatePreferences":
+            echo "updating user preferences";
+            return validatePreferences($request['username'], $request['favoriteActor'], $request['favoriteDirector'], $request['favoriteMovie'], $request['favoriteGenre'], $request['biography']);
+
+        case "getLeaderboard":
+            echo "getting leaderboard";
+            return calculateRateScoreAndLeaderboard();
+
+        case "insertReview":
+            echo "inserting review";
+            return insertReview($request['accountId'], $request['movieTitle'], $request['rating'], $request['review']);
+
+        case "deleteFromWatchList":
+            echo "deleting from watch list";
+            return deleteFromWatchList($request['watchListID']);
     }
 
     return json_encode(array("returnCode" => '0', 'message' => "Server message received but type not defined"));

@@ -1,6 +1,5 @@
 <?php
 require_once('dbConnection.inc');
-require_once('rabbitFunctions.inc');
 
 //isfar
 function validateLogin($username, $password) {

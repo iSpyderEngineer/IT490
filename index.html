@@ -41,7 +41,7 @@
             console.log("Logging in");
     
             $.ajax({
-                url: 'userValidate.php',
+                url: 'RabbitMQ/dbConsumer.php',
                 method: "POST",
                 data: formData,
                 processData: false,
@@ -52,8 +52,7 @@
     
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
-                        document.cookie = "username=" + uname;
+                        
                         console.log("Redirecting to home.html");
                         location.href = "home.html";
                     }
@@ -62,12 +61,14 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showMessage(errorThrown);
+                    console.log("there was a problem with the message?");
                 }
             });
         }
     
         function showMessage(message) {
             $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
+            console.log("the message has failed")
         }
     </script>    
 </body>

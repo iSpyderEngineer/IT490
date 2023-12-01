@@ -63,25 +63,34 @@
         form.on("submit", async function (event) {
             event.preventDefault();
 
-            let formData = new FormData(form[0]);
-            formData.append("type", "register");
+            let formData = {
+                type: "register",
+                firstname: $("#firstname").val(),
+                lastname: $("#lastname").val(),
+                username: $("#username").val(),
+                email: $("#email").val(),
+                address: $("#address").val(),
+                city: $("#city").val(),
+                country: $("#country").val(),
+                zipcode: $("#zipcode").val(),
+                password: $("#password").val()
+            };
+
             console.log("Trying registration");
 
             try {
                 let response = await $.ajax({
-                    url: 'userRegistration.php',
+                    url: 'RabbitMQ/dbConsumer.php', // Use dbConsumer.php for registration
                     method: "POST",
                     data: formData,
-                    processData: false,
-                    contentType: false,
                     dataType: 'json'
                 });
 
                 console.log(response);
-                showMessage(response.message, response.returnCode == "1" ? "success" : "error");
+                showMessage(response.message, response.returnCode === "1" ? "success" : "error");
 
-                if (response.returnCode == "1") {
-                    location.href = "index.html";
+                if (response.returnCode === "1") {
+                    location.href = "newProfile.html";
                 }
             } catch (error) {
                 showMessage(error.message, "error");
