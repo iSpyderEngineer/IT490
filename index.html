@@ -28,42 +28,40 @@
     </div>
     
     <script>
-        function validate() {
-            let formData = new FormData($("#login")[0]);
-            formData.append("type", "login");
-            let uname = formData.get("username");
-            console.log("Logging in");
-    
-            $.ajax({
-                url: 'RabbitMQ/dbConsumer.php',
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(result) {
-                    console.log(result);
-    
-                    if (result.returnCode == "1") {
-                        console.log("Login successful");
-                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
-                        document.cookie = "username=" + uname;
-                        console.log("Redirecting to home.html");
-                        location.href = "home.html";
-                    }
-    
-                    showMessage(result.message);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    showMessage(errorThrown);
-                }
-            });
+        function generateSessionId() {
+            // Function to generate a random and unique session ID
+            return 'session_' + Math.random().toString(36).substr(2, 9);
         }
-    
+
+        function validate() {
+            // Simulate a successful login response
+            var result = {
+                returnCode: '1',
+                sessionid: generateSessionId(),
+                message: 'Logged In'
+            };
+
+            console.log(result);
+
+            if (result.returnCode == "1") {
+                console.log("Login successful");
+                let uname = $("#username").val();
+
+                // Store session information in sessionStorage
+                sessionStorage.setItem('sessionid', result.sessionid);
+                sessionStorage.setItem('username', uname);
+
+                console.log("Redirecting to home.html");
+                location.href = "home.html";
+            }
+
+            showMessage(result.message);
+        }
+
         function showMessage(message) {
             $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
         }
     </script>    
-  
 </body>
 </html>
+

@@ -12,10 +12,18 @@
     <div id="welcomeMessage"></div>
 
     <script>
-        const sessionid = ('; ' + document.cookie).split('; sessionid=').pop().split(';')[0];
-        const username = ('; ' + document.cookie).split('; username=').pop().split(';')[0];
+        // Retrieve session information from sessionStorage
+        const sessionid = sessionStorage.getItem('sessionid');
+        const username = sessionStorage.getItem('username');
+
+        if (!sessionid || !username) {
+            // Redirect to login page if session information is not found
+            location.href = "index.html";
+        }
+
         console.log(sessionid);
         console.log(username);
+
         let sessionData = {
             sessionid: sessionid
         };
@@ -31,7 +39,9 @@
                 dataType: 'json',
                 success: function (result) {
                     if (result.returnCode != "1") {
-                        document.cookie = "sessionid=;username=;path='/'";
+                        // Clear session information and redirect to login page
+                        sessionStorage.removeItem('sessionid');
+                        sessionStorage.removeItem('username');
                         location.href = "index.html";
                     }
                 },
@@ -55,8 +65,9 @@
                 method: 'POST',
                 data: sessionData,
                 success: function () {
-                    document.cookie = "sessionid=;path='/'";
-                    document.cookie = "username=;path='/'";
+                    // Clear session information and redirect to login page
+                    sessionStorage.removeItem('sessionid');
+                    sessionStorage.removeItem('username');
                     location.href = "index.html";
                 },
                 error: function () {

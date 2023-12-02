@@ -21,7 +21,7 @@
       <div class="profile-box">
           <div class="profile-label">Profile</div>
           <div class="profile-dropdown">
-              <a href="profile.html">View Profile</a>
+              <a href="profile.html" onclick="goToProfile()">View Profile</a>
               <a href="index.html" onclick="logout()">Logout</a>
           </div>
       </div>
@@ -35,6 +35,17 @@
         document.getElementById('searchBarContainer').innerHTML = data;
       })
       .catch(error => console.error(error));
+
+
+      function goToProfile() {
+        // Redirect to profile.html and include the username from sessionStorage
+        const username = sessionStorage.getItem('username');
+        if (username) {
+            window.location.href = `profile.html?u=${encodeURIComponent(username)}`;
+        } else {
+            console.error('Username not found in sessionStorage.');
+        }
+    }
   </script>
 </body>
 </html>
