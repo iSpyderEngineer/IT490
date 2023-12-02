@@ -7,45 +7,44 @@
     <script src="../functions/logout.js"></script>
 </head>
 <body>
-  <nav class="navbar">
-      <a href="home.html" class="logo">
-          <img src="path/to/logo.png" alt="Logo">
-      </a>
-      <div class="nav-links">
-          <a href="recommendations.html" class="nav-item">Recommendations</a>
-          <a href="watchList.html" class="nav-item">Watch List</a>
-          <a href="watchedList.html" class="nav-item">Watched List</a>
-          <a href="scoreboard.html" class="nav-item">Ratings Scoreboard</a>
-      </div>
-      <div class="search-bar" id="searchBarContainer"></div>
-      <div class="profile-box">
-          <div class="profile-label">Profile</div>
-          <div class="profile-dropdown">
-              <a href="profile.html" onclick="goToProfile()">View Profile</a>
-              <a href="index.html" onclick="logout()">Logout</a>
-          </div>
-      </div>
-  </nav>
+    <nav class="navbar">
+        <a href="home.html" class="logo">
+            <img src="path/to/logo.png" alt="Logo">
+        </a>
+        <div class="nav-links">
+            <a href="recommendations.html" class="nav-item">Recommendations</a>
+            <a href="watchList.html" class="nav-item">Watch List</a>
+            <a href="watchedList.html" class="nav-item">Watched List</a>
+            <a href="scoreboard.html" class="nav-item">Ratings Scoreboard</a>
+        </div>
+        <div class="search-bar" id="searchBarContainer"></div>
+        <div class="profile-box">
+            <div class="profile-label">Profile</div>
+            <div class="profile-dropdown">
+                <a href="profile.html" onclick="goToProfile()">View Profile</a>
+                <a href="index.html" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
 
-  <script>
-    // Fetch and inject the search bar component
-    fetch('search-bar-component.html')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('searchBarContainer').innerHTML = data;
-      })
-      .catch(error => console.error(error));
+    <script>
+        // Fetch and inject the search bar component
+        fetch('search-bar-component.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('searchBarContainer').innerHTML = data;
+            })
+            .catch(error => console.error(error));
 
-
-      function goToProfile() {
-        // Redirect to profile.html and include the username from sessionStorage
-        const username = sessionStorage.getItem('username');
-        if (username) {
-            window.location.href = `profile.html?u=${encodeURIComponent(username)}`;
-        } else {
-            console.error('Username not found in sessionStorage.');
+        function goToProfile() {
+            // Redirect to profile.html and include the username from sessionStorage
+            const username = sessionStorage.getItem('username');
+            if (username) {
+                window.location.href = `profile.html?u=${encodeURIComponent(username)}`;
+            } else {
+                console.error('Username not found in sessionStorage.');
+            }
         }
-    }
-  </script>
+    </script>
 </body>
 </html>
