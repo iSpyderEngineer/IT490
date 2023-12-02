@@ -11,6 +11,9 @@
     
     <div id="welcomeMessage"></div>
 
+    <!-- Include the navbar container -->
+    <div id="navbar-container"></div>
+
     <script>
         // Retrieve session information from sessionStorage
         const sessionid = sessionStorage.getItem('sessionid');
@@ -81,7 +84,14 @@
             welcomeMessage.innerHTML = `Welcome, ${username} to Scene Sync! Try and find some movies you'd like based on ur preferences.`;
         }
 
-        setWelcomeMessage();
+        // Fetch and inject the navbar component
+        fetch('components/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+                setWelcomeMessage();
+            })
+            .catch(error => console.error(error));
     </script>
 </body>
 </html>
