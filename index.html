@@ -40,33 +40,34 @@
 
             console.log("Logging in");
     
-            $.ajax({
-                url: 'RabbitMQ/dbConsumer.php',
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(result) {
-                    console.log(result);
+          
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(result) {
+                        console.log(result);
 
-                    if (result.returnCode == "1") {
-                        console.log("Login successful");
-                        try {
-                            location.href = "home.html";
-                        } catch (error) {
-                            console.error("Error during redirection:", error);
+                        if (result.returnCode == "1") {
+                            console.log("Login successful");
+                            try {
+                                location.href = "home.html";
+                            } catch (error) {
+                                console.error("Error during redirection:", error);
+                            }
+                        } else {
+                            showMessage(result.message);
                         }
-                    } else {
-                        showMessage(result.message);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        showMessage("AJAX error: " + textStatus + " - " + errorThrown);
+                        console.log("there was a problem with the message?");
+                        console.log(errorThrown);
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    showMessage("AJAX error: " + textStatus + " - " + errorThrown);
-                    console.log("there was a problem with the message?");
-                    console.log(errorThrown);
-                }
-            });
+                });
 
             function showMessage(message) {
                 $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
