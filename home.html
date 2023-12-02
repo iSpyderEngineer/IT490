@@ -14,6 +14,9 @@
     <!-- Include the navbar container -->
     <div id="navbar-container"></div>
 
+    <!-- Include the search bar component -->
+    <div id="search-bar-container"></div>
+
     <script>
         // Retrieve session information from sessionStorage
         const sessionid = sessionStorage.getItem('sessionid');
@@ -92,6 +95,19 @@
                 setWelcomeMessage();
             })
             .catch(error => console.error(error));
+
+        // Fetch and inject the search bar component
+        fetch('components/search-bar-component.html')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('search-bar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error fetching search bar component:', error));
     </script>
 </body>
 </html>
