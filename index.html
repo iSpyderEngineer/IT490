@@ -52,12 +52,14 @@
 
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-
-                        console.log("Redirecting to home.html");
-                        location.href = "home.html";
+                        try {
+                            location.href = "home.html";
+                        } catch (error) {
+                            console.error("Error during redirection:", error);
+                        }
+                    } else {
+                        showMessage(result.message);
                     }
-
-                    showMessage(result.message);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showMessage("AJAX error: " + textStatus + " - " + errorThrown);
