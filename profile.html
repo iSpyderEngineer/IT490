@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>About username</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
     <link rel="stylesheet" href="styles.css"> <!-- Include your CSS file -->
 </head>
 <body>
@@ -178,9 +179,10 @@ function enableEditFunctionality() {
     $('#edit-actor').click(function () {
         const newActor = prompt("Enter your new favorite actor:");
         if (newActor && newActor.trim() !== "") {
-            if (personExists(newActor)) {
-                $('#actor-info').text(newActor);
-                submitProfileData('favActor', newActor);
+            const sanitizedActor = DOMPurify.sanitize(newActor);
+            if (personExists(sanitizedActor)) {
+                $('#actor-info').text(sanitizedActor);
+                submitProfileData('favActor', sanitizedActor);
             } else {
                 alert("Invalid actor input. Please enter a valid actor.");
             }
@@ -192,9 +194,10 @@ function enableEditFunctionality() {
     $('#edit-movie').click(function () {
         const newMovie = prompt("Enter your new favorite movie:");
         if (newMovie && newMovie.trim() !== "") {
-            if (movieExists(newMovie)) {
-                $('#movie-info').text(newMovie);
-                submitProfileData('favMovie', newMovie);
+            const sanitizedMovie = DOMPurify.sanitize(newMovie);
+            if (movieExists(sanitizedMovie)) {
+                $('#movie-info').text(sanitizedMovie);
+                submitProfileData('favMovie', sanitizedMovie);
             } else {
                 alert("Invalid movie input. Please enter a valid movie.");
             }
@@ -206,9 +209,10 @@ function enableEditFunctionality() {
     $('#edit-director').click(function () {
         const newDirector = prompt("Enter your new favorite director:");
         if (newDirector && newDirector.trim() !== "") {
-            if (personExists(newDirector)) {
-                $('#director-info').text(newDirector);
-                submitProfileData('favDirector', newDirector);
+            const sanitizedDirector = DOMPurify.sanitize(newDirector);
+            if (personExists(sanitizedDirector)) {
+                $('#director-info').text(sanitizedDirector);
+                submitProfileData('favDirector', sanitizedDirector);
             } else {
                 alert("Invalid director input. Please enter a valid director.");
             }

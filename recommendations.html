@@ -17,6 +17,8 @@
         $(document).ready(function() {
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
+            const usernameHeader = document.getElementById('username-header');
+
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
@@ -27,6 +29,25 @@
                 }
             };
             xhr.send();
+
+            
+           // Retrieve username from session storage
+           const username = sessionStorage.getItem('username');
+
+            if (!username) {
+                // Redirect to login page if username is not found
+                location.href = "index.html";
+            }
+
+            // Display the username in the header
+            if (username) {
+                usernameHeader.textContent = username + "'s Recommendations";
+            }
+
+
+   
+
+
         });
 
         function loadRecommendations() {

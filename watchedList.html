@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchedlist</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <h1>Watchlist</h1>
+
+    <div id="watchlist-container">
+        <!-- Watchlist content will be loaded here -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Retrieve username from session storage
+            const username = sessionStorage.getItem('username');
+
+            // Load the navbar component
+            const navbarContainer = document.getElementById('navbar-container');
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    navbarContainer.innerHTML = xhr.responseText;
+
+                    // Call other functions after the navbar is loaded (if needed)
+                    loadWatchlistData();
+                }
+            };
+            xhr.send();
+
+            function loadWatchlistData() {
+                // Fetch watchlist data from RabbitMQ and populate the watchlist.
+                // Use AJAX to get the user's watchlist data.
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with the actual URL
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        type: 'getWatchedList',
+                        username: username
+                    },
+                    success: function (result) {
+                        // Process the received watchlist data and generate the components.
+                        if (result && result.length > 0) {
+                            result.forEach(function (item) {
+                                const watchlistComponent = generateWatchlistComponent(item);
+                                $('#watchlist-container').append(watchlistComponent);
+                            });
+                        } else {
+                            // Handle case where watchlist is empty.
+                            $('#watchlist-container').append('<p>No movies in watchlist</p>');
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading watchlist data");
+                    }
+                });
+            }
+
+            // Function to generate watchlist component
+            function generateWatchlistComponent(item) {
+                const movieTitle = item.movie_title;
+                const dateAdded = item.date_added;
+                const movieImageSrc = item.movie_image; // Assuming this is the URL to the movie image.
+                const watchListID = item.watchlist_id;
+
+                return `
+                    <div class="watchlist-item">
+                        <h2>${movieTitle}</h2>
+                        <p>Date Added: ${dateAdded}</p>
+                        <img src="${movieImageSrc}" alt="${movieTitle} Image">
+                        <button class="remove-button" data-watchlist-id="${watchListID}">Remove</button>
+                    </div>
+                `;
+            }
+
+            // Event delegation to handle remove button clicks
+            $('#watchlist-container').on('click', '.remove-button', function() {
+                const watchListID = $(this).data('watchlist-id');
+                removeMovieFromWatchlist(watchListID);
+            });
+
+            // Function to remove movie from watchlist
+            function removeMovieFromWatchlist(watchListID) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with the actual URL
+                    method: 'POST',
+                    data: {
+                        type: 'deleteFromWatchList',
+                        watchListID: watchListID
+                    },
+                    success: function (result) {
+                        // Assuming success means the movie is removed, you can update the UI accordingly.
+                        $(`[data-watchlist-id="${watchListID}"]`).closest('.watchlist-item').remove();
+                    },
+                    error: function () {
+                        console.log("Error removing movie from watchlist");
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
