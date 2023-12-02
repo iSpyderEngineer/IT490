@@ -3,10 +3,17 @@ require_once('dbConnection.inc');
 
 //isfar + Sean
 function validateLogin($username, $password) {
+    echo "Starting validation" . PHP_EOL;
+
     $database = dbConnect();
+    echo "Database connected" . PHP_EOL;
+
     $sanitizedUsername = $database->real_escape_string($username);
     $sanitizedPassword = $database->real_escape_string($password);
+
     $query = "SELECT * FROM Accounts WHERE Username = '$sanitizedUsername'";
+    echo "Executing query: $query" . PHP_EOL;
+
     $result = $database->query($query);
 
     $usernameFound = false;
@@ -16,6 +23,7 @@ function validateLogin($username, $password) {
         $usernameFound = true;
 
         if ($sanitizedPassword === $row["PasswordHash"]) {
+            echo "Password match found" . PHP_EOL;
             return json_encode(array("returnCode" => '1', 'message' => "Logged In"));
         } else {
             // Check elapsed time
@@ -25,19 +33,24 @@ function validateLogin($username, $password) {
             $timeLimit = 5;
 
             if ($elapsedTime > $timeLimit) {
+                echo "Password check took too long" . PHP_EOL;
                 return json_encode(array("returnCode" => '0', 'message' => "Password check is taking too long"));
             }
 
             // Continue checking passwords
+            echo "Continuing password check" . PHP_EOL;
         }
     }
 
     if ($usernameFound) {
+        echo "Incorrect Password" . PHP_EOL;
         return json_encode(array("returnCode" => '0', 'message' => "Incorrect Password"));
     } else {
+        echo "No User Match The Given Username" . PHP_EOL;
         return json_encode(array("returnCode" => '0', 'message' => "No User Match The Given Username"));
     }
 }
+
 
 //isfar
 function validateRegister($firstname, $lastname, $username, $email, $address, $city, $country, $zipcode, $password) {
