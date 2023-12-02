@@ -9,7 +9,8 @@
 <body>
     <div id="navbar-container"></div>
 
-    <h1>Recommendations</h1>
+    <!-- Display the username in the header -->
+    <h1 id="username-header">Loading...</h1>
 
     <div id="recommendations-container"></div>
 
@@ -18,7 +19,6 @@
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
             const usernameHeader = document.getElementById('username-header');
-
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
@@ -30,9 +30,8 @@
             };
             xhr.send();
 
-            
-           // Retrieve username from session storage
-           const username = sessionStorage.getItem('username');
+            // Retrieve username from session storage
+            const username = sessionStorage.getItem('username');
 
             if (!username) {
                 // Redirect to login page if username is not found
@@ -41,139 +40,163 @@
 
             // Display the username in the header
             if (username) {
-                usernameHeader.textContent = username + "'s Recommendations";
+                usernameHeader.textContent = `${username}'s Recommendations`;
             }
-
-
-   
-
-
         });
 
         function loadRecommendations() {
-        // Fetch user's favorite movie from sessions
-        $.ajax({
-            url: 'apiConsumer.php',
-            method: 'POST',
-            data: {
-                type: 'getUserProfile',
-                username: '<?php echo $_SESSION["loggedInUser"]; ?>'
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response && response.favoriteMovie) {
-                    const favoriteMovie = response.favoriteMovie;
-                    getRecommendationsByFavoriteMovie(favoriteMovie);
-                    getRecommendationsByActorDirector(response.actorData);
-                    getRecommendationsByGenre(response.genres);
-                } else {
-                    console.log('No favorite movie found');
+            // Fetch user's favorite movie from sessions
+            $.ajax({
+                url: 'apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'getUserProfile',
+                    username: '<?php echo $_SESSION["loggedInUser"]; ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.favoriteMovie) {
+                        const favoriteMovie = response.favoriteMovie;
+                        getRecommendationsByFavoriteMovie(favoriteMovie);
+                        getRecommendationsByActorDirector(response.actorData);
+                        getRecommendationsByGenre(response.genres);
+                    } else {
+                        // Handle case where user data is not found
+                        console.log('User data not found');
+                        displayNoRecommendationsMessage();
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    // Handle errors if any
+                    displayNoRecommendationsMessage();
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
-                // Handle errors if any
-            }
-        });
-    }
+            });
+        }
 
-    function getRecommendationsByFavoriteMovie(favoriteMovie) {
-        // Fetch recommendations based on the user's favorite movie
-        $.ajax({
-            url: 'apiConsumer.php',
-            method: 'POST',
-            data: {
-                type: 'displayRecommendedMovies',
-                movieData: favoriteMovie,
-                source: 'favoriteMovie'
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response && response.recommendations) {
-                    displayRecommendations(response.recommendations);
-                } else {
-                    console.log('No recommendations found based on favorite movie');
+        function getRecommendationsByFavoriteMovie(favoriteMovie) {
+            // Fetch recommendations based on the user's favorite movie
+            $.ajax({
+                url: 'apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'displayRecommendedMovies',
+                    movieData: favoriteMovie,
+                    source: 'favoriteMovie'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.recommendations && response.recommendations.length > 0) {
+                        // Display section title
+                        displaySectionTitle('Recommendations Based on Favorite Movie');
+                        displayRecommendations(response.recommendations);
+                    } else {
+                        // Handle case where no recommendations are found
+                        console.log('No recommendations found based on favorite movie');
+                        displayNoRecommendationsMessage();
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    // Handle errors if any
+                    displayNoRecommendationsMessage();
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
-                // Handle errors if any
-            }
-        });
-    }
+            });
+        }
 
-    function getRecommendationsByActorDirector(actorData) {
-        // Fetch recommendations based on actor and director
-        $.ajax({
-            url: 'apiConsumer.php',
-            method: 'POST',
-            data: {
-                type: 'recommendationActorDirector',
-                username: '<?php echo $_SESSION["loggedInUser"]; ?>',
-                actorData: actorData
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response && response.recommendations) {
-                    displayRecommendations(response.recommendations);
-                } else {
-                    console.log('No recommendations found based on actor/director');
+        function getRecommendationsByActorDirector(actorData) {
+            // Fetch recommendations based on actor and director
+            $.ajax({
+                url: 'RabbitMQ/apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'recommendationActorDirector',
+                    username: '<?php echo $_SESSION["loggedInUser"]; ?>',
+                    actorData: actorData
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.recommendations && response.recommendations.length > 0) {
+                        // Display section title
+                        displaySectionTitle('Recommendations Based on Actor/Director');
+                        displayRecommendations(response.recommendations);
+                    } else {
+                        // Handle case where no recommendations are found
+                        console.log('No recommendations found based on actor/director');
+                        displayNoRecommendationsMessage();
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    // Handle errors if any
+                    displayNoRecommendationsMessage();
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
-                // Handle errors if any
-            }
-        });
-    }
+            });
+        }
 
-    function getRecommendationsByGenre(genres) {
-        // Fetch recommendations based on favorite genre
-        $.ajax({
-            url: 'apiConsumer.php',
-            method: 'POST',
-            data: {
-                type: 'getMoviesByMovieAndGenre',
-                username: '<?php echo $_SESSION["loggedInUser"]; ?>',
-                genres: genres
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response && response.recommendations) {
-                    displayRecommendations(response.recommendations);
-                } else {
-                    console.log('No recommendations found based on genre');
+        function getRecommendationsByGenre(genres) {
+            // Fetch recommendations based on favorite genre
+            $.ajax({
+                url: 'apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'getMoviesByMovieAndGenre',
+                    username: '<?php echo $_SESSION["loggedInUser"]; ?>',
+                    genres: genres
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.recommendations && response.recommendations.length > 0) {
+                        // Display section title
+                        displaySectionTitle('Recommendations Based on Genre');
+                        displayRecommendations(response.recommendations);
+                    } else {
+                        // Handle case where no recommendations are found
+                        console.log('No recommendations found based on genre');
+                        displayNoRecommendationsMessage();
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    // Handle errors if any
+                    displayNoRecommendationsMessage();
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
-                // Handle errors if any
-            }
-        });
-    }
+            });
+        }
 
-    function displayRecommendations(recommendations) {
-        const recommendationsContainer = document.getElementById('recommendations-container');
+        function displaySectionTitle(title) {
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            const sectionTitle = document.createElement('h2');
+            sectionTitle.textContent = title;
+            recommendationsContainer.appendChild(sectionTitle);
+        }
 
-        // Loop through the recommendations and create movie blocks
-        recommendations.forEach(movie => {
-            const movieBlock = document.createElement('div');
-            movieBlock.classList.add('movie-block');
-            movieBlock.innerHTML = `
-                <h2>${movie.Title}</h2>
-                <p>Director: ${movie.Director}</p>
-                <p>Genre: ${movie.Genre}</p>
-                <p>Year: ${movie.Year}</p>
-                <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
-                <!-- Add additional movie information here -->
-            `;
-            // Append each movie block to the recommendations container
-            recommendationsContainer.appendChild(movieBlock);
-        });
-    }
+        function displayRecommendations(recommendations) {
+            const recommendationsContainer = document.getElementById('recommendations-container');
 
-    
+            // Loop through the recommendations and create movie blocks
+            recommendations.forEach(movie => {
+                const movieBlock = document.createElement('div');
+                movieBlock.classList.add('movie-block');
+                movieBlock.innerHTML = `
+                    <h3>${movie.Title}</h3>
+                    <p>Director: ${movie.Director}</p>
+                    <p>Genre: ${movie.Genre}</p>
+                    <p>Year: ${movie.Year}</p>
+                    <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
+                    <!-- Add additional movie information here -->
+                `;
+                // Append each movie block to the recommendations container
+                recommendationsContainer.appendChild(movieBlock);
+            });
+        }
 
+        function displayNoRecommendationsMessage() {
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            const noRecommendationsMessage = document.createElement('p');
+            noRecommendationsMessage.textContent = 'No recommendations available.';
+            recommendationsContainer.appendChild(noRecommendationsMessage);
+        }
     </script>
 </body>
 </html>
