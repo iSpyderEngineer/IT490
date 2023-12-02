@@ -26,7 +26,7 @@
           </div>
       </div>
       <!-- Include the search bar component -->
-      <div id="searchBarContainer"></div>
+      <div id="search-bar"></div>
   </nav>
 
   <script>
@@ -39,7 +39,7 @@
         return response.text();
       })
       .then(data => {
-        document.getElementById('searchBarContainer').innerHTML = data;
+        document.getElementById('search-bar').innerHTML = data;
       })
       .catch(error => console.error('Error fetching search bar component:', error));
 
