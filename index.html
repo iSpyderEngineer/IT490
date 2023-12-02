@@ -26,55 +26,44 @@
         </form>
         <p>Don't have an account? <a href="register.html">Register here</a>.</p>
     </div>
+    
     <script>
         function validate() {
             let formData = new FormData($("#login")[0]);
             formData.append("type", "login");
             let uname = formData.get("username");
-            let password = formData.get("password");
-
-            // Hash the password using SHA-256
-            let hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-
-            formData.set("password", hashedPassword); // Update the password in the form data
-
             console.log("Logging in");
     
-          
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: function(result) {
-                        console.log(result);
-
-                        if (result.returnCode == "1") {
-                            console.log("Login successful");
-                            try {
-                                location.href = "home.html";
-                            } catch (error) {
-                                console.error("Error during redirection:", error);
-                            }
-                        } else {
-                            showMessage(result.message);
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        showMessage("AJAX error: " + textStatus + " - " + errorThrown);
-                        console.log("there was a problem with the message?");
-                        console.log(errorThrown);
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(result) {
+                    console.log(result);
+    
+                    if (result.returnCode == "1") {
+                        console.log("Login successful");
+                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
+                        document.cookie = "username=" + uname;
+                        console.log("Redirecting to home.html");
+                        location.href = "home.html";
                     }
-                });
-
-            function showMessage(message) {
-                $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
-                console.log("the message has failed");
-                console.log(message);
-            }
+    
+                    showMessage(result.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showMessage(errorThrown);
+                }
+            });
+        }
+    
+        function showMessage(message) {
+            $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
         }
     </script>    
+  
 </body>
 </html>
