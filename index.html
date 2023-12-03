@@ -64,7 +64,9 @@
     
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-                        let sessionid = generateSessionId();
+                        
+                        // Use the sessionid returned from the server
+                        let sessionid = result.sessionid;
 
                         storeSessionInformation(uname, sessionid);
 
