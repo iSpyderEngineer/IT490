@@ -1,56 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Navbar</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="../functions/logout.js"></script>
-</head>
-<body>
-  <nav class="navbar">
-      <a href="home.html" class="logo">
-          <img src="path/to/logo.png" alt="Logo">
-      </a>
-      <div class="nav-links">
-          <a href="recommendations.html" class="nav-item">Recommendations</a>
-          <a href="watchList.html" class="nav-item">Watch List</a>
-          <a href="watchedList.html" class="nav-item">Watched List</a>
-          <a href="scoreboard.html" class="nav-item">Ratings Scoreboard</a>
-      </div>
-      <!-- Include the search bar component -->
-      <div id="search-bar"></div>
-      <div class="profile-box">
-          <div class="profile-label">Profile</div>
-          <div class="profile-dropdown">
-              <a href="profile.html" onclick="goToProfile()">View Profile</a>
-              <a href="index.html" onclick="logout()">Logout</a>
-          </div>
-      </div>
-  </nav>
+<div class="search-bar">
+  <input type="text" id="search-input" placeholder="Search for movies Here!" class="search-input">
+  <button onclick="searchMovies()">Search</button>
+  <div id="search-results"></div>
+</div>
 
-  <script>
-    // Fetch and inject the search bar component
-    fetch('search-bar-component.html')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then(data => {
-        document.getElementById('search-bar').innerHTML = data;
-      })
-      .catch(error => console.error('Error fetching search bar component:', error));
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function searchMovies() {
+      let query = $('#search-input').val();
 
-    function goToProfile() {
-      // Redirect to profile.html and include the username from sessionStorage
-      const username = sessionStorage.getItem('username');
-      if (username) {
-        window.location.href = `profile.html?u=${encodeURIComponent(username)}`;
-      } else {
-        console.error('Username not found in sessionStorage.');
-      }
-    }
-  </script>
-</body>
-</html>
+      // Make an AJAX request to your APIConsumer
+      $.ajax({
+          url: 'RabbitMQ/apiConsumer.php',
+          method: 'POST',
+          data: {
+              type: 'searchMoviesAndTVShows',
+              query: query
+          },
+          dataType: 'json',
+          success: function(response) {
+              // Handle the API response here and display the results as hyperlinks
+              console.log(response); // Example: Logging the response to the console
+              displayResults(response);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              console.error(errorThrown);
+              // Handle errors here
+          }
+      });
+  }
+
+  function displayResults(results) {
+      let searchResultsDiv = $('#search-results');
+      searchResultsDiv.empty(); // Clear previous results
+
+      // Loop through each item in the results array and create hyperlinks for titles
+      results.forEach(function(item) {
+          let title = item['Title'];
+          let titleLink = $('<a>').text(title).attr('href', '#'); // You can set the actual URL for each title here
+
+          // Append the title hyperlink to the search results div
+          searchResultsDiv.append(titleLink).append('<br>');
+      });
+  }
+</script>
