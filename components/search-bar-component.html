@@ -1,13 +1,13 @@
 <!-- components/search-bar-component.html -->
 <div class="search-bar">
   <input type="text" id="search-input" placeholder="Search for movies Here!" class="search-input">
-  <button onclick="searchMovies()">Search</button>
+  <button id="search-button">Search</button>
   <div id="search-results"></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  // Define the searchMovies function
+  // Define a searchMovies function
   function searchMovies() {
       let query = $('#search-input').val();
 
@@ -45,4 +45,11 @@
           searchResultsDiv.append(titleLink).append('<br>');
       });
   }
+
+  // Add an event listener for the search button click
+  $(document).ready(function() {
+    $('#search-button').click(function() {
+      searchMovies();
+    });
+  });
 </script>
