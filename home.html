@@ -106,8 +106,49 @@
             })
             .then(data => {
                 document.getElementById('search-bar-container').innerHTML = data;
+                // Include the searchMovies function after the search bar component is loaded
+                includeSearchMoviesFunction();
             })
             .catch(error => console.error('Error fetching search bar component:', error));
+
+        // Include the searchMovies function dynamically
+        function includeSearchMoviesFunction() {
+            const script = document.createElement('script');
+            script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+            document.body.appendChild(script);
+            script.onload = function () {
+                // Define the searchMovies function
+                function searchMovies() {
+                    let query = $('#search-input').val();
+                    $.ajax({
+                        url: 'RabbitMQ/apiConsumer.php',
+                        method: 'POST',
+                        data: {
+                            type: 'searchMoviesAndTVShows',
+                            query: query
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log(response);
+                            displayResults(response);
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error(errorThrown);
+                        }
+                    });
+                }
+
+                function displayResults(results) {
+                    let searchResultsDiv = $('#search-results');
+                    searchResultsDiv.empty();
+                    results.forEach(function(item) {
+                        let title = item['Title'];
+                        let titleLink = $('<a>').text(title).attr('href', '#');
+                        searchResultsDiv.append(titleLink).append('<br>');
+                    });
+                }
+            };
+        }
     </script>
 </body>
 </html>
