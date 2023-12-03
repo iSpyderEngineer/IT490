@@ -1,24 +1,15 @@
 #!/usr/bin/php
 <?php
+require_once('rabbitMQLib.inc');
 require_once('path.inc');
 require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
 
-$client = new rabbitMQClient("testRabbitMQ.ini", "database");
-
-$msg = isset($argv[1]) ? $argv[1] : "test message";
-
-$request = array();
-$request['type'] = "Login";
-$request['username'] = "steve";
-$request['password'] = "password";
-$request['message'] = $msg;
-
-$response = $client->send_request($request);
-
-echo "client received response: ".PHP_EOL;
-print_r($response);
-echo "\n\n";
-
-echo $argv[0]." END".PHP_EOL;
+try {
+    $client = new rabbitMQClient("testRabbitMQ.ini", "test");
+    $testMessage = ['type' => 'test', 'content' => 'Hello, server!'];
+    $response = $client->send_request($testMessage);
+    echo "Server response: " . json_encode($response) . "\n";
+} catch (Exception $e) {
+    error_log("Client error: " . $e->getMessage());
+}
 ?>

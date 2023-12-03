@@ -4,21 +4,17 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-function processMessage($msg)
+function processMessage($request)
 {
-   echo "Received a message:\n";
-   print_r($msg);
-
-   $response = ['status' => 'success', 'content' => 'Message processed'];
-   return $response;
+    echo "Received request: " . json_encode($request) . "\n";
+    $response = ['status' => 'success', 'message' => 'Message processed'];
+    return $response;
 }
 
-$server = new rabbitMQServer("testRabbitMQ.ini", "database");
-
-$server->process_requests('processMessage');
-
-echo "Server is running...\n";
+try {
+    $server = new rabbitMQServer("testRabbitMQ.ini","test");
+    $server->process_requests('processMessage');
+} catch (Exception $e) {
+    error_log("Server error: " . $e->getMessage());
+}
 ?>
-
-
-
