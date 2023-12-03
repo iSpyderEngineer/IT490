@@ -28,17 +28,6 @@
     </div>
     
     <script>
-        function generateSessionId() {
-            // Function to generate a random and unique session ID
-            return 'session_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        function storeSessionInformation(uname, sessionid) {
-            // Store session information in sessionStorage
-            sessionStorage.setItem('sessionid', sessionid);
-            sessionStorage.setItem('username', uname);
-        }
-
         function validate() {
             let formData = new FormData($("#login")[0]);
             formData.append("type", "login");
@@ -64,13 +53,8 @@
     
                     if (result.returnCode == "1") {
                         console.log("Login successful");
-                        let sessionid = generateSessionId();
-
-                        storeSessionInformation(uname, sessionid);
-
-                        document.cookie = "sessionid=" + encodeURIComponent(sessionid) + ";path='/';SameSite=Lax;";
+                        document.cookie = "sessionid=" + encodeURIComponent(result.sessionid) + ";path='/';SameSite=Lax;";
                         document.cookie = "username=" + uname;
-
                         console.log("Redirecting to home.html");
                         location.href = "home.html";
                     }
@@ -82,10 +66,11 @@
                 }
             });
         }
-
+    
         function showMessage(message) {
             $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
         }
     </script>    
+  
 </body>
 </html>
