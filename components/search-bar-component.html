@@ -1,115 +1,48 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Scene Sync Home</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <br>
-    
-    <div id="welcomeMessage"></div>
+<!-- components/search-bar-component.html -->
+<div class="search-bar">
+  <input type="text" id="search-input" placeholder="Search for movies Here!" class="search-input">
+  <button onclick="searchMovies()">Search</button>
+  <div id="search-results"></div>
+</div>
 
-    <!-- Include the navbar container -->
-    <div id="navbar-container"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // Define the searchMovies function
+  function searchMovies() {
+      let query = $('#search-input').val();
 
-    <!-- Include the search bar component -->
-    <div id="search-bar-container"></div>
+      // Make an AJAX request to your APIConsumer
+      $.ajax({
+          url: 'RabbitMQ/apiConsumer.php',
+          method: 'POST',
+          data: {
+              type: 'searchMoviesAndTVShows',
+              query: query
+          },
+          dataType: 'json',
+          success: function(response) {
+              // Handle the API response here and display the results as hyperlinks
+              console.log(response); // Example: Logging the response to the console
+              displayResults(response);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              console.error(errorThrown);
+              // Handle errors here
+          }
+      });
+  }
 
-    <script>
-        // Retrieve session information from sessionStorage
-        const sessionid = sessionStorage.getItem('sessionid');
-        const username = sessionStorage.getItem('username');
+  function displayResults(results) {
+      let searchResultsDiv = $('#search-results');
+      searchResultsDiv.empty(); // Clear previous results
 
-        if (!sessionid || !username) {
-            // Redirect to login page if session information is not found
-            location.href = "index.html";
-        }
+      // Loop through each item in the results array and create hyperlinks for titles
+      results.forEach(function(item) {
+          let title = item['Title'];
+          let titleLink = $('<a>').text(title).attr('href', '#'); // You can set the actual URL for each title here
 
-        console.log(sessionid);
-        console.log(username);
-
-        let sessionData = {
-            sessionid: sessionid
-        };
-
-        function validateSession() {
-            sessionData.type = "validate_session";
-            console.log(sessionData);
-
-            $.ajax({
-                url: 'sessionValidate.php',
-                method: 'POST',
-                data: sessionData,
-                dataType: 'json',
-                success: function (result) {
-                    if (result.returnCode != "1") {
-                        // Clear session information and redirect to login page
-                        sessionStorage.removeItem('sessionid');
-                        sessionStorage.removeItem('username');
-                        location.href = "index.html";
-                    }
-                },
-                error: function () {
-                    console.log("Error validating session");
-                }
-            });
-        }
-
-        validateSession();
-
-        function goToProfile() {
-            location.href = "profile.php?u=" + encodeURIComponent(username);
-        }
-
-        function logout() {
-            sessionData.type = "logout";
-
-            $.ajax({
-                url: 'sessionValidate.php',
-                method: 'POST',
-                data: sessionData,
-                success: function () {
-                    // Clear session information and redirect to login page
-                    sessionStorage.removeItem('sessionid');
-                    sessionStorage.removeItem('username');
-                    location.href = "index.html";
-                },
-                error: function () {
-                    console.log("Error logging out");
-                }
-            });
-        }
-
-        function setWelcomeMessage() {
-            let welcomeMessage = document.getElementById("welcomeMessage");
-            welcomeMessage.innerHTML = `Welcome, ${username} to Scene Sync! Try and find some movies you'd like based on ur preferences.`;
-        }
-
-        // Fetch and inject the navbar component
-        fetch('components/navbar.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar-container').innerHTML = data;
-                setWelcomeMessage();
-            })
-            .catch(error => console.error(error));
-
-        // Fetch and inject the search bar component
-        fetch('components/search-bar-component.html')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(data => {
-                document.getElementById('search-bar-container').innerHTML = data;
-                // Execute the searchMovies function after the search bar component is loaded
-                searchMovies();
-            })
-            .catch(error => console.error('Error fetching search bar component:', error));
-    </script>
-</body>
-</html>
+          // Append the title hyperlink to the search results div
+          searchResultsDiv.append(titleLink).append('<br>');
+      });
+  }
+</script>
