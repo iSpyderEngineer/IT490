@@ -33,29 +33,54 @@
             return 'session_' + Math.random().toString(36).substr(2, 9);
         }
 
+        function storeSessionInformation(uname, sessionid) {
+            // Store session information in sessionStorage
+            sessionStorage.setItem('sessionid', sessionid);
+            sessionStorage.setItem('username', uname);
+        }
+
         function validate() {
-            // Simulate a successful login response
-            var result = {
-                returnCode: '1',
-                sessionid: generateSessionId(),
-                message: 'Logged In'
-            };
+            let formData = new FormData($("#login")[0]);
+            formData.append("type", "login");
+            let uname = formData.get("username");
+            let password = formData.get("password");
 
-            console.log(result);
+            // Hash the password using SHA-256
+            let hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
 
-            if (result.returnCode == "1") {
-                console.log("Login successful");
-                let uname = $("#username").val();
+            formData.set("password", hashedPassword); // Update the password in the form data
 
-                // Store session information in sessionStorage
-                sessionStorage.setItem('sessionid', result.sessionid);
-                sessionStorage.setItem('username', uname);
+            console.log("Logging in");
+    
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(result) {
+                    console.log(result);
+    
+                    if (result.returnCode == "1") {
+                        console.log("Login successful");
+                        let sessionid = generateSessionId();
 
-                console.log("Redirecting to home.html");
-                location.href = "home.html";
-            }
+                        storeSessionInformation(uname, sessionid);
 
-            showMessage(result.message);
+                        document.cookie = "sessionid=" + encodeURIComponent(sessionid) + ";path='/';SameSite=Lax;";
+                        document.cookie = "username=" + uname;
+
+                        console.log("Redirecting to home.html");
+                        location.href = "home.html";
+                    }
+    
+                    showMessage(result.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showMessage(errorThrown);
+                }
+            });
         }
 
         function showMessage(message) {
@@ -64,4 +89,3 @@
     </script>    
 </body>
 </html>
-
