@@ -63,6 +63,16 @@ if ($_POST) {
         case "getMovieByDetails":
             $request['movieID'] = $_POST['movieID'];
             break;
+        
+        // Handle get recent watched recommendations 
+        case "getRecentWatchedRecommendations":
+            $request['username'] = $_POST['username'];
+            break;
+
+        // Handle get most recent watched movie request
+        case "getMostRecentWatched":
+            $request['username'] = $_POST['username'];
+            break;
 
         // Default case for invalid request types
         default:
@@ -84,4 +94,3 @@ if ($_POST) {
     // Output an error message if no POST data is received
     echo json_encode(["error" => "No POST data received"]);
 }
-?>

@@ -20,21 +20,18 @@
 
             // Check if the username is available
             if (username) {
-                // Make a POST request to getUserProfile
-                fetch('RabbitMQ/dbConsumer.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                // Make a GET request to getUserProfile
+                $.ajax({
+                    url: `RabbitMQ/dbConsumer.php?type=getUserProfile&username=${username}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (result) {
+                        // Display the user profile information
+                        displayUserProfile(result);
                     },
-                    body: JSON.stringify({ action: 'getUserProfile', username: username }),
-                })
-                .then(response => response.json())
-                .then(result => {
-                    // Display the user profile information
-                    displayUserProfile(result);
-                })
-                .catch(error => {
-                    console.error('Error fetching user profile data:', error);
+                    error: function (error) {
+                        console.error('Error fetching user profile data:', error);
+                    }
                 });
             } else {
                 console.log("Username not found in sessionStorage");
