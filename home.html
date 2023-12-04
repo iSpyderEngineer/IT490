@@ -103,7 +103,6 @@
         // Define a searchMovies function
         function searchMovies() {
             let query = $('#search-input').val();
-            let language = 'english'; // Replace with the actual language entered by the user
 
             // Make an AJAX request to your APIConsumer
             $.ajax({
@@ -111,8 +110,7 @@
                 method: 'POST',
                 data: {
                     type: 'searchMoviesAndTVShows',
-                    query: query,
-                    language: language // Pass the language parameter to the API
+                    query: query
                 },
                 dataType: 'json',
                 success: function (response) {
@@ -134,17 +132,15 @@
                 let title = item['Title'];
                 let movieID = item['movieID'];
 
-                // Filter movies by language (example: English)
-                if (item['Language'] === 'English') {
-                    let titleLink = $('<a>').text(title).attr('href', 'movie.html?movieID=' + movieID);
-                    // Add click event listener to the titleLink
-                    titleLink.click(function () {
-                        // Redirect to movie.html with the movieID parameter
-                        location.href = 'movie.html?movieID=' + movieID;
-                    });
+                let titleLink = $('<a>').text(title).attr('href', 'movie.html?movieID=' + movieID);
+                
+                // Add click event listener to the titleLink
+                titleLink.click(function () {
+                    // Redirect to movie.html with the movieID parameter
+                    location.href = 'movie.html?movieID=' + movieID;
+                });
 
-                    searchResultsDiv.append(titleLink).append('<br>');
-                }
+                searchResultsDiv.append(titleLink).append('<br>');
             });
         }
 
