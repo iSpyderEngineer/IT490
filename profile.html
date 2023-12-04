@@ -91,7 +91,7 @@
             // Use AJAX to get the user's favorite director, movie, and bio.
             // Populate the elements with the received data.
             $.ajax({
-                url: 'RabbitMQ/getProfileData.php', // Replace with actual file and command 
+                url: 'RabbitMQ/dbConsumer.php', // Replace with actual file and command 
                 method: 'GET',
                 data: { username: username }, // Pass the username as a parameter
                 dataType: 'json',
@@ -144,7 +144,7 @@ function enableEditFunctionality() {
     function personExists(personName) {
         let result = false;
         $.ajax({
-            url: 'RabbitMQ/checkPersonExists.php', // Replace with actual file and command
+            url: 'RabbitMQ/apiConsumer.php', // Replace with actual file and command
             method: 'POST',
             data: { personName: personName },
             async: false,
@@ -162,7 +162,7 @@ function enableEditFunctionality() {
     function movieExists(movieQuery) {
         let result = false;
         $.ajax({
-            url: 'RabbitMQ/checkMovieExists.php', // Replace with actual file and command
+            url: 'RabbitMQ/dbConsumer.php', // Replace with actual file and command
             method: 'POST',
             data: { movieQuery: movieQuery },
             async: false,
