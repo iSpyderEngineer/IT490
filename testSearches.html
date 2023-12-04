@@ -25,7 +25,7 @@
             }
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "your_php_script.php", true);
+            xhr.open("POST", "RabbitMQ/apiConsumer.php", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
