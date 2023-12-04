@@ -27,7 +27,7 @@
         const username = sessionStorage.getItem('username');
 
         if (!sessionid || !username) {
-            // Redirect to login page if session information is not found
+            // Redirect to the login page if session information is not found
             location.href = "index.html";
         }
 
@@ -49,7 +49,7 @@
                 dataType: 'json',
                 success: function (result) {
                     if (result.returnCode != "1") {
-                        // Clear session information and redirect to login page
+                        // Clear session information and redirect to the login page
                         sessionStorage.removeItem('sessionid');
                         sessionStorage.removeItem('username');
                         location.href = "index.html";
@@ -75,7 +75,7 @@
                 method: 'POST',
                 data: sessionData,
                 success: function () {
-                    // Clear session information and redirect to login page
+                    // Clear session information and redirect to the login page
                     sessionStorage.removeItem('sessionid');
                     sessionStorage.removeItem('username');
                     location.href = "index.html";
@@ -100,43 +100,60 @@
             })
             .catch(error => console.error(error));
 
-        // Include the searchMovies function dynamically
-        const script = document.createElement('script');
-        script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-        document.body.appendChild(script);
+        // Define a searchMovies function
+        function searchMovies() {
+            let query = $('#search-input').val();
+            let language = 'english'; // Replace with the actual language entered by the user
 
-        script.onload = function () {
-            // Add an event listener for the search button click
-            $('#search-button').click(function () {
-                let query = $('#search-input').val();
-                $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: 'POST',
-                    data: {
-                        type: 'searchMoviesAndTVShows',
-                        query: query
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        console.log(response);
-                        displayResults(response);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.error(errorThrown);
-                    }
-                });
+            // Make an AJAX request to your APIConsumer
+            $.ajax({
+                url: 'RabbitMQ/apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'searchMoviesAndTVShows',
+                    query: query,
+                    language: language // Pass the language parameter to the API
+                },
+                dataType: 'json',
+                success: function (response) {
+                    console.log(response);
+                    displayResults(response);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    // Handle errors here
+                }
             });
+        }
 
-            function displayResults(results) {
-                let searchResultsDiv = $('#search-results');
-                searchResultsDiv.empty();
-                results.forEach(function (item) {
-                    let title = item['Title'];
-                    let titleLink = $('<a>').text(title).attr('href', '#');
+        function displayResults(results) {
+            let searchResultsDiv = $('#search-results');
+            searchResultsDiv.empty();
+
+            results.forEach(function (item) {
+                let title = item['Title'];
+                let movieID = item['movieID'];
+
+                // Filter movies by language (example: English)
+                if (item['Language'] === 'English') {
+                    let titleLink = $('<a>').text(title).attr('href', 'movie.html?movieID=' + movieID);
+                    // Add click event listener to the titleLink
+                    titleLink.click(function () {
+                        // Redirect to movie.html with the movieID parameter
+                        location.href = 'movie.html?movieID=' + movieID;
+                    });
+
                     searchResultsDiv.append(titleLink).append('<br>');
-                });
-            }
-        };
+                }
+            });
+        }
+
+        // Add an event listener for the search button click
+        $(document).ready(function () {
+            $('#search-button').click(function () {
+                searchMovies();
+            });
+        });
     </script>
 </body>
 </html>
