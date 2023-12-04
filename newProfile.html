@@ -15,24 +15,36 @@
             <table>
                 <tr>
                     <th>Favorite Actor:</th>
-                    <td><input type="text" id="favoriteActor" name="favoriteActor" size="25" required></td>
+                    <td>
+                        <select id="favoriteActor" name="favoriteActor" required>
+                            <!-- Options will be populated dynamically using JavaScript -->
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <th>Favorite Movie:</th>
-                    <td><input type="text" id="favoriteMovie" name="favoriteMovie" size="25" required></td>
+                    <td>
+                        <select id="favoriteMovie" name="favoriteMovie" required>
+                            <!-- Options will be populated dynamically using JavaScript -->
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <th>Favorite Director:</th>
-                    <td><input type="text" id="favoriteDirector" name="favoriteDirector" size="25" required></td>
+                    <td>
+                        <select id="favoriteDirector" name="favoriteDirector" required>
+                            <!-- Options will be populated dynamically using JavaScript -->
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <th>Favorite Genre:</th>
                     <td>
-                        <input type="radio" id="action" name="favoriteGenre" value="Action">
-                        <label for="action">Action</label><br>
-                        <input type="radio" id="comedy" name="favoriteGenre" value="Comedy">
-                        <label for="comedy">Comedy</label><br>
-                        <!-- Add more radio buttons for other genres -->
+                        <select id="favoriteGenre" name="favoriteGenre" required>
+                            <option value="Action">Action</option>
+                            <option value="Comedy">Comedy</option>
+                            <!-- Add more options for other genres -->
+                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -40,7 +52,7 @@
                     <td><textarea id="biography" name="biography" rows="4" cols="50" required></textarea></td>
                 </tr>
             </table>
-            <button type="submit" name="submitProfile" id="submitProfile">Submit Profile</button>
+            <button type="button" name="submitProfile" id="submitProfile">Submit Profile</button>
         </form>
     </div>
     
@@ -48,13 +60,37 @@
         let form = $("#newProfileForm");
         let error = $("#error");
 
-        form.on("submit", async function (event) {
-            event.preventDefault();
+        // Populate dropdown options dynamically
+        async function populateDropdownOptions(endpoint, dropdownId) {
+            try {
+                let response = await $.ajax({
+                    url: `RabbitMQ/${endpoint}`,
+                    method: "GET",
+                    dataType: 'json'
+                });
 
-            let favoriteActor = sanitizeInput($("#favoriteActor").val());
-            let favoriteMovie = sanitizeInput($("#favoriteMovie").val());
-            let favoriteDirector = sanitizeInput($("#favoriteDirector").val());
-            let favoriteGenre = $("input[name='favoriteGenre']:checked").val();
+                if (response && response.success && response.data) {
+                    let dropdown = $(`#${dropdownId}`);
+                    dropdown.empty(); // Clear existing options
+                    response.data.forEach(option => {
+                        dropdown.append(`<option value="${option}">${option}</option>`);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Populate dropdown options for actors, directors, and movies
+        populateDropdownOptions('apiConsumer.php?type=getPeople', 'favoriteActor');
+        populateDropdownOptions('apiConsumer.php?type=getMovies', 'favoriteMovie');
+        populateDropdownOptions('apiConsumer.php?type=getPeople', 'favoriteDirector');
+
+        $("#submitProfile").on("click", async function () {
+            let favoriteActor = $("#favoriteActor").val();
+            let favoriteMovie = $("#favoriteMovie").val();
+            let favoriteDirector = $("#favoriteDirector").val();
+            let favoriteGenre = $("#favoriteGenre").val();
             let biography = sanitizeBiography($("#biography").val());
 
             // Check if fields are empty
@@ -64,92 +100,22 @@
             }
 
             try {
-                let actorExists = await checkActorExists(favoriteActor);
-                let directorExists = await checkDirectorExists(favoriteDirector);
+                let actorExists = true; // Assume actor exists since it's a dropdown
+                let directorExists = true; // Assume director exists since it's a dropdown
                 let genreExists = true; // You mentioned you don't want to check genre existence
-                let movieExists = await checkMovieExists(favoriteMovie);
+                let movieExists = true; // Assume movie exists since it's a dropdown
 
-                if (actorExists && directorExists && genreExists && movieExists) {
-                    // All exist, proceed with submission
-                    await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
-                    showMessage("Profile submitted successfully!", "success");
-                    sessionStorage.removeItem('profileUser');
-                    window.location.href = "login.html";
-                } else {
-                    if (!actorExists) {
-                        showMessage("Favorite Actor does not exist!", "error");
-                    }
-                    if (!directorExists) {
-                        showMessage("Favorite Director does not exist!", "error");
-                    }
-                    if (!genreExists) {
-                        showMessage("Favorite Genre does not exist!", "error");
-                    }
-                    if (!movieExists) {
-                        showMessage("Favorite Movie does not exist!", "error");
-                    }
-                }
+                // You can optionally perform existence checks here
+
+                // All exist, proceed with submission
+                await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+                showMessage("Profile submitted successfully!", "success");
+                sessionStorage.removeItem('profileUser');
+                window.location.href = "login.html";
             } catch (error) {
                 showMessage(error.message, "error");
             }
         });
-
-        async function checkActorExists(actor) {
-            try {
-                let response = await $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: "POST",
-                    data: {
-                        type: "searchPerson",
-                        personName: actor
-                    },
-                    dataType: 'json'
-                });
-
-                return response && response.success; // Adjust based on your response format
-            } catch (error) {
-                console.error(error);
-                return false;
-            }
-        }
-
-        async function checkDirectorExists(director) {
-            try {
-                let response = await $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: "POST",
-                    data: {
-                        type: "searchPerson",
-                        personName: director
-                    },
-                    dataType: 'json'
-                });
-
-                return response && response.success; // Adjust based on your response format
-            } catch (error) {
-                console.error(error);
-                return false;
-            }
-        }
-
-        async function checkMovieExists(movie) {
-            try {
-                let response = await $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: "POST",
-                    data: {
-                        type: "searchMovies",
-                        query: movie
-                    },
-                    dataType: 'json'
-                });
-
-                return response && response.success; // Adjust based on your response format
-            } catch (error) {
-                console.error(error);
-                return false;
-            }
-        }
 
         function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
             return new Promise(async (resolve, reject) => {
@@ -179,10 +145,6 @@
                     reject(error);
                 }
             });
-        }
-
-        function sanitizeInput(input) {
-            return input.replace(/[^a-zA-Z\s]/g, '');
         }
 
         function sanitizeBiography(bio) {
