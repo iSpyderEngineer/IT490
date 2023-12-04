@@ -87,13 +87,10 @@
         }
     
         function loadProfileData(username) {
-            // Fetch data from our backend (PHP) and populate the respective sections. NEEDS TO BE CHANGED FOR ACTUAL FUNCTIONS
-            // Use AJAX to get the user's favorite director, movie, and bio.
-            // Populate the elements with the received data.
             $.ajax({
-                url: 'RabbitMQ/dbConsumer.php', // Replace with actual file and command 
-                method: 'GET',
-                data: { username: username }, // Pass the username as a parameter
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'POST',
+                data: { action: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
                     if (result.username) {
@@ -128,126 +125,120 @@
                 }
             });
         }
-    
-        // Add edit functionality here
-    
-        // Add edit functionality here
 
-function enableEditFunctionality() {
-    $('#edit-actor').show();
-    $('#edit-movie').show();
-    $('#edit-director').show();
-    $('#edit-genre').show();
-    $('#edit-bio').show();
+        function enableEditFunctionality() {
+            $('#edit-actor').show();
+            $('#edit-movie').show();
+            $('#edit-director').show();
+            $('#edit-genre').show();
+            $('#edit-bio').show();
 
-    // Function to check if a person exists
-    function personExists(personName) {
-        let result = false;
-        $.ajax({
-            url: 'RabbitMQ/apiConsumer.php', // Replace with actual file and command
-            method: 'POST',
-            data: { personName: personName },
-            async: false,
-            success: function (response) {
-                result = response.exists;
-            },
-            error: function () {
-                console.log("Error checking person existence");
+            function personExists(personName) {
+                let result = false;
+                $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php',
+                    method: 'POST',
+                    data: { personName: personName },
+                    async: false,
+                    success: function (response) {
+                        result = response.exists;
+                    },
+                    error: function () {
+                        console.log("Error checking person existence");
+                    }
+                });
+                return result;
             }
-        });
-        return result;
-    }
 
-    // Function to check if a movie exists
-    function movieExists(movieQuery) {
-        let result = false;
-        $.ajax({
-            url: 'RabbitMQ/dbConsumer.php', // Replace with actual file and command
-            method: 'POST',
-            data: { movieQuery: movieQuery },
-            async: false,
-            success: function (response) {
-                result = response.exists;
-            },
-            error: function () {
-                console.log("Error checking movie existence");
+            function movieExists(movieQuery) {
+                let result = false;
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: { movieQuery: movieQuery },
+                    async: false,
+                    success: function (response) {
+                        result = response.exists;
+                    },
+                    error: function () {
+                        console.log("Error checking movie existence");
+                    }
+                });
+                return result;
             }
-        });
-        return result;
-    }
 
-    $('#edit-actor').click(function () {
-        const newActor = prompt("Enter your new favorite actor:");
-        if (newActor && newActor.trim() !== "") {
-            const sanitizedActor = DOMPurify.sanitize(newActor);
-            if (personExists(sanitizedActor)) {
-                $('#actor-info').text(sanitizedActor);
-                submitProfileData('favActor', sanitizedActor);
-            } else {
-                alert("Invalid actor input. Please enter a valid actor.");
+            $('#edit-actor').click(function () {
+                const newActor = prompt("Enter your new favorite actor:");
+                if (newActor && newActor.trim() !== "") {
+                    const sanitizedActor = DOMPurify.sanitize(newActor);
+                    if (personExists(sanitizedActor)) {
+                        $('#actor-info').text(sanitizedActor);
+                        submitProfileData('favActor', sanitizedActor);
+                    } else {
+                        alert("Invalid actor input. Please enter a valid actor.");
+                    }
+                } else {
+                    alert("Please enter a valid favorite actor.");
+                }
+            });
+
+            $('#edit-movie').click(function () {
+                const newMovie = prompt("Enter your new favorite movie:");
+                if (newMovie && newMovie.trim() !== "") {
+                    const sanitizedMovie = DOMPurify.sanitize(newMovie);
+                    if (movieExists(sanitizedMovie)) {
+                        $('#movie-info').text(sanitizedMovie);
+                        submitProfileData('favMovie', sanitizedMovie);
+                    } else {
+                        alert("Invalid movie input. Please enter a valid movie.");
+                    }
+                } else {
+                    alert("Please enter a valid favorite movie.");
+                }
+            });
+
+            $('#edit-director').click(function () {
+                const newDirector = prompt("Enter your new favorite director:");
+                if (newDirector && newDirector.trim() !== "") {
+                    const sanitizedDirector = DOMPurify.sanitize(newDirector);
+                    if (personExists(sanitizedDirector)) {
+                        $('#director-info').text(sanitizedDirector);
+                        submitProfileData('favDirector', sanitizedDirector);
+                    } else {
+                        alert("Invalid director input. Please enter a valid director.");
+                    }
+                } else {
+                    alert("Please enter a valid favorite director.");
+                }
+            });
+
+            // Similar logic for other edit buttons...
+
+            // ...
+
+            function submitProfileData(field, value) {
+                $.ajax({
+                    url: 'RabbitMQ/updateProfileData.php',
+                    method: 'POST',
+                    data: {
+                        username: "<?php echo $_SESSION['username']; ?>",
+                        field: field,
+                        value: value
+                    },
+                    dataType: 'json',
+                    success: function (result) {
+                        // Handle success response if needed
+                    },
+                    error: function () {
+                        console.log("Error updating profile data");
+                    }
+                });
             }
-        } else {
-            alert("Please enter a valid favorite actor.");
         }
-    });
 
-    $('#edit-movie').click(function () {
-        const newMovie = prompt("Enter your new favorite movie:");
-        if (newMovie && newMovie.trim() !== "") {
-            const sanitizedMovie = DOMPurify.sanitize(newMovie);
-            if (movieExists(sanitizedMovie)) {
-                $('#movie-info').text(sanitizedMovie);
-                submitProfileData('favMovie', sanitizedMovie);
-            } else {
-                alert("Invalid movie input. Please enter a valid movie.");
-            }
-        } else {
-            alert("Please enter a valid favorite movie.");
-        }
-    });
-
-    $('#edit-director').click(function () {
-        const newDirector = prompt("Enter your new favorite director:");
-        if (newDirector && newDirector.trim() !== "") {
-            const sanitizedDirector = DOMPurify.sanitize(newDirector);
-            if (personExists(sanitizedDirector)) {
-                $('#director-info').text(sanitizedDirector);
-                submitProfileData('favDirector', sanitizedDirector);
-            } else {
-                alert("Invalid director input. Please enter a valid director.");
-            }
-        } else {
-            alert("Please enter a valid favorite director.");
-        }
-    });
-
-    // Similar logic for other edit buttons...
-
-    // ...
-
-    function submitProfileData(field, value) {
-        // Submit the updated profile data to the server using AJAX
-        $.ajax({
-            url: 'RabbitMQ/updateProfileData.php', // Replace with actual file and command 
-            method: 'POST',
-            data: {
-                username: "<?php echo $_SESSION['username']; ?>",
-                field: field,
-                value: value
-            },
-            dataType: 'json',
-            success: function (result) {
-                // Handle success response if needed
-            },
-            error: function () {
-                console.log("Error updating profile data");
-            }
-        });
-    }
-}
-
-// Rest of your functions...
-</script>
+        // Rest of your functions...
+    </script>
     
 </body>
 </html>
+
