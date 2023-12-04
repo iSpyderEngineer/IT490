@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile Page</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>User Profile Page</h1>
@@ -13,25 +12,27 @@
     </div>
 
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
 
             // Check if the username is available
             if (username) {
-                // Make an AJAX request to dbConsumer.php with command "getUserProfile"
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
+                // Make a POST request to getUserProfile
+                fetch('RabbitMQ/dbConsumer.php', {
                     method: 'POST',
-                    data: { command: 'getUserProfile', username: username },
-                    dataType: 'json',
-                    success: function(result) {
-                        // Display the user profile information
-                        displayUserProfile(result);
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
-                    error: function() {
-                        console.log("Error fetching user profile data");
-                    }
+                    body: JSON.stringify({ action: 'getUserProfile', username: username }),
+                })
+                .then(response => response.json())
+                .then(result => {
+                    // Display the user profile information
+                    displayUserProfile(result);
+                })
+                .catch(error => {
+                    console.error('Error fetching user profile data:', error);
                 });
             } else {
                 console.log("Username not found in sessionStorage");
@@ -40,11 +41,11 @@
 
         function displayUserProfile(profileData) {
             // Update the content of the profile-container with the received data
-            const profileContainer = $('#profile-container');
-            profileContainer.empty();
+            const profileContainer = document.getElementById('profile-container');
+            profileContainer.innerHTML = '';
 
             if (profileData.username) {
-                profileContainer.append('<p><strong>Username:</strong> ' + profileData.username + '</p>');
+                profileContainer.innerHTML += '<p><strong>Username:</strong> ' + profileData.username + '</p>';
             }
 
             // Add similar lines for other profile information
