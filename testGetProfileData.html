@@ -19,11 +19,11 @@
 
             // Check if the username is available
             if (username) {
-                // Make an AJAX request to dbConsumer.php with action "getUserProfile"
+                // Make an AJAX request to dbConsumer.php with command "getUserProfile"
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
-                    data: { action: 'getUserProfile', username: username },
+                    data: { command: 'getUserProfile', username: username },
                     dataType: 'json',
                     success: function(result) {
                         // Display the user profile information
