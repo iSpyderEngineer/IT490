@@ -66,9 +66,10 @@
             try {
                 let actorExists = await checkActorExists(favoriteActor);
                 let directorExists = await checkDirectorExists(favoriteDirector);
-                let genreExists = await checkGenreExists(favoriteGenre);
+                let genreExists = true; // You mentioned you don't want to check genre existence
+                let movieExists = await checkMovieExists(favoriteMovie);
 
-                if (actorExists && directorExists && genreExists) {
+                if (actorExists && directorExists && genreExists && movieExists) {
                     // All exist, proceed with submission
                     await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
                     showMessage("Profile submitted successfully!", "success");
@@ -84,6 +85,9 @@
                     if (!genreExists) {
                         showMessage("Favorite Genre does not exist!", "error");
                     }
+                    if (!movieExists) {
+                        showMessage("Favorite Movie does not exist!", "error");
+                    }
                 }
             } catch (error) {
                 showMessage(error.message, "error");
@@ -91,100 +95,97 @@
         });
 
         async function checkActorExists(actor) {
-    try {
-        let response = await $.ajax({
-            url: 'RabbitMQ/apiConsumer.php',
-            method: "POST",
-            data: {
-                type: "searchPerson",
-                personName: actor
-            },
-            dataType: 'json'
-        });
+            try {
+                let response = await $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php',
+                    method: "POST",
+                    data: {
+                        type: "searchPerson",
+                        personName: actor
+                    },
+                    dataType: 'json'
+                });
 
-        return response && response.success; // Adjust based on your response format
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-}
-
-async function checkDirectorExists(director) {
-    try {
-        let response = await $.ajax({
-            url: 'RabbitMQ/apiConsumer.php',
-            method: "POST",
-            data: {
-                type: "searchPerson",
-                personName: director
-            },
-            dataType: 'json'
-        });
-
-        return response && response.success; // Adjust based on your response format
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-}
-
-async function checkGenreExists(genre) {
-    try {
-        let response = await $.ajax({
-            url: 'RabbitMQ/apiConsumer.php',
-            method: "POST",
-            data: {
-                type: "searchMovies",
-                query: genre
-            },
-            dataType: 'json'
-        });
-
-        return response && response.success; // Adjust based on your response format
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-}
-
-function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let response = await $.ajax({
-                url: 'RabbitMQ/dbConsumer.php',
-                method: "POST",
-                data: {
-                    type: "updatePreferences",
-                    favActor: favoriteActor,
-                    favDirector: favoriteDirector,
-                    favGenre: favoriteGenre,
-                    favMovie: favoriteMovie,
-                    biography: biography
-                },
-                dataType: 'json'
-            });
-
-            if (response && response.success) {
-                console.log("Profile submitted to dbConsumer via RabbitMQ");
-                resolve();
-            } else {
-                reject(new Error("Failed to submit profile to dbConsumer via RabbitMQ"));
+                return response && response.success; // Adjust based on your response format
+            } catch (error) {
+                console.error(error);
+                return false;
             }
-        } catch (error) {
-            console.error(error);
-            reject(error);
         }
-    });
-}
 
+        async function checkDirectorExists(director) {
+            try {
+                let response = await $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php',
+                    method: "POST",
+                    data: {
+                        type: "searchPerson",
+                        personName: director
+                    },
+                    dataType: 'json'
+                });
+
+                return response && response.success; // Adjust based on your response format
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
+
+        async function checkMovieExists(movie) {
+            try {
+                let response = await $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php',
+                    method: "POST",
+                    data: {
+                        type: "searchMovies",
+                        query: movie
+                    },
+                    dataType: 'json'
+                });
+
+                return response && response.success; // Adjust based on your response format
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
+
+        function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let response = await $.ajax({
+                        url: 'RabbitMQ/dbConsumer.php',
+                        method: "POST",
+                        data: {
+                            type: "updatePreferences",
+                            favActor: favoriteActor,
+                            favDirector: favoriteDirector,
+                            favGenre: favoriteGenre,
+                            favMovie: favoriteMovie,
+                            biography: biography
+                        },
+                        dataType: 'json'
+                    });
+
+                    if (response && response.success) {
+                        console.log("Profile submitted to dbConsumer via RabbitMQ");
+                        resolve();
+                    } else {
+                        reject(new Error("Failed to submit profile to dbConsumer via RabbitMQ"));
+                    }
+                } catch (error) {
+                    console.error(error);
+                    reject(error);
+                }
+            });
+        }
 
         function sanitizeInput(input) {
-            // Sanitize input to contain only letters and spaces
             return input.replace(/[^a-zA-Z\s]/g, '');
         }
 
         function sanitizeBiography(bio) {
-            // Sanitize biography to allow periods, apostrophes, and spaces
             return bio.replace(/[^a-zA-Z\s'.]/g, '');
         }
 
