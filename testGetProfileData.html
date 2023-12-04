@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>User Profile Page</h1>
@@ -15,11 +16,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
+            console.log('Username in sessionStorage:', username);
 
             // Check if the username is available
             if (username) {
                 // Make a POST request to getUserProfile
-                fetch('RabbitMQ/dbConsumer.php', {
+                fetch('RabbitMQ/your_endpoint_here', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
