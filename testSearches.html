@@ -32,10 +32,15 @@
                     document.getElementById("result").innerHTML = xhr.responseText;
                 }
             };
-            xhr.send("type=" + formData.type + "&" + buildQueryString(formData));
+
+            // Exclude the "type" field from the query string
+            xhr.send(buildQueryString(formData));
         }
 
         function buildQueryString(data) {
+            // Exclude the "type" field from the query string
+            delete data.type;
+            
             return Object.keys(data).map(function (key) {
                 return key + "=" + encodeURIComponent(data[key]);
             }).join("&");
