@@ -5,7 +5,6 @@
   <div id="search-results"></div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   // Define a searchMovies function
   function searchMovies() {
@@ -13,7 +12,7 @@
 
       // Make an AJAX request to your APIConsumer
       $.ajax({
-          url: '../RabbitMQ/apiConsumer.php',
+          url: 'RabbitMQ/apiConsumer.php',
           method: 'POST',
           data: {
               type: 'searchMoviesAndTVShows',
@@ -48,8 +47,8 @@
 
   // Add an event listener for the search button click
   $(document).ready(function() {
-    $('#search-button').click(function() {
-      searchMovies();
-    });
+      $('#search-button').click(function() {
+          searchMovies();
+      });
   });
 </script>
