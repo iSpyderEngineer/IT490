@@ -16,6 +16,7 @@
                 <tr>
                     <th>Favorite Actor:</th>
                     <td>
+                        <input type="text" id="favoriteActorInput" size="25" required>
                         <select id="favoriteActor" name="favoriteActor" required>
                             <!-- Options will be populated dynamically using JavaScript -->
                         </select>
@@ -24,6 +25,7 @@
                 <tr>
                     <th>Favorite Movie:</th>
                     <td>
+                        <input type="text" id="favoriteMovieInput" size="25" required>
                         <select id="favoriteMovie" name="favoriteMovie" required>
                             <!-- Options will be populated dynamically using JavaScript -->
                         </select>
@@ -32,6 +34,7 @@
                 <tr>
                     <th>Favorite Director:</th>
                     <td>
+                        <input type="text" id="favoriteDirectorInput" size="25" required>
                         <select id="favoriteDirector" name="favoriteDirector" required>
                             <!-- Options will be populated dynamically using JavaScript -->
                         </select>
@@ -57,15 +60,15 @@
     </div>
     
     <script>
-        let form = $("#newProfileForm");
         let error = $("#error");
 
-        // Populate dropdown options dynamically
-        async function populateDropdownOptions(endpoint, dropdownId) {
+        // Populate dropdown options dynamically based on the search term
+        async function populateDropdownOptions(endpoint, searchTerm, dropdownId) {
             try {
                 let response = await $.ajax({
                     url: `RabbitMQ/${endpoint}`,
-                    method: "GET",
+                    method: "POST",
+                    data: { searchTerm },
                     dataType: 'json'
                 });
 
@@ -81,10 +84,21 @@
             }
         }
 
-        // Populate dropdown options for actors, directors, and movies
-        populateDropdownOptions('apiConsumer.php?type=getPeople', 'favoriteActor');
-        populateDropdownOptions('apiConsumer.php?type=getMovies', 'favoriteMovie');
-        populateDropdownOptions('apiConsumer.php?type=getPeople', 'favoriteDirector');
+        // Search and populate dropdown options when the input changes
+        $("#favoriteActorInput").on("input", function() {
+            let searchTerm = $(this).val();
+            populateDropdownOptions('apiConsumer.php?type=searchPeople', searchTerm, 'favoriteActor');
+        });
+
+        $("#favoriteMovieInput").on("input", function() {
+            let searchTerm = $(this).val();
+            populateDropdownOptions('apiConsumer.php?type=searchMovies', searchTerm, 'favoriteMovie');
+        });
+
+        $("#favoriteDirectorInput").on("input", function() {
+            let searchTerm = $(this).val();
+            populateDropdownOptions('apiConsumer.php?type=searchPeople', searchTerm, 'favoriteDirector');
+        });
 
         $("#submitProfile").on("click", async function () {
             let favoriteActor = $("#favoriteActor").val();
@@ -99,22 +113,13 @@
                 return;
             }
 
-            try {
-                let actorExists = true; // Assume actor exists since it's a dropdown
-                let directorExists = true; // Assume director exists since it's a dropdown
-                let genreExists = true; // You mentioned you don't want to check genre existence
-                let movieExists = true; // Assume movie exists since it's a dropdown
+            // You can perform additional checks or validations here if needed
 
-                // You can optionally perform existence checks here
-
-                // All exist, proceed with submission
-                await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
-                showMessage("Profile submitted successfully!", "success");
-                sessionStorage.removeItem('profileUser');
-                window.location.href = "login.html";
-            } catch (error) {
-                showMessage(error.message, "error");
-            }
+            // All exist, proceed with submission
+            await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+            showMessage("Profile submitted successfully!", "success");
+            sessionStorage.removeItem('profileUser');
+            window.location.href = "login.html";
         });
 
         function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
