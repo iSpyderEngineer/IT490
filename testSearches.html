@@ -35,7 +35,7 @@
                             var response = JSON.parse(xhr.responseText);
 
                             // Display the content of the response object
-                            document.getElementById("result").innerHTML = JSON.stringify(response, null, 2);
+                            displayResult(response);
                         } catch (e) {
                             console.error("Error parsing JSON:", e);
                             console.log("Response:", xhr.responseText);
@@ -54,6 +54,32 @@
             return Object.keys(data).map(function (key) {
                 return key + "=" + encodeURIComponent(data[key]);
             }).join("&");
+        }
+
+        function displayResult(response) {
+            var resultContainer = document.getElementById("result");
+
+            // Clear previous content
+            resultContainer.innerHTML = '';
+
+            // Check if the response is an array
+            if (Array.isArray(response)) {
+                response.forEach(function (subArray) {
+                    // Create a new div for each sub-array
+                    var subArrayDiv = document.createElement('div');
+                    
+                    // Convert the sub-array to a string for display
+                    var subArrayString = JSON.stringify(subArray, null, 2);
+
+                    // Append the string representation of the sub-array to the div
+                    subArrayDiv.innerHTML = subArrayString;
+
+                    // Append the div to the result container
+                    resultContainer.appendChild(subArrayDiv);
+                });
+            } else {
+                console.error("Invalid response format. Expected an array.");
+            }
         }
     </script>
 </head>
