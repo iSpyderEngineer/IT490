@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Test Page</title>
+    <script>
+        function submitForm(type) {
+            var formData = {
+                type: type,
+            };
+
+            switch (type) {
+                case "searchMoviesAndTVShows":
+                    formData.query = document.getElementById("queryMoviesAndTVShows").value;
+                    break;
+
+                case "searchPerson":
+                    formData.personName = document.getElementById("personName").value;
+                    break;
+
+                default:
+                    console.error("Invalid request type");
+                    return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "your_php_script.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    document.getElementById("result").innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send("type=" + formData.type + "&" + buildQueryString(formData));
+        }
+
+        function buildQueryString(data) {
+            return Object.keys(data).map(function (key) {
+                return key + "=" + encodeURIComponent(data[key]);
+            }).join("&");
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Form for searchMoviesAndTVShows -->
+    <form onsubmit="event.preventDefault(); submitForm('searchMoviesAndTVShows');">
+        <label for="queryMoviesAndTVShows">Search Movies and TV Shows:</label>
+        <input type="text" id="queryMoviesAndTVShows">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Form for searchPerson -->
+    <form onsubmit="event.preventDefault(); submitForm('searchPerson');">
+        <label for="personName">Search Person:</label>
+        <input type="text" id="personName">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Result container -->
+    <div id="result"></div>
+
+</body>
+</html>
