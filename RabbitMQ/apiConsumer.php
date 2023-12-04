@@ -74,7 +74,7 @@ if ($_POST) {
     $client = new rabbitMQClient("testRabbitMQ.ini", "api");
     $response = $client->send_request($request);
     header("Content-Type: application/json");
-    echo $response;
+    echo json_encode($response);
 
     if (is_array($response)) {
         $response = json_encode($response);
