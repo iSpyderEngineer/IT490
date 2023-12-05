@@ -44,7 +44,7 @@
             profileContainer.innerHTML = '';
 
             if (Array.isArray(profileData)) {
-                // Convert the array to a string with formatting
+                // Convert the array to a JSON-formatted string with formatting
                 const arrayString = JSON.stringify(profileData, null, 2);
 
                 // Wrap the string representation of the array in a <pre> tag
@@ -57,6 +57,7 @@
     </script>
 </body>
 </html>
+
 
 
 
