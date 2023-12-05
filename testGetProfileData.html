@@ -49,11 +49,30 @@
 
                 // Wrap the string representation of the array in a <pre> tag
                 profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n' + arrayString + '</pre>';
+            } else if (profileData && typeof profileData === 'object') {
+                // Check if profileData is an object (not null or undefined)
+                const keys = Object.keys(profileData);
+
+                if (keys.length > 0) {
+                    // At least one property is present in the object
+                    profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n';
+                    
+                    keys.forEach(key => {
+                        // Display each property and its value
+                        profileContainer.innerHTML += `${key}: ${profileData[key]}\n`;
+                    });
+
+                    profileContainer.innerHTML += '</pre>';
+                } else {
+                    console.error('Invalid response format. Object has no properties.');
+                    console.log('Response:', profileData);
+                }
             } else {
-                console.error('Invalid response format. Expected an array.');
+                console.error('Invalid response format. Expected an array or object.');
                 console.log('Response:', profileData);
             }
         }
     </script>
 </body>
 </html>
+
