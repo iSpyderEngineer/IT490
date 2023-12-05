@@ -24,7 +24,6 @@
                 $.ajax({
                     url: `RabbitMQ/dbConsumer.php?type=getUserProfile&username=${username}`,
                     method: 'GET',
-                    dataType: 'json',
                     success: function (result) {
                         // Display the user profile information
                         displayUserProfile(result);
@@ -43,25 +42,22 @@
             const profileContainer = document.getElementById('profile-container');
             profileContainer.innerHTML = '';
 
+            // Check if the response is an array
             if (Array.isArray(profileData)) {
-                // Create a table for displaying the data
-                const table = document.createElement('table');
-
-                // Iterate through each array
+                // Iterate through the array and display each sub-array
                 profileData.forEach(function (subArray) {
-                    // Create a new row in the table
-                    const row = table.insertRow();
+                    // Create a new div for each sub-array
+                    var subArrayDiv = document.createElement('div');
+                    
+                    // Convert the sub-array to a string for display
+                    var subArrayString = subArray.join(', ');
 
-                    // Iterate through each element in the sub-array
-                    subArray.forEach(function (element) {
-                        // Create a cell in the row and set its content
-                        const cell = row.insertCell();
-                        cell.textContent = element;
-                    });
+                    // Append the string representation of the sub-array to the div
+                    subArrayDiv.innerHTML = '<p>' + subArrayString + '</p>';
+
+                    // Append the div to the result container
+                    profileContainer.appendChild(subArrayDiv);
                 });
-
-                // Append the table to the profile container
-                profileContainer.appendChild(table);
             } else {
                 console.error('Invalid response format. Expected an array.');
                 console.log('Response:', profileData);
