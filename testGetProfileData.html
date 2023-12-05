@@ -44,11 +44,14 @@
             profileContainer.innerHTML = '';
 
             if (Array.isArray(profileData)) {
-                // Convert the array to a JSON-formatted string with formatting
-                const arrayString = JSON.stringify(profileData, null, 2);
+                // Iterate through each array and display its content
+                profileData.forEach(function (subArray) {
+                    // Convert the sub-array to a JSON-formatted string with formatting
+                    const arrayString = JSON.stringify(subArray, null, 2);
 
-                // Wrap the string representation of the array in a <pre> tag
-                profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n' + arrayString + '</pre>';
+                    // Wrap the string representation of the sub-array in a <pre> tag
+                    profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n' + arrayString + '</pre>';
+                });
             } else {
                 console.error('Invalid response format. Expected an array.');
                 console.log('Response:', profileData);
@@ -57,7 +60,3 @@
     </script>
 </body>
 </html>
-
-
-
-
