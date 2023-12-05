@@ -26,8 +26,11 @@
                     method: 'GET',
                     dataType: 'json',
                     success: function (result) {
-                        // Display the user profile information
-                        displayUserProfile(result);
+                        // Display the user profile information and store the array
+                        const userProfileArray = displayUserProfile(result);
+
+                        // Now you can use userProfileArray for further processing
+                        console.log('Full User Profile Array:', userProfileArray);
                     },
                     error: function (error) {
                         console.error('Error fetching user profile data:', error);
@@ -39,8 +42,8 @@
         });
 
         function displayUserProfile(profileData) {
-            // Log the entire array for debugging
-            console.log('User Profile Data:', profileData);
+            // Log the entire array for debugging using console.dir()
+            console.dir('User Profile Data:', profileData);
 
             // Update the content of the profile-container with the received data
             const profileContainer = document.getElementById('profile-container');
@@ -53,7 +56,11 @@
             // Add similar lines for other profile information
 
             // ...
+
+            // Return the array for further use
+            return profileData;
         }
     </script>
 </body>
 </html>
+
