@@ -51,7 +51,7 @@
                 method: 'POST',
                 data: {
                     type: 'getUserProfile',
-                    username: '<?php echo $_SESSION["loggedInUser"]; ?>'
+                    username: sessionStorage.getItem('username') // Retrieve username from sessionStorage
                 },
                 dataType: 'json',
                 success: function(response) {
@@ -111,7 +111,7 @@
                 method: 'POST',
                 data: {
                     type: 'recommendationActorDirector',
-                    username: '<?php echo $_SESSION["loggedInUser"]; ?>',
+                    username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
                     actorData: actorData
                 },
                 dataType: 'json',
@@ -134,7 +134,6 @@
             });
         }
 
-
         function getRecommendationsByGenre(genres) {
             // Fetch recommendations based on favorite genre
             $.ajax({
@@ -142,7 +141,7 @@
                 method: 'POST',
                 data: {
                     type: 'getMoviesByMovieAndGenre',
-                    username: '<?php echo $_SESSION["loggedInUser"]; ?>',
+                    username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
                     genres: genres
                 },
                 dataType: 'json',
