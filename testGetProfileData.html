@@ -24,6 +24,7 @@
                 $.ajax({
                     url: `RabbitMQ/dbConsumer.php?type=getUserProfile&username=${username}`,
                     method: 'GET',
+                    dataType: 'json',
                     success: function (result) {
                         // Display the user profile information
                         displayUserProfile(result);
@@ -42,22 +43,12 @@
             const profileContainer = document.getElementById('profile-container');
             profileContainer.innerHTML = '';
 
-            // Check if the response is an array
             if (Array.isArray(profileData)) {
-                // Iterate through the array and display each sub-array
-                profileData.forEach(function (subArray) {
-                    // Create a new div for each sub-array
-                    var subArrayDiv = document.createElement('div');
-                    
-                    // Convert the sub-array to a string for display
-                    var subArrayString = subArray.join(', ');
+                // Convert the array to a JSON-formatted string with formatting
+                const arrayString = JSON.stringify(profileData, null, 2);
 
-                    // Append the string representation of the sub-array to the div
-                    subArrayDiv.innerHTML = '<p>' + subArrayString + '</p>';
-
-                    // Append the div to the result container
-                    profileContainer.appendChild(subArrayDiv);
-                });
+                // Wrap the string representation of the array in a <pre> tag
+                profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n' + arrayString + '</pre>';
             } else {
                 console.error('Invalid response format. Expected an array.');
                 console.log('Response:', profileData);
@@ -66,4 +57,3 @@
     </script>
 </body>
 </html>
-

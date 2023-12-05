@@ -35,9 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle user profile updates and preferences validation
         case "updateUserProfile":
         case "updateProfile":
-        case "updatePreferences":
         case "validateUserPreferences":
             $request['username'] = $_POST['username'];
+            $request['MovieID'] = $_POST['MovieID'];
             $request['favActor'] = $_POST['favActor'];
             $request['favGenre'] = $_POST['favGenre'];
             $request['favDirector'] = $_POST['favDirector'];
@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle adding movies to watch list or watched list
         case "addToWatchList":
         case "addToWatchedList":
+        case "addToWatchedListAndRemoveFromWatchList":
             $request['username'] = $_POST['username'];
             $request['movieTitle'] = $_POST['movieTitle'];
             $request['posterURL'] = $_POST['posterURL'];
@@ -57,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle insertion of a new movie review
         case "insertReview":
             $request['accountId'] = $_POST['accountId'];
+            $request['MovieID'] = $_POST['MovieID'];
             $request['movieTitle'] = $_POST['movieTitle'];
             $request['rating'] = $_POST['rating'];
             $request['review'] = $_POST['review'];
@@ -76,19 +78,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $request['type'] = $_GET["type"];
     
     switch ($request['type']) {
+        // Handle request for getting the leaderboard
         case "getLeaderboard":
             break;
-        
+
+        // Handle search for movie reviews
         case "searchMovieReviews":
             $request['movieTitle'] = $_GET['movieTitle'];
             break;
 
+        // Handle requests to get user profile, watch list, or watched list
         case "getUserProfile":
         case "getWatchList":
         case "getWatchedList":
             $request['username'] = $_GET['username'];
             break;
-
+        
+        // Default case for invalid request types
         default:
             echo json_encode(["error" => "Invalid GET request type"]);
             exit;
@@ -101,5 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Create a new RabbitMQ client instance, send the request, and output the response
 $client = new rabbitMQClient("testRabbitMQ.ini", "database");
 $response = $client->send_request($request);
-echo $response;
+header("Content-Type: application/json");
+echo json_encode($response);
+
+if (is_array($response)) {
+    $response = json_encode($response);
+}
 ?>
