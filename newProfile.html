@@ -17,9 +17,7 @@
                     <th>Favorite Actor:</th>
                     <td>
                         <input type="text" id="favoriteActorInput" size="25" required>
-                        <select id="favoriteActor" name="favoriteActor" required>
-                            <!-- Options will be populated dynamically using JavaScript -->
-                        </select>
+                        <!-- Removed the select for favoriteActor -->
                     </td>
                 </tr>
                 <tr>
@@ -35,9 +33,7 @@
                     <th>Favorite Director:</th>
                     <td>
                         <input type="text" id="favoriteDirectorInput" size="25" required>
-                        <select id="favoriteDirector" name="favoriteDirector" required>
-                            <!-- Options will be populated dynamically using JavaScript -->
-                        </select>
+                        <!-- Removed the select for favoriteDirector -->
                     </td>
                 </tr>
                 <tr>
@@ -63,17 +59,17 @@
         let error = $("#error");
 
         // Populate dropdown options dynamically based on the search term
-        async function populateDropdownOptions(endpoint, searchTerm, dropdownId) {
+        async function populateMovieDropdownOptions(searchTerm) {
             try {
                 let response = await $.ajax({
-                    url: `RabbitMQ/${endpoint}`,
+                    url: `RabbitMQ/apiConsumer.php?type=searchMovies`,
                     method: "POST",
                     data: { searchTerm },
                     dataType: 'json'
                 });
 
                 if (response && response.success && response.data) {
-                    let dropdown = $(`#${dropdownId}`);
+                    let dropdown = $("#favoriteMovie");
                     dropdown.empty(); // Clear existing options
                     response.data.forEach(option => {
                         dropdown.append(`<option value="${option}">${option}</option>`);
@@ -84,20 +80,10 @@
             }
         }
 
-        // Search and populate dropdown options when the input changes
-        $("#favoriteActorInput").on("input", function() {
-            let searchTerm = $(this).val();
-            populateDropdownOptions('apiConsumer.php?type=searchPeople', searchTerm, 'favoriteActor');
-        });
-
+        // Search and populate movie dropdown options when the input changes for favoriteMovie
         $("#favoriteMovieInput").on("input", function() {
             let searchTerm = $(this).val();
-            populateDropdownOptions('apiConsumer.php?type=searchMovies', searchTerm, 'favoriteMovie');
-        });
-
-        $("#favoriteDirectorInput").on("input", function() {
-            let searchTerm = $(this).val();
-            populateDropdownOptions('apiConsumer.php?type=searchPeople', searchTerm, 'favoriteDirector');
+            populateMovieDropdownOptions(searchTerm);
         });
 
         $("#submitProfile").on("click", async function () {
@@ -129,7 +115,7 @@
                         url: 'RabbitMQ/dbConsumer.php',
                         method: "POST",
                         data: {
-                            type: "updatePreferences",
+                            type: "validateUserPreferences",
                             favActor: favoriteActor,
                             favDirector: favoriteDirector,
                             favGenre: favoriteGenre,
