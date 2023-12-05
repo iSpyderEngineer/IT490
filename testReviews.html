@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Reviews Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Movie Reviews Test</h1>
+
+    <div id="search-reviews">
+        <h2>Search Movie Reviews</h2>
+        <label for="movie-title-search">Movie Title:</label>
+        <input type="text" id="movie-title-search" name="movie-title-search" value="How To Train Your Dragon" required>
+        <button onclick="searchMovieReviews()">Search Reviews</button>
+        <div id="search-results"></div>
+    </div>
+
+    <div id="insert-review">
+        <h2>Insert Movie Review</h2>
+        <label for="account-id">Account ID:</label>
+        <input type="text" id="account-id" name="account-id" value="1" required>
+        <label for="movie-id">Movie ID:</label>
+        <input type="text" id="movie-id" name="movie-id" value="123" required>
+        <label for="movie-title-insert">Movie Title:</label>
+        <input type="text" id="movie-title-insert" name="movie-title-insert" value="How To Train Your Dragon" required>
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating" name="rating" min="1" max="10" value="9" required>
+        <label for="review">Review:</label>
+        <textarea id="review" name="review" rows="4" required>Awesome movie!</textarea>
+        <button onclick="insertReview()">Insert Review</button>
+    </div>
+
+    <script>
+        function searchMovieReviews() {
+            const movieTitle = $('#movie-title-search').val();
+
+            if (movieTitle) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'GET',
+                    data: {
+                        type: 'searchMovieReviews',
+                        movieTitle: movieTitle
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        displaySearchResults(response);
+                    },
+                    error: function (error) {
+                        console.error('Error searching movie reviews:', error);
+                    }
+                });
+            } else {
+                console.error('Movie title for search cannot be empty.');
+            }
+        }
+
+        function insertReview() {
+            const accountId = $('#account-id').val();
+            const movieId = $('#movie-id').val();
+            const movieTitle = $('#movie-title-insert').val();
+            const rating = $('#rating').val();
+            const review = $('#review').val();
+
+            if (accountId && movieId && movieTitle && rating && review) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: {
+                        type: 'insertReview',
+                        accountId: accountId,
+                        MovieID: movieId,
+                        movieTitle: movieTitle,
+                        rating: rating,
+                        review: review
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('Review inserted successfully:', response);
+                        // You can perform additional actions after successful insertion
+                    },
+                    error: function (error) {
+                        console.error('Error inserting review:', error);
+                    }
+                });
+            } else {
+                console.error('All fields for review insertion must be filled.');
+            }
+        }
+
+        function displaySearchResults(results) {
+            const searchResultsContainer = document.getElementById('search-results');
+            searchResultsContainer.innerHTML = '';
+
+            if (results && results.length > 0) {
+                // Display search results
+                const sectionTitle = document.createElement('h3');
+                sectionTitle.textContent = 'Search Results';
+                searchResultsContainer.appendChild(sectionTitle);
+
+                results.forEach(review => {
+                    const reviewBlock = document.createElement('div');
+                    reviewBlock.classList.add('review-block');
+                    reviewBlock.innerHTML = `
+                        <p>Movie Title: ${review.MovieTitle}</p>
+                        <p>Rating: ${review.Rating}</p>
+                        <p>Review: ${review.Review}</p>
+                        <hr>
+                    `;
+                    searchResultsContainer.appendChild(reviewBlock);
+                });
+            } else {
+                // Handle case where no reviews are found
+                const noResultsMessage = document.createElement('p');
+                noResultsMessage.textContent = 'No reviews found for the specified movie title.';
+                searchResultsContainer.appendChild(noResultsMessage);
+            }
+        }
+    </script>
+</body>
+</html>
