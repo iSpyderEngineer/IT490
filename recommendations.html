@@ -47,7 +47,7 @@
         function loadRecommendations() {
             // Fetch user's favorite movie from sessions
             $.ajax({
-                url: 'apiConsumer.php',
+                url: 'RabbitMQ/apiConsumer.php',
                 method: 'POST',
                 data: {
                     type: 'getUserProfile',
@@ -77,7 +77,7 @@
         function getRecommendationsByFavoriteMovie(favoriteMovie) {
             // Fetch recommendations based on the user's favorite movie
             $.ajax({
-                url: 'apiConsumer.php',
+                url: 'RabbitMQ/apiConsumer.php',
                 method: 'POST',
                 data: {
                     type: 'displayRecommendedMovies',
