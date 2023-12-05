@@ -51,7 +51,7 @@
                 },
                 dataType: 'json',
                 success: function (response) {
-                    displayWatchlist(response.watchlist);
+                    displayWatchlist(response);
                 },
                 error: function (error) {
                     console.error('Error fetching watchlist:', error);
@@ -112,23 +112,23 @@
             }
         }
 
-        function displayWatchlist(watchlist) {
+        function displayWatchlist(response) {
             const watchlistContainer = document.getElementById('watchlist-container');
             watchlistContainer.innerHTML = '';
 
-            if (watchlist && watchlist.length > 0) {
+            if (response && response.length > 0) {
                 // Display watchlist
                 const sectionTitle = document.createElement('h2');
                 sectionTitle.textContent = 'Watchlist';
                 watchlistContainer.appendChild(sectionTitle);
 
-                watchlist.forEach(movie => {
+                response.forEach(movie => {
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
                     movieBlock.innerHTML = `
-                        <h3>${movie.Title}</h3>
+                        <h3>${movie.Movietitle}</h3>
                         <p>Year: ${movie.Year}</p>
-                        <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
+                        <img src="${movie.PosterURL}" alt="${movie.Movietitle} Poster">
                     `;
                     watchlistContainer.appendChild(movieBlock);
                 });
