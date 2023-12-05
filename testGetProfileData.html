@@ -39,6 +39,9 @@
         });
 
         function displayUserProfile(profileData) {
+            // Log the entire array for debugging
+            console.log('User Profile Data:', profileData);
+
             // Update the content of the profile-container with the received data
             const profileContainer = document.getElementById('profile-container');
             profileContainer.innerHTML = '';
