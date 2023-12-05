@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile Page</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -44,15 +43,15 @@
             const profileContainer = document.getElementById('profile-container');
             profileContainer.innerHTML = '';
 
-            if (profileData.username) {
-                // Wrap the string representation of the sub-array in a <pre> tag
-                const subArrayString = JSON.stringify(profileData, null, 2);
-                profileContainer.innerHTML += '<pre><strong>User Profile:</strong> ' + subArrayString + '</pre>';
+            if (Array.isArray(profileData)) {
+                // Convert the array to a string with formatting
+                const arrayString = JSON.stringify(profileData, null, 2);
+
+                // Wrap the string representation of the array in a <pre> tag
+                profileContainer.innerHTML += '<pre><strong>User Profile:</strong>\n' + arrayString + '</pre>';
+            } else {
+                console.error("Invalid response format. Expected an array.");
             }
-
-            // Add similar lines for other profile information
-
-            // ...
         }
     </script>
 </body>
