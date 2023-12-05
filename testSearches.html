@@ -85,36 +85,36 @@
                     // Append the div to the result container
                     resultContainer.appendChild(subArrayDiv);
                 });
+            } else if (response.ID !== undefined) { // Check if response has movie ID
+                var movieID = response.ID; // Set the movieID variable to the received movie ID
+                resultContainer.innerHTML = 'Movie ID: ' + movieID;
             } else {
-                console.error("Invalid response format. Expected an array.");
+                console.error("Invalid response format. Expected an array or object with movie ID.");
             }
         }
     </script>
 </head>
 <body>
 
-    <!-- Form for searchMoviesAndTVShows -->
+    <!-- Forms for various operations -->
     <form onsubmit="event.preventDefault(); submitForm('searchMoviesAndTVShows');">
         <label for="queryMoviesAndTVShows">Search Movies and TV Shows:</label>
         <input type="text" id="queryMoviesAndTVShows" placeholder="Enter a movie or TV show name">
         <button type="submit">Search</button>
     </form>
 
-    <!-- Form for searchPerson -->
     <form onsubmit="event.preventDefault(); submitForm('searchPerson');">
         <label for="personName">Search Person:</label>
         <input type="text" id="personName" placeholder="Enter a person's name">
         <button type="submit">Search</button>
     </form>
 
-    <!-- Form for recommendationActorDirector -->
     <form onsubmit="event.preventDefault(); submitForm('recommendationActorDirector');">
         <label for="recommendationInput">Get Recommendations for Actor/Director:</label>
         <input type="text" id="recommendationInput" placeholder="Enter an actor or director name">
         <button type="submit">Get Recommendations</button>
     </form>
 
-    <!-- Form for getMovieByDetails -->
     <form onsubmit="event.preventDefault(); submitForm('getMovieByDetails');">
         <label for="movieID">Get Movie by Details (Enter Movie ID):</label>
         <input type="text" id="movieID" placeholder="Enter Movie ID">
@@ -126,3 +126,4 @@
 
 </body>
 </html>
+
