@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leaderboard Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Leaderboard Test</h1>
+
+    <div id="leaderboard-container">
+        <!-- Display leaderboard here -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Make AJAX request to get leaderboard
+            getLeaderboard();
+        });
+
+        function getLeaderboard() {
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'GET',
+                data: {
+                    type: 'getLeaderboard'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    displayLeaderboard(response.leaderboard);
+                },
+                error: function (error) {
+                    console.error('Error fetching leaderboard:', error);
+                }
+            });
+        }
+
+        function displayLeaderboard(leaderboard) {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            leaderboardContainer.innerHTML = '';
+
+            if (leaderboard && leaderboard.length > 0) {
+                // Display leaderboard
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = 'Leaderboard';
+                leaderboardContainer.appendChild(sectionTitle);
+
+                leaderboard.forEach(entry => {
+                    const entryBlock = document.createElement('div');
+                    entryBlock.classList.add('leaderboard-entry');
+                    entryBlock.innerHTML = `
+                        <p>Username: ${entry.username}</p>
+                        <p>Points: ${entry.points}</p>
+                        <hr>
+                    `;
+                    leaderboardContainer.appendChild(entryBlock);
+                });
+            } else {
+                // Handle case where leaderboard is empty
+                console.log('Leaderboard is empty');
+                const noLeaderboardMessage = document.createElement('p');
+                noLeaderboardMessage.textContent = 'Leaderboard is empty.';
+                leaderboardContainer.appendChild(noLeaderboardMessage);
+            }
+        }
+    </script>
+</body>
+</html>
