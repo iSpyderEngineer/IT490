@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle user profile updates and preferences validation
         case "updateUserProfile":
         case "updateProfile":
-        case "validateUserPreferences":
+        case "validatePreferences":
             $request['username'] = $_POST['username'];
             $request['MovieID'] = $_POST['MovieID'];
             $request['favActor'] = $_POST['favActor'];
