@@ -79,9 +79,9 @@
         });
 
         $("#submitProfile").on("click", async function () {
-            let favoriteActor = $("#favoriteActor").val();
-            let favoriteMovie = $("#favoriteMovie").val();
-            let favoriteDirector = $("#favoriteDirector").val();
+            let favoriteActor = $("#favoriteActorInput").val();
+            let favoriteMovie = $("#favoriteMovieInput").val(); // Update to read value from the input
+            let favoriteDirector = $("#favoriteDirectorInput").val();
             let favoriteGenre = $("#favoriteGenre").val();
             let biography = sanitizeBiography($("#biography").val());
 
@@ -140,4 +140,3 @@
     </script>
 </body>
 </html>
-
