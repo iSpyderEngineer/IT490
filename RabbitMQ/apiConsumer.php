@@ -5,78 +5,72 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
 // Check if there is a POST request
-if ($_POST) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Initialize an array to store the request data and set the 'type' of request based on POST data
     $request = array();
-    $request['type'] = $_POST["type"];
+    if (isset($_POST["type"])) {
+        $request['type'] = $_POST["type"];
+    } else {
+        echo json_encode(["error" => "Request type is missing"]);
+        exit;
+    }
     
     // Switch case to handle different request types
     switch ($request['type']) {
-        // Handle display recommended movies request
-        case "displayRecommendedMovies":
-            $request['movieData'] = $_POST['movieData'];
-            $request['source'] = $_POST['source'];
-            break;
-
-        // Handle search movies request
-        case "searchMovies":
-            $request['query'] = $_POST['query'];
-            break;
-
         // Handle update user preferences request
         case "updateUserPreferences":
-            $request['userID'] = $_POST['userID'];
-            $request['preferences'] = $_POST['preferences'];
+            $request['userID'] = $_POST['userID'] ?? null;
+            $request['preferences'] = $_POST['preferences'] ?? null;
             break;
 
         // Handle search movies and TV shows request
         case "searchMoviesAndTVShows":
-            $request['query'] = $_POST['query'];
+            $request['query'] = $_POST['query'] ?? null;
             break;
 
         // Handle search person request
         case "searchPerson":
-            $request['personName'] = $_POST['personName'];
+            $request['personName'] = $_POST['personName'] ?? null;
             break;
 
         // Handle recommendation for actor or director request
         case "recommendationActorDirector":
-            $request['username'] = $_POST['username'];
+            $request['username'] = $_POST['username'] ?? null;
             break;
 
         // Handle get movies by actor request
         case "getMoviesByActor":
-            $request['actorName'] = $_POST['actorName'];
+            $request['actorName'] = $_POST['actorName'] ?? null;
             break;
 
         // Handle get movies by director request
         case "getMoviesByDirector":
-            $request['directorName'] = $_POST['directorName'];
+            $request['directorName'] = $_POST['directorName'] ?? null;
             break;
 
         // Handle get movies by movie and genre request
         case "getMoviesByMovieAndGenre":
-            $request['username'] = $_POST['username'];
+            $request['username'] = $_POST['username'] ?? null;
             break;
 
         // Handle get movie by details request
         case "getMovieByDetails":
-            $request['movieID'] = $_POST['movieID'];
+            $request['movieID'] = $_POST['movieID'] ?? null;
             break;
         
-        // Handle get recent watched recommendations 
+        // Handle get recent watched recommendations
         case "getRecentWatchedRecommendations":
-            $request['username'] = $_POST['username'];
+            $request['username'] = $_POST['username'] ?? null;
             break;
 
         // Handle get most recent watched movie request
         case "getMostRecentWatched":
-            $request['username'] = $_POST['username'];
+            $request['username'] = $_POST['username'] ?? null;
             break;
 
         // Default case for invalid request types
         default:
-            echo json_encode(["error" => "Invalid request type"]);
+            echo json_encode(["error" => "Invalid request type: " . $request['type']]);
             exit;
     }
 
@@ -85,11 +79,6 @@ if ($_POST) {
     $response = $client->send_request($request);
     header("Content-Type: application/json");
     echo json_encode($response);
-
-    if (is_array($response)) {
-        $response = json_encode($response);
-    }
-
 } else {
     // Output an error message if no POST data is received
     echo json_encode(["error" => "No POST data received"]);
