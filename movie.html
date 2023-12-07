@@ -43,6 +43,7 @@
         const navbarContainer = document.getElementById('navbar-container');
 
         const xhr = new XMLHttpRequest();
+        let movieRequest;
         xhr.open('GET', 'components/navbar.html', true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
@@ -57,18 +58,21 @@
             function loadMovieInfo() {
             // Get the movie title from the URL
             const urlParams = new URLSearchParams(window.location.search);
-            const movieTitle = urlParams.get('title');
+            let movieTitle = urlParams.get('movieID');
             if (movieTitle) {
+                console.log(movieTitle);
                 $('#movie-title').text(movieTitle);
-
+                
                 // Simulate the API call to fetch movie details
                 $.ajax({
                     url: 'RabbitMQ/apiConsumer.php', // Replace with your actual API endpoint
-                    method: 'POST',
+                    method: 'GET',
                     dataType: 'json',
-                    data: { title: movieTitle },
+                    data: { "type": "getMoviesByDetails", "movieID": Number(movieTitle)},
                     success: function (result) {
                         if (result) {
+                            console.log(result);
+                            movieRequest = result;
                             displayMovieDetails(result);
                         }
                     },
@@ -178,11 +182,15 @@
             // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
             // Include username if needed
             $.ajax({
-                url: 'RabbitMQ/addMovieToWatchedList.php', // Replace with actual URL
+                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
                 method: 'POST',
                 data: {
-                    title: movieTitle,
-                    // Include other necessary data like username, etc., if needed
+                    "type": "addToWatchedList",
+                    "username": "Billards27", //dummy name
+                    "MovieID": Number(movieTitle),
+                    "movieTitle": movieRequest.Title,
+                    "posterURL": movieRequest.PosterURL,
+                    "year": movieRequest.ReleaseDate.substring(0,4),
                 },
                 success: function () {
                     console.log(`Movie added to watched list: ${movieTitle}`);
