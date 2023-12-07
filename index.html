@@ -61,8 +61,9 @@
                 dataType: 'json',
                 success: function(result) {
                     console.log(result);
+                    var data = JSON.parse(result);
     
-                    if (result.returnCode == "1") {
+                    if (data.returnCode == "1") {
                         console.log("Login successful");
                         
                         // Use the sessionid returned from the server

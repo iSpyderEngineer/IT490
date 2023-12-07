@@ -17,12 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Switch case to handle different request types
     switch ($request['type']) {
-        // Handle update user preferences request
-        case "updateUserPreferences":
-            $request['userID'] = $_POST['userID'] ?? null;
-            $request['preferences'] = $_POST['preferences'] ?? null;
-            break;
-
         // Handle search movies and TV shows request
         case "searchMoviesAndTVShows":
             $request['query'] = $_POST['query'] ?? null;
