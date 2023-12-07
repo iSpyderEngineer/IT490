@@ -83,3 +83,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Output an error message if no POST data is received
     echo json_encode(["error" => "No POST data received"]);
 }
+?>
