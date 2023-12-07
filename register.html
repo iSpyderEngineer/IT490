@@ -85,12 +85,11 @@
                 });
             
                 console.log(response);
-                var data = JSON.parse(response);
-                
-                // Check the returnCode even if it's in quotes
-                showMessage(data.message, data.returnCode === "1" || data.returnCode === 1 || data["returnCode"] === "1" || data["returnCode"] === 1 ? "success" : "error");
 
-                if (data.returnCode === "1" || data.returnCode === 1 || data["returnCode"] === "1" || data["returnCode"] === 1) {
+                // Check the returnCode even if it's in quotes
+                showMessage(response.message, response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1 ? "success" : "error");
+
+                if (response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1) {
                     window.location.href = "newProfile.html";
                 }
             } catch (error) {
