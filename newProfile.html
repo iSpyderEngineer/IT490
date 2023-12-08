@@ -99,8 +99,8 @@
             await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
             showMessage("Profile submitted successfully!", "success");
             
-            // Clear the profileUser from session storage
-            sessionStorage.removeItem('profileUser');
+            // Clear the username from session storage
+            sessionStorage.removeItem('username');
             
             // Redirect to index.html
             window.location.href = "index.html";
