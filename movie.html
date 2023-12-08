@@ -178,6 +178,29 @@
             // Update other elements with additional details if needed
         }
 
+        function addToWatchList(movieTitle) {
+            // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
+            // Include username if needed
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                method: 'POST',
+                data: {
+                    "type": "addToWatchList",
+                    "username": "Billards27", //dummy name
+                    "MovieID": Number(movieTitle),
+                    "movieTitle": movieRequest.Title,
+                    "posterURL": movieRequest.PosterURL,
+                    "year": movieRequest.ReleaseDate.substring(0,4),
+                },
+                success: function () {
+                    console.log(`Movie added to watch list: ${movieTitle}`);
+                },
+                error: function () {
+                    console.log("Error adding movie to watch list");
+                }
+            });
+        }
+
         function addToWatchedList(movieTitle) {
             // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
             // Include username if needed
