@@ -113,6 +113,8 @@
                     if (result[0].rateScore) {
                         $('#rate-info').text(result[0].rateScore);
                     }
+                    // Displaying the username
+                    $('#username-info').text(username);
                 },
                 error: function () {
                     console.log("Error loading profile data");
