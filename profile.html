@@ -94,31 +94,24 @@
                 data: { type: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
-                    if (result.username) {
-                        $('#username-info').text(result.username);
-                    }
-                    if (result.actor) {
-                        $('#actor-info').text(result.actor);
-                        $('#edit-actor').show();
-                    }
-                    if (result.movie) {
-                        $('#movie-info').text(result.movie);
-                        $('#edit-movie').show();
-                    }
-                    if (result.director) {
-                        $('#director-info').text(result.director);
+                    if (result[0].FavoriteDirector) {
+                        $('#director-info').text(result[0].FavoriteDirector);
                         $('#edit-director').show();
                     }
-                    if (result.genre) {
-                        $('#genre-info').text(result.genre);
+                    if (result[0].FavoriteGenres) {
+                        $('#genre-info').text(result[0].FavoriteGenres);
                         $('#edit-genre').show();
                     }
-                    if (result.rate) {
-                        $('#rate-info').text(result.rate);
+                    if (result[0].FavoriteMovie) {
+                        $('#movie-info').text(result[0].FavoriteMovie);
+                        $('#edit-movie').show();
                     }
-                    if (result.bio) {
-                        $('#bio-info').text(result.bio);
+                    if (result[0].Biography) {
+                        $('#bio-info').text(result[0].Biography);
                         $('#edit-bio').show();
+                    }
+                    if (result[0].rateScore) {
+                        $('#rate-info').text(result[0].rateScore);
                     }
                 },
                 error: function () {
@@ -126,6 +119,7 @@
                 }
             });
         }
+
 
         function enableEditFunctionality() {
             $('#edit-actor').show();
