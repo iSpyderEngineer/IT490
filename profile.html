@@ -89,7 +89,7 @@
         function loadProfileData(username) {
             $.ajax({
                 url: 'RabbitMQ/dbConsumer.php',
-                method: 'POST',
+                method: 'GET',
                 data: { action: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
