@@ -68,7 +68,7 @@
                 // Event listener for the "Profile" link in the navbar
                 $('#profile-link').click(function (event) {
                     event.preventDefault(); // Prevent the default link behavior
-                    loadProfileData("<?php echo $_SESSION['username']; ?>");
+                    loadProfileData();
                 });
     
                 // Check if it's the user's own profile page to enable edit functionality
@@ -81,16 +81,17 @@
         xhr.send();
     
         function isCurrentUserProfile() {
-            const currentSessionUsername = "<?php echo $_SESSION['username']; ?>";
-            const profileUsername = "<?php echo isset($_GET['username']) ? $_GET['username'] : $_SESSION['username']; ?>";
+            const currentSessionUsername = sessionStorage.getItem('username');
+            const profileUsername = "";  // There is no PHP echo here as we use sessionStorage
             return currentSessionUsername === profileUsername;
         }
     
-        function loadProfileData(username) {
+        function loadProfileData() {
+            const username = sessionStorage.getItem('username');
             $.ajax({
                 url: 'RabbitMQ/dbConsumer.php',
                 method: 'GET',
-                data: { action: 'getUserProfile', username: username },
+                data: { type: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
                     if (result.username) {
@@ -221,7 +222,7 @@
                     url: 'RabbitMQ/updateProfileData.php',
                     method: 'POST',
                     data: {
-                        username: "<?php echo $_SESSION['username']; ?>",
+                        username: sessionStorage.getItem('username'),
                         field: field,
                         value: value
                     },
@@ -241,4 +242,3 @@
     
 </body>
 </html>
-
