@@ -79,6 +79,8 @@
         });
 
         $("#submitProfile").on("click", async function () {
+            const username = sessionStorage.getItem('username'); // Grab username from session storage
+            
             let favoriteActor = $("#favoriteActorInput").val();
             let favoriteMovie = $("#favoriteMovieInput").val(); // Update to read value from the input
             let favoriteDirector = $("#favoriteDirectorInput").val();
@@ -94,13 +96,17 @@
             // You can perform additional checks or validations here if needed
 
             // All exist, proceed with submission
-            await submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+            await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
             showMessage("Profile submitted successfully!", "success");
+            
+            // Clear the profileUser from session storage
             sessionStorage.removeItem('profileUser');
-            window.location.href = "login.html";
+            
+            // Redirect to index.html
+            window.location.href = "index.html";
         });
 
-        function submitProfileToRabbitMQ(favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
+        function submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
             return new Promise(async (resolve, reject) => {
                 try {
                     let response = await $.ajax({
@@ -108,6 +114,7 @@
                         method: "POST",
                         data: {
                             type: "validatePreferences",
+                            username: username,
                             favActor: favoriteActor,
                             favDirector: favoriteDirector,
                             favGenre: favoriteGenre,
@@ -140,3 +147,4 @@
     </script>
 </body>
 </html>
+

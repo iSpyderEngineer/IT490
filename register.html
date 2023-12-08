@@ -90,6 +90,8 @@
                 showMessage(response.message, response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1 ? "success" : "error");
 
                 if (response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1) {
+                    // Set the username in session storage
+                    sessionStorage.setItem('username', formData.username);
                     window.location.href = "newProfile.html";
                 }
             } catch (error) {
@@ -103,6 +105,7 @@
     </script>
 </body>
 </html>
+
 
 
 
