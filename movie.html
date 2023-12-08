@@ -54,12 +54,10 @@
             }
         };
         xhr.send();
-
+        const urlParams = new URLSearchParams(window.location.search);
+        let movieID = urlParams.get('movieID');
        
             function loadMovieInfo() {
-            // Get the movie title from the URL
-            const urlParams = new URLSearchParams(window.location.search);
-            let movieID = urlParams.get('movieID');
             if (movieID) {
                 console.log(movieID);
                 // $('#movie-title').text(movieID);
