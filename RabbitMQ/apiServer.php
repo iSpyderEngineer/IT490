@@ -130,7 +130,6 @@ function requestProcessor($request){
             return ['status' => 'error', 'message' => 'Username parameter is missing'];
         }
 
-
     default:
       // Handle unsupported request types
       echo "Request type not handled\n";
