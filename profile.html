@@ -94,6 +94,10 @@
                 data: { type: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
+                    if (result[0].FavoriteActor) {
+                        $('#actor-info').text(result[0].FavoriteActor);
+                        $('#edit-actor').show();
+                    }
                     if (result[0].FavoriteDirector) {
                         $('#director-info').text(result[0].FavoriteDirector);
                         $('#edit-director').show();
@@ -110,8 +114,8 @@
                         $('#bio-info').text(result[0].Biography);
                         $('#edit-bio').show();
                     }
-                    if (result[0].rateScore) {
-                        $('#rate-info').text(result[0].rateScore);
+                    if (result[0].RateScore) {
+                        $('#rate-info').text(result[0].RateScore);
                     }
                     // Displaying the username
                     $('#username-info').text(username);
