@@ -1,150 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>New Profile</title>
+    <meta charset="UTF-8">
+    <title>About username</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
+    <link rel="stylesheet" href="styles.css"> <!-- Include your CSS file -->
 </head>
 <body>
-    <div id="error"></div>
+    <div id="navbar-container"></div>
+    
+    <h1>About username</h1>
 
-    <div>
-        <form id="newProfileForm">
-            <h4>New Profile</h4>
-            <table>
-                <tr>
-                    <th>Favorite Actor:</th>
-                    <td><input type="text" id="favoriteActorInput" size="25" required></td>
-                </tr>
-                <tr>
-                    <th>Favorite Movie:</th>
-                    <td>
-                        <input type="text" id="favoriteMovieInput" size="25" required>
-                        <!-- Removed the select for favoriteMovie -->
-                    </td>
-                </tr>
-                <tr>
-                    <th>Favorite Director:</th>
-                    <td><input type="text" id="favoriteDirectorInput" size="25" required></td>
-                </tr>
-                <tr>
-                    <th>Favorite Genre:</th>
-                    <td>
-                        <select id="favoriteGenre" name="favoriteGenre" required>
-                            <option value="Action">Action</option>
-                            <option value="Comedy">Comedy</option>
-                            <!-- Add more options for other genres -->
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Biography:</th>
-                    <td><textarea id="biography" name="biography" rows="4" cols="50" required></textarea></td>
-                </tr>
-            </table>
-            <button type="button" name="submitProfile" id="submitProfile">Submit Profile</button>
+    <div id="username">
+        <h2>Username</h2>
+        <p id="username-info"></p>
+    </div>
+
+    <div id="actor">
+        <h2>Favorite Actor</h2>
+        <p id="actor-info"></p>
+    </div>
+
+    <div id="movie">
+        <h2>Favorite Movie</h2>
+        <p id="movie-info"></p>
+    </div>
+
+    <div id="director">
+        <h2>Favorite Director</h2>
+        <p id="director-info"></p>
+    </div>
+
+    <div id="genre">
+        <h2>Favorite Genre</h2>
+        <p id="genre-info"></p>
+    </div>
+
+    <div id="rate">
+        <h2>Rate Score</h2>
+        <p id="rate-info"></p>
+    </div>
+
+    <div id="bio">
+        <h2>Bio</h2>
+        <p id="bio-info"></p>
+    </div>
+
+    <button id="edit-profile" style="display: none;">Edit Profile</button>
+    
+    <div id="edit-form" style="display: none;">
+        <form id="profile-form">
+            <label for="favoriteActorInput">Favorite Actor:</label>
+            <input type="text" id="favoriteActorInput" name="favActor" required>
+
+            <label for="favoriteMovieInput">Favorite Movie:</label>
+            <input type="text" id="favoriteMovieInput" name="favMovie" required>
+
+            <label for="favoriteDirectorInput">Favorite Director:</label>
+            <input type="text" id="favoriteDirectorInput" name="favDirector" required>
+
+            <label for="favoriteGenre">Favorite Genre:</label>
+            <select id="favoriteGenre" name="favGenre" required>
+                <option value="Action">Action</option>
+                <option value="Comedy">Comedy</option>
+                <!-- Add more options for other genres -->
+            </select>
+
+            <label for="bio-input">Biography:</label>
+            <textarea id="bio-input" name="biography" rows="4" cols="50" required></textarea>
+
+            <button type="button" id="submit-changes">Submit Changes</button>
         </form>
     </div>
-    
-    <script>
-        let error = $("#error");
 
-        // Populate dropdown options dynamically based on the search term
-        async function populateMovieDropdownOptions(searchTerm) {
-            try {
-                let response = await $.ajax({
-                    url: `RabbitMQ/apiConsumer.php?type=searchMovies`,
-                    method: "POST",
-                    data: { searchTerm },
-                    dataType: 'json'
+    <script>
+        // Load the navbar component
+        const navbarContainer = document.getElementById('navbar-container');
+    
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'components/navbar.html', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                navbarContainer.innerHTML = xhr.responseText;
+    
+                // Call other functions after the navbar is loaded (if needed)
+                loadProfileData();
+    
+                // Event listener for the "Profile" link in the navbar
+                $('#profile-link').click(function (event) {
+                    event.preventDefault(); // Prevent the default link behavior
+                    loadProfileData();
                 });
 
-                if (response && response.success && response.data) {
-                    let dropdown = $("#favoriteMovie");
-                    dropdown.empty(); // Clear existing options
-                    response.data.forEach(option => {
-                        dropdown.append(`<option value="${option}">${option}</option>`);
-                    });
-                }
-            } catch (error) {
-                console.error(error);
+                // Event listener for the "Edit Profile" button
+                $('#edit-profile').click(function () {
+                    showEditForm();
+                });
+
+                // Event listener for the "Submit Changes" button
+                $('#submit-changes').click(function () {
+                    submitChanges();
+                });
             }
-        }
-
-        // Search and populate movie dropdown options when the input changes for favoriteMovie
-        $("#favoriteMovieInput").on("input", function() {
-            let searchTerm = $(this).val();
-            populateMovieDropdownOptions(searchTerm);
-        });
-
-        $("#submitProfile").on("click", async function () {
-            const username = sessionStorage.getItem('username'); // Grab username from session storage
-            
-            let favoriteActor = $("#favoriteActorInput").val();
-            let favoriteMovie = $("#favoriteMovieInput").val(); // Update to read value from the input
-            let favoriteDirector = $("#favoriteDirectorInput").val();
-            let favoriteGenre = $("#favoriteGenre").val();
-            let biography = sanitizeBiography($("#biography").val());
-
-            // Check if fields are empty
-            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
-                showMessage("All fields are required!", "error");
-                return;
-            }
-
-            // You can perform additional checks or validations here if needed
-
-            // All exist, proceed with submission
-            await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
-            showMessage("Profile submitted successfully!", "success");
-            
-            // Clear the username from session storage
-            sessionStorage.removeItem('username');
-            
-            // Redirect to index.html
-            window.location.href = "index.html";
-        });
-
-        function submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    let response = await $.ajax({
-                        url: 'RabbitMQ/dbConsumer.php',
-                        method: "POST",
-                        data: {
-                            type: "validatePreferences",
-                            username: username,
-                            favActor: favoriteActor,
-                            favDirector: favoriteDirector,
-                            favGenre: favoriteGenre,
-                            favMovie: favoriteMovie,
-                            biography: biography
-                        },
-                        dataType: 'json'
-                    });
-
-                    if (response && response.success) {
-                        console.log("Profile submitted to dbConsumer via RabbitMQ");
-                        resolve();
-                    } else {
-                        reject(new Error("Failed to submit profile to dbConsumer via RabbitMQ"));
+        };
+        xhr.send();
+    
+        function loadProfileData() {
+            const username = sessionStorage.getItem('username');
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'GET',
+                data: { type: 'getUserProfile', username: username },
+                dataType: 'json',
+                success: function (result) {
+                    if (result[0].FavoriteActor) {
+                        $('#actor-info').text(result[0].FavoriteActor);
                     }
-                } catch (error) {
-                    console.error(error);
-                    reject(error);
+                    if (result[0].FavoriteDirector) {
+                        $('#director-info').text(result[0].FavoriteDirector);
+                    }
+                    if (result[0].FavoriteGenres) {
+                        $('#genre-info').text(result[0].FavoriteGenres);
+                    }
+                    if (result[0].FavoriteMovie) {
+                        $('#movie-info').text(result[0].FavoriteMovie);
+                    }
+                    if (result[0].Biography) {
+                        $('#bio-info').text(result[0].Biography);
+                    }
+                    if (result[0].RateScore) {
+                        $('#rate-info').text(result[0].RateScore);
+                    }
+                    // Displaying the username
+                    $('#username-info').text(username);
+                },
+                error: function () {
+                    console.log("Error loading profile data");
                 }
             });
         }
 
-        function sanitizeBiography(bio) {
-            return bio.replace(/[^a-zA-Z\s'.]/g, '');
+        function showEditForm() {
+            // Load the existing data to the form
+            $('#favoriteActorInput').val($('#actor-info').text());
+            $('#favoriteMovieInput').val($('#movie-info').text());
+            $('#favoriteDirectorInput').val($('#director-info').text());
+            $('#favoriteGenre').val($('#genre-info').text());
+            $('#bio-input').val($('#bio-info').text());
+
+            // Show the edit form and hide the "Edit Profile" button
+            $('#edit-profile').hide();
+            $('#edit-form').show();
         }
 
-        function showMessage(message, result) {
-            error.html("<div class='alert alert-" + result + "'>" + message + "</div>");
+        function submitChanges() {
+            // Validate the form data (you can add more validation)
+            const actor = $('#favoriteActorInput').val();
+            const movie = $('#favoriteMovieInput').val();
+            const director = $('#favoriteDirectorInput').val();
+            const genre = $('#favoriteGenre').val();
+            const bio = $('#bio-input').val();
+
+            if (!actor || !movie || !director || !genre || !bio) {
+                alert("Please fill out all fields before submitting changes.");
+                return;
+            }
+
+            // Perform the post request to update the profile
+            $.ajax({
+                url: 'RabbitMQ/updateProfileData.php',
+                method: 'POST',
+                data: {
+                    username: sessionStorage.getItem('username'),
+                    field: 'updateProfile',
+                    favActor: actor,
+                    favMovie: movie,
+                    favDirector: director,
+                    favGenre: genre,
+                    biography: bio
+                },
+                dataType: 'json',
+                success: function (result) {
+                    // Handle success response if needed
+                    console.log(result);
+                    // Reload the page to display the updated information
+                    location.reload();
+                },
+                error: function () {
+                    console.log("Error updating profile data");
+                }
+            });
         }
     </script>
+    
 </body>
 </html>
-
