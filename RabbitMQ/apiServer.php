@@ -96,17 +96,28 @@ function requestProcessor($request){
         // Return an error if 'movieID' parameter is missing
         return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
       }
-    
-      case "getRecentWatchedRecommendations":
-        // Handle requests for recent watched recommendations
-        if (isset($request['username'])) {
-            $response = getRecentWatchedRecommendations($request['username']);
-            var_dump($response);
-            return $response;
-        } else {
-            // Return an error if 'username' parameter is missing
-            return ['status' => 'error', 'message' => 'Username parameter is missing'];
-        }
+
+    case "getTVByDetails":
+      // Handle requests to get tv details
+      if (isset($request['tvID'])) {
+        $response = getTVByDetails($request['tvID']);
+        var_dump($response);
+        return $response;
+      } else {
+        // Return an error if 'tvID' parameter is missing
+        return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
+      }
+  
+    case "getRecentWatchedRecommendations":
+      // Handle requests for recent watched recommendations
+      if (isset($request['username'])) {
+          $response = getRecentWatchedRecommendations($request['username']);
+          var_dump($response);
+          return $response;
+      } else {
+          // Return an error if 'username' parameter is missing
+          return ['status' => 'error', 'message' => 'Username parameter is missing'];
+      }
 
     case "getMostRecentWatched":
         // Handle requests to get the most recent watched movie

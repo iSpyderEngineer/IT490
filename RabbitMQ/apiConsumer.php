@@ -75,6 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case "getMoviesByDetails":
             $request['movieID'] = $_GET['movieID'];
             break;
+
+        // Handle get movie by details request
+        case "getTVByDetails":
+            $request['tvID'] = $_GET['tvID'];
+            break;
         
         // Handle get recent watched recommendations 
         case "getRecentWatchedRecommendations":
