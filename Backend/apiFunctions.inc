@@ -3,6 +3,7 @@ require_once('dbConnection.inc');
 
 $apiKey = 'ab0f6b84bbcbbd4066f4fee3eaba248c';
 
+/*
 function searchMoviesandTVShows($query) {
     global $apiKey;
     $apiUrl = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query=" . urlencode($query);
@@ -11,10 +12,50 @@ function searchMoviesandTVShows($query) {
     if ($result && isset($result['results'])) {
         $mediaList = array();
         foreach ($result['results'] as $media) {
+            $mediaType = '';
+            if (isset($media['media_type'])) {
+                $mediaType = $media['media_type'];
+            } elseif (isset($media['original_title'])) {
+                $mediaType = 'movie';
+            } elseif (isset($media['original_name'])) {
+                $mediaType = 'tvshow';
+            }
+
+        foreach ($result['results'] as $media) {
             $mediaList[] = array(
                 'ID' => $media['id'],
                 'Title' => $media['original_title'] ?? $media['original_name'],
                 'Type' => $media['media_type'],
+                'PosterURL' => isset($media['poster_path']) ? "https://image.tmdb.org/t/p/w500{$media['poster_path']}" : 'Not available',
+                'Type' => $mediaType);
+        }
+        return $mediaList;
+    } else {
+        return array('error' => 'No results found.');
+    }
+}
+*/
+
+function searchMoviesAndTVShows($query) {
+    global $apiKey;
+    $apiUrl = "https://api.themoviedb.org/3/search/multi?api_key={$apiKey}&query=" . urlencode($query);
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+    if ($result && isset($result['results'])) {
+        $mediaList = array();
+        foreach ($result['results'] as $media) {
+            $mediaType = '';
+            if (isset($media['media_type'])) {
+                $mediaType = $media['media_type'];
+            } elseif (isset($media['original_title'])) {
+                $mediaType = 'movie';
+            } elseif (isset($media['original_name'])) {
+                $mediaType = 'tvshow';
+            }
+            $mediaList[] = array(
+                'ID' => $media['id'],
+                'Title' => $media['original_title'] ?? $media['original_name'],
+                'Type' => $mediaType,
                 'PosterURL' => isset($media['poster_path']) ? "https://image.tmdb.org/t/p/w500{$media['poster_path']}" : 'Not available',
             );
         }
@@ -221,7 +262,7 @@ function getMoviesByDetails($movieId) {
     } else {
         return ['error' => 'Movie not found.'];
     }
-}
+} 
 
 
 
@@ -301,5 +342,51 @@ function getMostRecentWatched($username) {
     $stmt->close();
     $conn->close();
     return $mostRecentWatched;
+}
+function getTVByDetails($movieId) {
+    global $apiKey;
+    $apiUrl = "https://api.themoviedb.org/3/tv/{$movieId}?api_key={$apiKey}";
+    $response = file_get_contents($apiUrl);
+    $result = json_decode($response, true);
+
+    if ($result) {
+        $recommendations = [
+            'name' => $result['name'],
+            'PosterURL' => isset($result['poster_path']) ? "https://image.tmdb.org/t/p/w500" . $result['poster_path'] : 'Not available',
+            'Genre' => [],
+            'Actors' => [],
+            'Director' => '',
+            'first_air_date' => $result['first_air_date'],
+            'Overview' => $result['overview']
+        ];
+
+        foreach ($result['genres'] as $genre) {
+            $recommendations['Genre'][] = $genre['name'];
+        }
+
+        $creditUrl = "https://api.themoviedb.org/3/movie/{$movieId}/credits?api_key={$apiKey}";
+        $creditResponse = file_get_contents($creditUrl);
+        $creditResult = json_decode($creditResponse, true);
+
+        if ($creditResult) {
+            foreach ($creditResult['crew'] as $crewMember) {
+                if (isset($crewMember['job']) && $crewMember['job'] == 'Director') {
+                    $recommendations['Director'] = $crewMember['name'];
+                }
+            }
+
+            foreach ($creditResult['cast'] as $castMember) {
+                if (isset($castMember['known_for_department']) && $castMember['known_for_department'] == 'Acting') {
+                    $recommendations['Actors'][] = $castMember['name'];
+                }
+            }
+        } else {
+            return ['error' => 'Error retrieving movie credits.'];
+        }
+
+        return $recommendations;
+    } else {
+        return ['error' => 'Movie not found.'];
+    }
 }
 ?>
