@@ -62,7 +62,7 @@
                 },
                 dataType: 'json',
                 success: function (response) {
-                    displayRecommendations('movies-by-genre-container', 'Movies by Genre Recommendations', response.recommendations);
+                    displayRecommendations('movies-by-genre-container', 'Movies by Genre Recommendations', response);
                 },
                 error: function (error) {
                     console.error('Error fetching movies by genre recommendations:', error);
@@ -80,7 +80,7 @@
                 },
                 dataType: 'json',
                 success: function (response) {
-                    displayRecommendations('recent-watched-container', 'Recent Watched Recommendations', response.recommendations);
+                    displayRecommendations('recent-watched-container', 'Recent Watched Recommendations', response);
                 },
                 error: function (error) {
                     console.error('Error fetching recent watched recommendations:', error);
@@ -98,7 +98,7 @@
                 },
                 dataType: 'json',
                 success: function (response) {
-                    displayRecommendations('actor-director-container', 'Actor/Director Recommendations', response.recommendations);
+                    displayRecommendations('actor-director-container', 'Actor/Director Recommendations', response);
                 },
                 error: function (error) {
                     console.error('Error fetching actor/director recommendations:', error);
@@ -125,11 +125,9 @@
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
                     movieBlock.innerHTML = `
-                        <h3>${movie.Title}</h3>
-                        <p>Director: ${movie.Director}</p>
-                        <p>Genre: ${movie.Genre}</p>
-                        <p>Year: ${movie.Year}</p>
-                        <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
+                        <h3>${movie.title}</h3>
+                        <p>Overview: ${movie.overview}</p>
+                        <p>Release Date: ${movie.release_date}</p>
                     `;
                     movieContainer.appendChild(movieBlock);
                 });
