@@ -89,7 +89,7 @@ function requestProcessor($request){
     case "getMediaDetails":
       // Handle requests to get movie details
       if (isset($request['movieID'])) {
-        $response = getMediaDetails($request['mediaID'], $request['mediaType']);
+        $response = getMediaDetails($request['movieID'], $request['mediaType']);
         var_dump($response);
         return $response;
       } else {
