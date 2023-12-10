@@ -68,7 +68,7 @@
                     data: {
                         "type": "getMediaDetails",
                         "movieID": Number(movieID),
-                        "mediaType": Type // Use the Type variable here
+                        "mediaType": Type ,
                     },
                     success: function (result) {
                         if (result) {
@@ -169,7 +169,7 @@
             });
         }
 
-        , function displayMovieDetails(movieDetails) {
+         , function displayMovieDetails(movieDetails) {
             $('#movie-title').text(movieDetails.Title);
             $('#genre').text(movieDetails.Genre.join(', '));
             $('#director').text(movieDetails.Director);
