@@ -54,9 +54,10 @@
         xhr.send();
         const urlParams = new URLSearchParams(window.location.search);
         let movieID = urlParams.get('movieID');
+        let Type = urlParams.get('Type'); // Added Type variable
 
         function loadMovieInfo() {
-            if (movieID) {
+            if (movieID && Type) {
                 console.log(movieID);
 
                 // Use the new API endpoint that takes "Type" and "ID"
@@ -67,7 +68,7 @@
                     data: {
                         "type": "getMediaDetails",
                         "movieID": Number(movieID),
-                        "mediaType": String(Type) // Adjust the mediaType as needed (e.g., "movie" or "tvshow")
+                        "mediaType": Type // Use the Type variable here
                     },
                     success: function (result) {
                         if (result) {
@@ -227,4 +228,5 @@
     </script>
 </body>
 </html>
+
        
