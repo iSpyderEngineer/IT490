@@ -55,7 +55,7 @@
         function getMoviesByMovieAndGenre(username) {
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
-                method: 'POST',
+                method: 'GET',
                 data: {
                     type: 'getMoviesByMovieAndGenre',
                     username: username
@@ -73,7 +73,7 @@
         function getRecentWatchedRecommendations(username) {
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
-                method: 'POST',
+                method: 'GET',
                 data: {
                     type: 'getRecentWatchedRecommendations',
                     username: username
