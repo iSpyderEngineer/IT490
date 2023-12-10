@@ -2,201 +2,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Recommendations</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Movie Recommendations</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .movie-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 10px;
+        }
+
+        .movie-block {
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            padding: 10px;
+            width: 200px; /* Adjust the width as needed */
+        }
+    </style>
 </head>
 <body>
-    <div id="navbar-container"></div>
+    <h1>Movie Recommendations</h1>
 
-    <!-- Display the username in the header -->
-    <h1 id="username-header">Loading...</h1>
+    <div id="movies-by-genre-container">
+        <!-- Display movies by genre recommendations here -->
+    </div>
 
-    <div id="recommendations-container"></div>
+    <div id="recent-watched-container">
+        <!-- Display recent watched recommendations here -->
+    </div>
+
+    <div id="actor-director-container">
+        <!-- Display actor/director recommendations here -->
+    </div>
 
     <script>
-        $(document).ready(function() {
-            // Load the navbar component
-            const navbarContainer = document.getElementById('navbar-container');
-            const usernameHeader = document.getElementById('username-header');
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'components/navbar.html', true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    navbarContainer.innerHTML = xhr.responseText;
-                    loadRecommendations();
-                }
-            };
-            xhr.send();
-
-            // Retrieve username from session storage
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
+            console.log('Username in sessionStorage:', username);
 
-            if (!username) {
-                // Redirect to login page if username is not found
-                location.href = "index.html";
-            }
-
-            // Display the username in the header
+            // Check if the username is available
             if (username) {
-                usernameHeader.textContent = `${username}'s Recommendations`;
+                // Make AJAX requests to get movie recommendations
+                getMoviesByMovieAndGenre(username);
+                getRecentWatchedRecommendations(username);
+                getRecommendationActorDirector(username);
+            } else {
+                console.log("Username not found in sessionStorage");
             }
         });
 
-        function loadRecommendations() {
-            // Fetch user's favorite movie from sessions
-            $.ajax({
-                url: 'RabbitMQ/dbConsumer.php',
-                method: 'POST',
-                data: {
-                    type: 'getUserProfile',
-                    username: sessionStorage.getItem('username') // Retrieve username from sessionStorage
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.favoriteMovie) {
-                        const favoriteMovie = response.favoriteMovie;
-                        getRecommendationsByFavoriteMovie(favoriteMovie);
-                        getRecommendationsByActorDirector(response.actorData);
-                        getRecommendationsByGenre(response.genres);
-                    } else {
-                        // Handle case where user data is not found
-                        console.log('User data not found');
-                        displayNoRecommendationsMessage();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error(errorThrown);
-                    // Handle errors if any
-                    displayNoRecommendationsMessage();
-                }
-            });
-        }
-
-        function getRecommendationsByFavoriteMovie(favoriteMovie) {
-            // Fetch recommendations based on the user's favorite movie
+        function getMoviesByMovieAndGenre(username) {
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
                 method: 'POST',
                 data: {
-                    type: 'displayRecommendedMovies',
-                    movieData: favoriteMovie,
-                    source: 'favoriteMovie'
+                    type: 'getMoviesByMovieAndGenre',
+                    username: username
                 },
                 dataType: 'json',
-                success: function(response) {
-                    if (response && response.recommendations && response.recommendations.length > 0) {
-                        // Display section title
-                        displaySectionTitle('Recommendations Based on Favorite Movie');
-                        displayRecommendations(response.recommendations);
-                    } else {
-                        // Handle case where no recommendations are found
-                        console.log('No recommendations found based on favorite movie');
-                        displayNoRecommendationsMessage();
-                    }
+                success: function (response) {
+                    displayRecommendations('movies-by-genre-container', 'Movies by Genre Recommendations', response.recommendations);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error(errorThrown);
-                    // Handle errors if any
-                    displayNoRecommendationsMessage();
+                error: function (error) {
+                    console.error('Error fetching movies by genre recommendations:', error);
                 }
             });
         }
 
-        function getRecommendationsByActorDirector(actorData) {
-            // Fetch recommendations based on actor and director
+        function getRecentWatchedRecommendations(username) {
+            $.ajax({
+                url: 'RabbitMQ/apiConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'getRecentWatchedRecommendations',
+                    username: username
+                },
+                dataType: 'json',
+                success: function (response) {
+                    displayRecommendations('recent-watched-container', 'Recent Watched Recommendations', response.recommendations);
+                },
+                error: function (error) {
+                    console.error('Error fetching recent watched recommendations:', error);
+                }
+            });
+        }
+
+        function getRecommendationActorDirector(username) {
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
                 method: 'POST',
                 data: {
                     type: 'recommendationActorDirector',
-                    username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
-                    actorData: actorData
+                    username: username
                 },
                 dataType: 'json',
-                success: function(response) {
-                    if (response && response.recommendations && response.recommendations.length > 0) {
-                        // Display section title
-                        displaySectionTitle('Recommendations Based on Actor/Director');
-                        displayRecommendations(response.recommendations);
-                    } else {
-                        // Handle case where no recommendations are found
-                        console.log('No recommendations found based on actor/director');
-                        displayNoRecommendationsMessage();
-                    }
+                success: function (response) {
+                    displayRecommendations('actor-director-container', 'Actor/Director Recommendations', response.recommendations);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error(errorThrown);
-                    // Handle errors if any
-                    displayNoRecommendationsMessage();
+                error: function (error) {
+                    console.error('Error fetching actor/director recommendations:', error);
                 }
             });
         }
 
-        function getRecommendationsByGenre(genres) {
-            // Fetch recommendations based on favorite genre
-            $.ajax({
-                url: 'apiConsumer.php',
-                method: 'POST',
-                data: {
-                    type: 'getMoviesByMovieAndGenre',
-                    username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
-                    genres: genres
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.recommendations && response.recommendations.length > 0) {
-                        // Display section title
-                        displaySectionTitle('Recommendations Based on Genre');
-                        displayRecommendations(response.recommendations);
-                    } else {
-                        // Handle case where no recommendations are found
-                        console.log('No recommendations found based on genre');
-                        displayNoRecommendationsMessage();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error(errorThrown);
-                    // Handle errors if any
-                    displayNoRecommendationsMessage();
-                }
-            });
-        }
+        function displayRecommendations(containerId, title, recommendations) {
+            const container = document.getElementById(containerId);
 
-        function displaySectionTitle(title) {
-            const recommendationsContainer = document.getElementById('recommendations-container');
-            const sectionTitle = document.createElement('h2');
-            sectionTitle.textContent = title;
-            recommendationsContainer.appendChild(sectionTitle);
-        }
+            if (recommendations && recommendations.length > 0) {
+                // Display section title
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = title;
+                container.appendChild(sectionTitle);
 
-        function displayRecommendations(recommendations) {
-            const recommendationsContainer = document.getElementById('recommendations-container');
+                // Create a container for the movie blocks with scrolling
+                const movieContainer = document.createElement('div');
+                movieContainer.classList.add('movie-container');
+                container.appendChild(movieContainer);
 
-            // Loop through the recommendations and create movie blocks
-            recommendations.forEach(movie => {
-                const movieBlock = document.createElement('div');
-                movieBlock.classList.add('movie-block');
-                movieBlock.innerHTML = `
-                    <h3>${movie.Title}</h3>
-                    <p>Director: ${movie.Director}</p>
-                    <p>Genre: ${movie.Genre}</p>
-                    <p>Year: ${movie.Year}</p>
-                    <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
-                    <!-- Add additional movie information here -->
-                `;
-                // Append each movie block to the recommendations container
-                recommendationsContainer.appendChild(movieBlock);
-            });
-        }
+                // Display recommendations
+                recommendations.slice(0, 10).forEach(movie => {
+                    const movieBlock = document.createElement('div');
+                    movieBlock.classList.add('movie-block');
+                    movieBlock.innerHTML = `
+                        <h3>${movie.Title}</h3>
+                        <p>Director: ${movie.Director}</p>
+                        <p>Genre: ${movie.Genre}</p>
+                        <p>Year: ${movie.Year}</p>
+                        <img src="${movie.PosterURL}" alt="${movie.Title} Poster">
+                    `;
+                    movieContainer.appendChild(movieBlock);
+                });
 
-        function displayNoRecommendationsMessage() {
-            const recommendationsContainer = document.getElementById('recommendations-container');
-            const noRecommendationsMessage = document.createElement('p');
-            noRecommendationsMessage.textContent = 'No recommendations available.';
-            recommendationsContainer.appendChild(noRecommendationsMessage);
+                // Add a button for scrolling to see more recommendations
+                const scrollButton = document.createElement('button');
+                scrollButton.textContent = 'See More';
+                scrollButton.addEventListener('click', function () {
+                    movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
+                });
+                container.appendChild(scrollButton);
+            } else {
+                // Handle case where no recommendations are found
+                console.log(`No recommendations found for ${title}`);
+                const noRecommendationsMessage = document.createElement('p');
+                noRecommendationsMessage.textContent = `No recommendations available for ${title}.`;
+                container.appendChild(noRecommendationsMessage);
+            }
         }
     </script>
 </body>
 </html>
+

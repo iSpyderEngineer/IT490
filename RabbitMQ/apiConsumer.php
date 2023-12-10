@@ -70,16 +70,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case "getMoviesByMovieAndGenre":
             $request['username'] = $_GET['username'];
             break;
-
+        
+        case "getMediaDetails":
+            $request['mediaID'] = $_GET['mediaID'];
+            $request['mediaType'] = $_GET['mediaType'];
+            break;
+        
+        /*
         // Handle get movie by details request
         case "getMoviesByDetails":
             $request['movieID'] = $_GET['movieID'];
             break;
 
-        // Handle get tv by details request
+        // Handle get movie by details request
         case "getTVByDetails":
             $request['tvID'] = $_GET['tvID'];
             break;
+        */
         
         // Handle get recent watched recommendations 
         case "getRecentWatchedRecommendations":

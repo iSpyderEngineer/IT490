@@ -86,7 +86,18 @@ function requestProcessor($request){
         return ['status' => 'error', 'message' => 'Username parameter is missing'];
       }
 
-    case "getMoviesByDetails":
+    case "getMediaDetails":
+      // Handle requests to get movie details
+      if (isset($request['movieID'])) {
+        $response = getMediaDetails($request['mediaID'], $request['mediaType']);
+        var_dump($response);
+        return $response;
+      } else {
+        // Return an error if 'movieID' parameter is missing
+        return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
+      }
+
+    /* case "getMoviesByDetails":
       // Handle requests to get movie details
       if (isset($request['movieID'])) {
         $response = getMoviesByDetails($request['movieID']);
@@ -105,8 +116,8 @@ function requestProcessor($request){
         return $response;
       } else {
         // Return an error if 'tvID' parameter is missing
-        return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
-      }
+        return ['status' => 'error', 'message' => 'TV ID parameter is missing'];
+      } */
   
     case "getRecentWatchedRecommendations":
       // Handle requests for recent watched recommendations

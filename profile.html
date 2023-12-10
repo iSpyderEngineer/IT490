@@ -20,25 +20,21 @@
     <div id="actor">
         <h2>Favorite Actor</h2>
         <p id="actor-info"></p>
-        <button id="edit-actor" style="display: none;">Edit</button>
     </div>
 
     <div id="movie">
         <h2>Favorite Movie</h2>
         <p id="movie-info"></p>
-        <button id="edit-movie" style="display: none;">Edit</button>
     </div>
 
     <div id="director">
         <h2>Favorite Director</h2>
         <p id="director-info"></p>
-        <button id="edit-director" style="display: none;">Edit</button>
     </div>
 
     <div id="genre">
         <h2>Favorite Genre</h2>
         <p id="genre-info"></p>
-        <button id="edit-genre" style="display: none;">Edit</button>
     </div>
 
     <div id="rate">
@@ -49,8 +45,37 @@
     <div id="bio">
         <h2>Bio</h2>
         <p id="bio-info"></p>
-        <button id="edit-bio" style="display: none;">Edit</button>
     </div>
+
+    <!-- Edit Profile Form -->
+    <div id="edit-profile-form" style="display: none;">
+        <h2>Edit Profile</h2>
+        <form id="profile-form">
+            <label for="edit-actor-input">Favorite Actor:</label>
+            <input type="text" id="edit-actor-input" name="edit-actor-input" required>
+            <br>
+
+            <label for="edit-movie-input">Favorite Movie:</label>
+            <input type="text" id="edit-movie-input" name="edit-movie-input" required>
+            <br>
+
+            <label for="edit-director-input">Favorite Director:</label>
+            <input type="text" id="edit-director-input" name="edit-director-input" required>
+            <br>
+
+            <label for="edit-genre-input">Favorite Genre:</label>
+            <input type="text" id="edit-genre-input" name="edit-genre-input" required>
+            <br>
+
+            <label for="edit-bio-input">Biography:</label>
+            <textarea id="edit-bio-input" name="edit-bio-input" rows="4" cols="50" required></textarea>
+            <br>
+
+            <button type="button" id="submit-edit">Submit</button>
+        </form>
+    </div>
+
+    <button id="edit-profile-button">Edit Profile</button>
 
     <script>
         // Load the navbar component
@@ -96,26 +121,23 @@
                 success: function (result) {
                     if (result[0].FavoriteActor) {
                         $('#actor-info').text(result[0].FavoriteActor);
-                        $('#edit-actor').show();
-                    }
-                    if (result[0].FavoriteDirector) {
-                        $('#director-info').text(result[0].FavoriteDirector);
-                        $('#edit-director').show();
-                    }
-                    if (result[0].FavoriteGenres) {
-                        $('#genre-info').text(result[0].FavoriteGenres);
-                        $('#edit-genre').show();
+                        $('#edit-actor-input').val(result[0].FavoriteActor);
                     }
                     if (result[0].FavoriteMovie) {
                         $('#movie-info').text(result[0].FavoriteMovie);
-                        $('#edit-movie').show();
+                        $('#edit-movie-input').val(result[0].FavoriteMovie);
+                    }
+                    if (result[0].FavoriteDirector) {
+                        $('#director-info').text(result[0].FavoriteDirector);
+                        $('#edit-director-input').val(result[0].FavoriteDirector);
+                    }
+                    if (result[0].FavoriteGenres) {
+                        $('#genre-info').text(result[0].FavoriteGenres);
+                        $('#edit-genre-input').val(result[0].FavoriteGenres);
                     }
                     if (result[0].Biography) {
                         $('#bio-info').text(result[0].Biography);
-                        $('#edit-bio').show();
-                    }
-                    if (result[0].RateScore) {
-                        $('#rate-info').text(result[0].RateScore);
+                        $('#edit-bio-input').val(result[0].Biography);
                     }
                     // Displaying the username
                     $('#username-info').text(username);
@@ -126,119 +148,59 @@
             });
         }
 
-
         function enableEditFunctionality() {
-            $('#edit-actor').show();
-            $('#edit-movie').show();
-            $('#edit-director').show();
-            $('#edit-genre').show();
-            $('#edit-bio').show();
+            // ... Your existing code for enabling edit functionality
 
-            function personExists(personName) {
-                let result = false;
-                $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: 'POST',
-                    data: { personName: personName },
-                    async: false,
-                    success: function (response) {
-                        result = response.exists;
-                    },
-                    error: function () {
-                        console.log("Error checking person existence");
-                    }
-                });
-                return result;
-            }
-
-            function movieExists(movieQuery) {
-                let result = false;
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: 'POST',
-                    data: { movieQuery: movieQuery },
-                    async: false,
-                    success: function (response) {
-                        result = response.exists;
-                    },
-                    error: function () {
-                        console.log("Error checking movie existence");
-                    }
-                });
-                return result;
-            }
-
-            $('#edit-actor').click(function () {
-                const newActor = prompt("Enter your new favorite actor:");
-                if (newActor && newActor.trim() !== "") {
-                    const sanitizedActor = DOMPurify.sanitize(newActor);
-                    if (personExists(sanitizedActor)) {
-                        $('#actor-info').text(sanitizedActor);
-                        submitProfileData('favActor', sanitizedActor);
-                    } else {
-                        alert("Invalid actor input. Please enter a valid actor.");
-                    }
-                } else {
-                    alert("Please enter a valid favorite actor.");
-                }
+            // Edit Profile button event listener
+            $('#edit-profile-button').click(function () {
+                // Show the edit profile form
+                $('#edit-profile-form').show();
             });
 
-            $('#edit-movie').click(function () {
-                const newMovie = prompt("Enter your new favorite movie:");
-                if (newMovie && newMovie.trim() !== "") {
-                    const sanitizedMovie = DOMPurify.sanitize(newMovie);
-                    if (movieExists(sanitizedMovie)) {
-                        $('#movie-info').text(sanitizedMovie);
-                        submitProfileData('favMovie', sanitizedMovie);
-                    } else {
-                        alert("Invalid movie input. Please enter a valid movie.");
-                    }
-                } else {
-                    alert("Please enter a valid favorite movie.");
-                }
+            // Submit Edit button event listener
+            $('#submit-edit').click(function () {
+                // Validate and submit the edited profile data
+                const editedActor = $('#edit-actor-input').val();
+                const editedMovie = $('#edit-movie-input').val();
+                const editedDirector = $('#edit-director-input').val();
+                const editedGenre = $('#edit-genre-input').val();
+                const editedBio = $('#edit-bio-input').val();
+
+                // You can add further validation if needed
+
+                // Submit the edited data
+                submitEditedData('favActor', editedActor);
+                submitEditedData('favMovie', editedMovie);
+                submitEditedData('favDirector', editedDirector);
+                submitEditedData('favGenre', editedGenre);
+                submitEditedData('biography', editedBio);
+
+                // Hide the edit profile form after submission
+                $('#edit-profile-form').hide();
             });
-
-            $('#edit-director').click(function () {
-                const newDirector = prompt("Enter your new favorite director:");
-                if (newDirector && newDirector.trim() !== "") {
-                    const sanitizedDirector = DOMPurify.sanitize(newDirector);
-                    if (personExists(sanitizedDirector)) {
-                        $('#director-info').text(sanitizedDirector);
-                        submitProfileData('favDirector', sanitizedDirector);
-                    } else {
-                        alert("Invalid director input. Please enter a valid director.");
-                    }
-                } else {
-                    alert("Please enter a valid favorite director.");
-                }
-            });
-
-            // Similar logic for other edit buttons...
-
-            // ...
-
-            function submitProfileData(field, value) {
-                $.ajax({
-                    url: 'RabbitMQ/updateProfileData.php',
-                    method: 'POST',
-                    data: {
-                        username: sessionStorage.getItem('username'),
-                        field: field,
-                        value: value
-                    },
-                    dataType: 'json',
-                    success: function (result) {
-                        // Handle success response if needed
-                    },
-                    error: function () {
-                        console.log("Error updating profile data");
-                    }
-                });
-            }
         }
 
-        // Rest of your functions...
+        function submitEditedData(profileField, sanitizedValue) {
+            // Perform AJAX request to submit edited data
+            $.ajax({
+                url: 'RabbitMQ/updateProfileData.php',
+                method: 'POST',
+                data: {
+                    username: sessionStorage.getItem('username'),
+                    field: profileField,
+                    value: sanitizedValue
+                },
+                dataType: 'json',
+                success: function (result) {
+                    // Handle success response if needed
+                },
+                error: function () {
+                    console.log("Error updating profile data");
+                }
+            });
+        }
     </script>
     
 </body>
 </html>
+

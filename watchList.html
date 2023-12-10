@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchlist Management</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .movie-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 10px;
+        }
+
+        .movie-block {
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            padding: 10px;
+            width: 200px; /* Adjust the width as needed */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .movie-block img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .delete-button {
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Watchlist Management</h1>
+
+    <div id="watchlist-container">
+        <!-- Display watchlist here -->
+    </div>
+
+    <div id="add-to-watchlist-form">
+        <h2>Add to Watchlist</h2>
+        <label for="movie-title">Movie Title:</label>
+        <input type="text" id="movie-title" name="movie-title" required>
+        <button onclick="addToWatchlist()">Add to Watchlist</button>
+    </div>
+
+    <div id="delete-from-watchlist-form">
+        <h2>Delete from Watchlist</h2>
+        <label for="watchlist-id">Watchlist ID:</label>
+        <input type="text" id="watchlist-id" name="watchlist-id" required>
+        <button onclick="deleteFromWatchlist()">Delete from Watchlist</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve username from sessionStorage
+            const username = sessionStorage.getItem('username');
+            console.log('Username in sessionStorage:', username);
+
+            // Check if the username is available
+            if (username) {
+                // Make AJAX request to get watchlist
+                getWatchlist(username);
+            } else {
+                console.log("Username not found in sessionStorage");
+            }
+        });
+
+        function getWatchlist(username) {
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'GET',
+                data: {
+                    type: 'getWatchList',
+                    username: username
+                },
+                dataType: 'json',
+                success: function (response) {
+                    displayWatchlist(response);
+                },
+                error: function (error) {
+                    console.error('Error fetching watchlist:', error);
+                }
+            });
+        }
+
+        function addToWatchlist() {
+            const movieTitle = $('#movie-title').val();
+
+            if (movieTitle) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: {
+                        type: 'addToWatchList',
+                        username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
+                        movieTitle: movieTitle
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('Movie added to watchlist:', response);
+                        // Refresh watchlist after adding a movie
+                        getWatchlist(sessionStorage.getItem('username'));
+                    },
+                    error: function (error) {
+                        console.error('Error adding movie to watchlist:', error);
+                    }
+                });
+            } else {
+                console.error('Movie title cannot be empty.');
+            }
+        }
+
+        function deleteFromWatchlist(watchlistId) {
+            if (watchlistId) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: {
+                        type: 'deleteFromWatchList',
+                        watchListID: watchlistId
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('Movie deleted from watchlist:', response);
+                        // Refresh watchlist after deleting a movie
+                        getWatchlist(sessionStorage.getItem('username'));
+                    },
+                    error: function (error) {
+                        console.error('Error deleting movie from watchlist:', error);
+                    }
+                });
+            } else {
+                console.error('Watchlist ID cannot be empty.');
+            }
+        }
+
+
+        function displayWatchlist(response) {
+            const watchlistContainer = document.getElementById('watchlist-container');
+            watchlistContainer.innerHTML = '';
+
+            if (response && response.length > 0) {
+                // Display watchlist
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = 'Watchlist';
+                watchlistContainer.appendChild(sectionTitle);
+
+                // Create a container for the movie blocks with scrolling
+                const movieContainer = document.createElement('div');
+                movieContainer.classList.add('movie-container');
+                watchlistContainer.appendChild(movieContainer);
+
+                response.forEach(movie => {
+                    const movieBlock = document.createElement('div');
+                    movieBlock.classList.add('movie-block');
+                    movieBlock.innerHTML = `
+                        <img src="${movie.PosterURL}" alt="${movie.Movietitle} Poster">
+                        <h3>${movie.Movietitle}</h3>
+                        <p>Year: ${movie.Year}</p>
+                        <button class="delete-button" onclick="deleteFromWatchlist(${movie.WatchlistID})">Delete</button>
+                    `;
+                    movieContainer.appendChild(movieBlock);
+                });
+
+                // Add a button for scrolling to see more recommendations
+                const scrollButton = document.createElement('button');
+                scrollButton.textContent = 'See More';
+                scrollButton.addEventListener('click', function () {
+                    movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
+                });
+                watchlistContainer.appendChild(scrollButton);
+            } else {
+                // Handle case where watchlist is empty
+                console.log('Watchlist is empty');
+                const noWatchlistMessage = document.createElement('p');
+                noWatchlistMessage.textContent = 'Watchlist is empty.';
+                watchlistContainer.appendChild(noWatchlistMessage);
+            }
+        }
+    </script>
+</body>
+</html>
+
