@@ -53,12 +53,13 @@
                 }
             };
             xhr.send();
-            const urlParams = new URLSearchParams(window.location.search);
-            let mediaID = urlParams.get('mediaID');
-            let Type = urlParams.get('Type'); // Added Type variable
 
             function loadMediaInfo() {
                 console.log("load media info is starting");
+                const urlParams = new URLSearchParams(window.location.search);
+                let mediaID = urlParams.get('mediaID');
+                let Type = urlParams.get('Type'); // Added Type variable
+
                 if (mediaID && Type) {
                     console.log("Media ID and Type found:", mediaID, Type);
 
@@ -232,6 +233,10 @@
                 });
             }
         });
+
+        // Call loadMediaInfo directly when the document is ready
+        loadMediaInfo();
     </script>
 </body>
 </html>
+
