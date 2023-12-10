@@ -136,11 +136,12 @@
             results.forEach(function (item) {
                 let title = item['Title'];
                 let movieID = item['ID'];
+                let Type = item['Type'];
 
                 // Append the "Type" parameter to the URL
                 const urlParams = new URLSearchParams();
                 urlParams.set('movieID', movieID);
-                urlParams.set('Type', 'searchMoviesAndTVShows');
+                urlParams.set('Type', Type);
                 let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString());
                 
                 // Add click event listener to the titleLink
