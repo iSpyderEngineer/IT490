@@ -49,7 +49,7 @@
                 if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                     navbarContainer.innerHTML = xhr.responseText;
                     loadMovieInfo();
-                    fetchUsername(); // Fetch username when the page loads
+                    console.log("document ready has been loaded");
                 }
             };
             xhr.send();
@@ -58,6 +58,7 @@
             let Type = urlParams.get('Type'); // Added Type variable
 
             function loadMovieInfo() {
+                console.log("load movie info is starting");
                 if (movieID && Type) {
                     console.log("Movie ID and Type found:", movieID, Type);
 
