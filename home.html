@@ -137,12 +137,16 @@
                 let title = item['Title'];
                 let movieID = item['ID'];
 
-                let titleLink = $('<a>').text(title).attr('href', 'movie.html?movieID=' + movieID);
+                // Append the "Type" parameter to the URL
+                const urlParams = new URLSearchParams();
+                urlParams.set('movieID', movieID);
+                urlParams.set('Type', 'searchMoviesAndTVShows');
+                let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString());
                 
                 // Add click event listener to the titleLink
                 titleLink.click(function () {
                     // Redirect to movie.html with the movieID parameter
-                    location.href = 'movie.html?movieID=' + movieID;
+                    location.href = 'movie.html?' + urlParams.toString();
                 });
 
                 searchResultsDiv.append(titleLink).append('<br>');
@@ -158,5 +162,3 @@
     </script>
 </body>
 </html>
-
-
