@@ -91,7 +91,7 @@
         function getRecommendationActorDirector(username) {
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
-                method: 'POST',
+                method: 'GET',
                 data: {
                     type: 'recommendationActorDirector',
                     username: username
@@ -152,4 +152,3 @@
     </script>
 </body>
 </html>
-
