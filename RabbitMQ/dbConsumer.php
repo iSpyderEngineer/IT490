@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case "addToWatchedListAndRemoveFromWatchList":
             $request['username'] = $_POST['username'];
             $request['movieTitle'] = $_POST['movieTitle'];
+            $request['MovieID'] = $_POST['MovieID'];
             $request['posterURL'] = $_POST['posterURL'];
             $request['year'] = $_POST['year'];
             $request['mediaType'] = $_POST['mediaType'];

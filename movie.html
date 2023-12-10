@@ -40,7 +40,7 @@
         $(document).ready(function () {
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
-            let username; // Declare the global username variable
+            const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
             let mediaID; // Declare the global mediaID variable
             let mediaType; // Declare the global mediaType variable
             let mediaRequest;
@@ -89,29 +89,6 @@
                 } else {
                     console.log("Media ID or Type not found:", mediaID, mediaType);
                 }
-            }
-
-            function fetchUsername() {
-                // Fetch the username using AJAX from getUserInfo.php
-                $.ajax({
-                    url: 'getUserInfo.php',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.username) {
-                            username = response.username; // Assign the fetched username to the global variable
-                            console.log('Logged-in username:', username);
-                            // Here you can use the username for your functionality
-                            // For example, if needed, you can send the username while adding media to the watchlist
-                        } else {
-                            console.log('User not logged in');
-                            // Handle case where the user is not logged in
-                        }
-                    },
-                    error: function () {
-                        console.log('Error fetching user info');
-                    }
-                });
             }
 
             $('#add-to-watchlist').click(function () {
@@ -197,7 +174,7 @@
                     data: {
                         "type": "addToWatchList",
                         "username": username,
-                        "MediaID": Number(mediaID),
+                        "movieID": mediaID,
                         "mediaTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
                         "posterURL": mediaRequest.PosterURL,
                         "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
