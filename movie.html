@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movie Information</title>
+    <title>Media Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="navbar-container"></div>
 
-    <h1 id="movie-title"></h1>
+    <h1 id="media-title"></h1>
 
-    <div id="movie-info">
+    <div id="media-info">
         <p><strong>Genre:</strong> <span id="genre"></span></p>
         <p><strong>Director:</strong> <span id="director"></span></p>
         <p><strong>Year:</strong> <span id="year"></span></p>
         <p><strong>Bio:</strong> <span id="bio"></span></p>
-        <img src="" id="poster-image" alt="Movie Poster">
+        <img src="" id="poster-image" alt="Media Poster">
     </div>
 
     <div id="reviews-container">
@@ -43,24 +43,24 @@
             let username; // Declare the global username variable
 
             const xhr = new XMLHttpRequest();
-            let movieRequest;
+            let mediaRequest;
             xhr.open('GET', 'components/navbar.html', true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                     navbarContainer.innerHTML = xhr.responseText;
-                    loadMovieInfo();
+                    loadMediaInfo();
                     console.log("document ready has been loaded");
                 }
             };
             xhr.send();
             const urlParams = new URLSearchParams(window.location.search);
-            let movieID = urlParams.get('movieID');
+            let mediaID = urlParams.get('mediaID');
             let Type = urlParams.get('Type'); // Added Type variable
 
-            function loadMovieInfo() {
-                console.log("load movie info is starting");
-                if (movieID && Type) {
-                    console.log("Movie ID and Type found:", movieID, Type);
+            function loadMediaInfo() {
+                console.log("load media info is starting");
+                if (mediaID && Type) {
+                    console.log("Media ID and Type found:", mediaID, Type);
 
                     // Use the new API endpoint that takes "Type" and "ID"
                     $.ajax({
@@ -69,22 +69,22 @@
                         dataType: 'json',
                         data: {
                             "type": "getMediaDetails",
-                            "movieID": Number(movieID),
+                            "mediaID": Number(mediaID),
                             "mediaType": Type,
                         },
                         success: function (result) {
                             if (result) {
                                 console.log("API Result:", result);
-                                movieRequest = result;
-                                displayMovieDetails(result);
+                                mediaRequest = result;
+                                displayMediaDetails(result, Type);
                             }
                         },
                         error: function () {
-                            console.log("Error loading movie info");
+                            console.log("Error loading media info");
                         }
                     });
                 } else {
-                    console.log("Movie ID or Type not found:", movieID, Type);
+                    console.log("Media ID or Type not found:", mediaID, Type);
                 }
             }
 
@@ -99,7 +99,7 @@
                             username = response.username; // Assign the fetched username to the global variable
                             console.log('Logged-in username:', username);
                             // Here you can use the username for your functionality
-                            // For example, if needed, you can send the username while adding movies to the watchlist
+                            // For example, if needed, you can send the username while adding media to the watchlist
                         } else {
                             console.log('User not logged in');
                             // Handle case where the user is not logged in
@@ -113,20 +113,20 @@
 
             $('#add-to-watchlist').click(function () {
                 // Now you can use the global variable 'username' in other parts of the code
-                addToWatchlist(movieID);
+                addToWatchlist(mediaID);
             });
 
             $('#add-to-watched-list').click(function () {
                 // Now you can use the global variable 'username' in other parts of the code
-                addToWatchedList(movieID);
+                addToWatchedList(mediaID);
             });
 
-            // Fetch movie reviews when the page loads
-            function fetchMovieReviews(movieID) {
+            // Fetch media reviews when the page loads
+            function fetchMediaReviews(mediaID) {
                 $.ajax({
                     url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
                     method: 'GET',
-                    data: { title: movieID },
+                    data: { title: mediaID },
                     dataType: 'json',
                     success: function (reviews) {
                         if (reviews && reviews.length > 0) {
@@ -147,7 +147,7 @@
             $('#review-form').submit(function (event) {
                 event.preventDefault(); // Prevent default form submission
 
-                const movieTitle = $('#movie-title').text();
+                const mediaTitle = $('#media-title').text();
                 const reviewTitle = $('#review-title').val();
                 const reviewContent = $('#review-content').val();
 
@@ -155,7 +155,7 @@
                     url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
                     method: 'POST',
                     data: {
-                        title: movieTitle,
+                        title: mediaTitle,
                         reviewTitle: reviewTitle,
                         reviewContent: reviewContent,
                     },
@@ -165,7 +165,7 @@
                         $('#review-title').val('');
                         $('#review-content').val('');
                         // Refresh the reviews list after submission
-                        fetchMovieReviews(movieTitle);
+                        fetchMediaReviews(mediaTitle);
                     },
                     error: function () {
                         console.log('Error submitting review');
@@ -173,20 +173,20 @@
                 });
             });
 
-            // Display movie details function
-            function displayMovieDetails(movieDetails) {
-                $('#name').text(movieDetails.Title);
-                $('#Genre').text(movieDetails.Genre.join(', '));
-                $('#director').text(movieDetails.Director);
-                $('#first_air_date').text(movieDetails.ReleaseDate.substring(0, 4));
-                $('#Overview').text(movieDetails.Overview);
-                $('#posterURL').attr('src', movieDetails.PosterURL); // Update poster image src
+            // Display media details function
+            function displayMediaDetails(mediaDetails, type) {
+                $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
+                $('#genre').text(mediaDetails.Genre.join(', '));
+                $('#director').text(mediaDetails.Director);
+                $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
+                $('#bio').text(mediaDetails.Overview);
+                $('#poster-image').attr('src', mediaDetails.PosterURL); // Update poster image src
                 // Update other elements with additional details if needed
             }
 
             // Add to watchlist function
-            function addToWatchlist(movieID) {
-                // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
+            function addToWatchlist(mediaID) {
+                // Send the media title to RabbitMQ for processing (similar to addToWatchedList function)
                 // Include username if needed
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
@@ -194,23 +194,23 @@
                     data: {
                         "type": "addToWatchList",
                         "username": username,
-                        "MovieID": Number(movieID),
-                        "movieTitle": movieRequest.Title,
-                        "posterURL": movieRequest.PosterURL,
-                        "year": movieRequest.ReleaseDate.substring(0, 4),
+                        "MediaID": Number(mediaID),
+                        "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
+                        "posterURL": mediaRequest.PosterURL,
+                        "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
                     },
                     success: function () {
-                        console.log(`Movie added to watch list: ${movieRequest.Title}`);
+                        console.log(`Media added to watch list: ${mediaRequest[Type === 'movie' ? 'Title' : 'name']}`);
                     },
                     error: function () {
-                        console.log("Error adding movie to watch list");
+                        console.log("Error adding media to watch list");
                     }
                 });
             }
 
             // Add to watched list function
-            function addToWatchedList(movieID) {
-                // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
+            function addToWatchedList(mediaID) {
+                // Send the media title to RabbitMQ for processing (similar to addToWatchlist function)
                 // Include username if needed
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
@@ -218,16 +218,16 @@
                     data: {
                         "type": "addToWatchedList",
                         "username": username,
-                        "MovieID": Number(movieID),
-                        "movieTitle": movieRequest.Title,
-                        "posterURL": movieRequest.PosterURL,
-                        "year": movieRequest.ReleaseDate.substring(0, 4),
+                        "MediaID": Number(mediaID),
+                        "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
+                        "posterURL": mediaRequest.PosterURL,
+                        "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
                     },
                     success: function () {
-                        console.log(`Movie added to watched list: ${movieRequest.Title}`);
+                        console.log(`Media added to watched list: ${mediaRequest[Type === 'movie' ? 'Title' : 'name']}`);
                     },
                     error: function () {
-                        console.log("Error adding movie to watched list");
+                        console.log("Error adding media to watched list");
                     }
                 });
             }
