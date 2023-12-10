@@ -13,12 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Switch case to handle different request types
     switch ($request['type']) {
-        // Handle display recommended movies request
-        case "displayRecommendedMovies":
-            $request['movieData'] = $_POST['movieData'];
-            $request['source'] = $_POST['source'];
-            break;
-
         // Handle search movies request
         case "searchMovies":
             $request['query'] = $_POST['query'];
@@ -84,6 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle recommendation for actor or director request
         case "recommendationActorDirector":
             $request['username'] = $_GET['username'];
+            break;
+        
+        // Handle display recommended movies request
+        case "displayRecommendedMovies":
+            $request['movieData'] = $_GET['movieData'];
+            $request['source'] = $_GET['source'];
             break;
 
         // Default case for invalid request types
