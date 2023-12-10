@@ -68,7 +68,7 @@
                     data: {
                         "type": "getMediaDetails",
                         "movieID": Number(movieID),
-                        "mediaType": Type ,
+                        "mediaType": Type,
                     },
                     success: function (result) {
                         if (result) {
@@ -167,9 +167,10 @@
                     console.log('Error submitting review');
                 }
             });
-        }
+        });
 
-         , function displayMovieDetails(movieDetails) {
+        // Display movie details function
+        function displayMovieDetails(movieDetails) {
             $('#movie-title').text(movieDetails.Title);
             $('#genre').text(movieDetails.Genre.join(', '));
             $('#director').text(movieDetails.Director);
@@ -179,7 +180,8 @@
             // Update other elements with additional details if needed
         }
 
-        , function addToWatchlist(movieID) {
+        // Add to watchlist function
+        function addToWatchlist(movieID) {
             // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
             // Include username if needed
             $.ajax({
@@ -202,7 +204,8 @@
             });
         }
 
-        , function addToWatchedList(movieID) {
+        // Add to watched list function
+        function addToWatchedList(movieID) {
             // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
             // Include username if needed
             $.ajax({
@@ -224,9 +227,7 @@
                 }
             });
         }
-        )
     </script>
 </body>
 </html>
 
-       
