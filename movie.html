@@ -2,207 +2,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>About username</title>
+    <title>Movie Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
-    <link rel="stylesheet" href="styles.css"> <!-- Include your CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="navbar-container"></div>
-    
-    <h1>About username</h1>
 
-    <div id="username">
-        <h2>Username</h2>
-        <p id="username-info"></p>
+    <h1 id="movie-title"></h1>
+
+    <div id="movie-info">
+        <p><strong>Genre:</strong> <span id="genre"></span></p>
+        <p><strong>Director:</strong> <span id="director"></span></p>
+        <p><strong>Year:</strong> <span id="year"></span></p>
+        <p><strong>Bio:</strong> <span id="bio"></span></p>
+        <img src="" id="poster-image" alt="Movie Poster">
     </div>
 
-    <div id="actor">
-        <h2>Favorite Actor</h2>
-        <p id="actor-info"></p>
-    </div>
+    <div id="reviews-container">
+        <h2>Reviews</h2>
+        <ul id="reviews-list"></ul>
 
-    <div id="movie">
-        <h2>Favorite Movie</h2>
-        <p id="movie-info"></p>
-    </div>
-
-    <div id="director">
-        <h2>Favorite Director</h2>
-        <p id="director-info"></p>
-    </div>
-
-    <div id="genre">
-        <h2>Favorite Genre</h2>
-        <p id="genre-info"></p>
-    </div>
-
-    <div id="rate">
-        <h2>Rate Score</h2>
-        <p id="rate-info"></p>
-    </div>
-
-    <div id="bio">
-        <h2>Bio</h2>
-        <p id="bio-info"></p>
-    </div>
-
-    <!-- Edit Profile Form -->
-    <div id="edit-profile-form" style="display: none;">
-        <h2>Edit Profile</h2>
-        <form id="profile-form">
-            <label for="edit-actor-input">Favorite Actor:</label>
-            <input type="text" id="edit-actor-input" name="edit-actor-input" required>
-            <br>
-
-            <label for="edit-movie-input">Favorite Movie:</label>
-            <input type="text" id="edit-movie-input" name="edit-movie-input" required>
-            <br>
-
-            <label for="edit-director-input">Favorite Director:</label>
-            <input type="text" id="edit-director-input" name="edit-director-input" required>
-            <br>
-
-            <label for="edit-genre-input">Favorite Genre:</label>
-            <input type="text" id="edit-genre-input" name="edit-genre-input" required>
-            <br>
-
-            <label for="edit-bio-input">Biography:</label>
-            <textarea id="edit-bio-input" name="edit-bio-input" rows="4" cols="50" required></textarea>
-            <br>
-
-            <button type="button" id="submit-edit">Submit</button>
+        <h3>Add Your Review</h3>
+        <form id="review-form">
+            <label for="review-title">Review Title:</label><br>
+            <input type="text" id="review-title" name="review-title"><br>
+            <label for="review-content">Review Content:</label><br>
+            <textarea id="review-content" name="review-content"></textarea><br>
+            <input type="submit" value="Submit Review">
         </form>
     </div>
 
-    <button id="edit-profile-button">Edit Profile</button>
+    <button id="add-to-watchlist">Add to Watchlist</button>
+    <button id="add-to-watched-list">Add to Watched List</button>
 
     <script>
         // Load the navbar component
         const navbarContainer = document.getElementById('navbar-container');
-    
+        let username = sessionStorage.getItem('username');
+
         const xhr = new XMLHttpRequest();
+        let movieRequest;
         xhr.open('GET', 'components/navbar.html', true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                 navbarContainer.innerHTML = xhr.responseText;
-    
-                // Call other functions after the navbar is loaded (if needed)
-                loadProfileData();
-    
-                // Event listener for the "Profile" link in the navbar
-                $('#profile-link').click(function (event) {
-                    event.preventDefault(); // Prevent the default link behavior
-                    loadProfileData();
-                });
-    
-                // Check if it's the user's own profile page to enable edit functionality
-                const isOwnProfile = isCurrentUserProfile(); // Function to check if it's the user's own profile
-                if (isOwnProfile) {
-                    enableEditFunctionality();
-                }
+                loadMovieInfo();
+                fetchUsername(); // Fetch username when the page loads
             }
         };
         xhr.send();
-    
-        function isCurrentUserProfile() {
-            const currentSessionUsername = sessionStorage.getItem('username');
-            const profileUsername = "";  // There is no PHP echo here as we use sessionStorage
-            return currentSessionUsername === profileUsername;
+        const urlParams = new URLSearchParams(window.location.search);
+        let movieID = urlParams.get('movieID');
+       
+            function loadMovieInfo() {
+            if (movieID) {
+                console.log(movieID);
+                // $('#movie-title').text(movieID);
+                
+                // Simulate the API call to fetch movie details
+                $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php', // Replace with your actual API endpoint
+                    method: 'GET',
+                    dataType: 'json',
+                    data: { "type": "getMoviesByDetails", "movieID": Number(movieID)},
+                    success: function (result) {
+                        if (result) {
+                            console.log(result);
+                            movieRequest = result;
+                            displayMovieDetails(result);
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading movie info");
+                    }
+                });
+            }
         }
-    
-        function loadProfileData() {
-            const username = sessionStorage.getItem('username');
+        
+
+        function fetchUsername() {
+            // Fetch the username using AJAX from getUserInfo.php
             $.ajax({
-                url: 'RabbitMQ/dbConsumer.php',
+                url: 'getUserInfo.php',
                 method: 'GET',
-                data: { type: 'getUserProfile', username: username },
                 dataType: 'json',
-                success: function (result) {
-                    if (result[0].FavoriteActor) {
-                        $('#actor-info').text(result[0].FavoriteActor);
-                        $('#edit-actor-input').val(result[0].FavoriteActor);
+                success: function (response) {
+                    if (response.username) {
+                        const username = response.username;
+                        console.log('Logged-in username:', username);
+                        // Here you can use the username for your functionality
+                        // For example, if needed, you can send the username while adding movies to the watchlist
+                    } else {
+                        console.log('User not logged in');
+                        // Handle case where the user is not logged in
                     }
-                    if (result[0].FavoriteMovie) {
-                        $('#movie-info').text(result[0].FavoriteMovie);
-                        $('#edit-movie-input').val(result[0].FavoriteMovie);
-                    }
-                    if (result[0].FavoriteDirector) {
-                        $('#director-info').text(result[0].FavoriteDirector);
-                        $('#edit-director-input').val(result[0].FavoriteDirector);
-                    }
-                    if (result[0].FavoriteGenres) {
-                        $('#genre-info').text(result[0].FavoriteGenres);
-                        $('#edit-genre-input').val(result[0].FavoriteGenres);
-                    }
-                    if (result[0].Biography) {
-                        $('#bio-info').text(result[0].Biography);
-                        $('#edit-bio-input').val(result[0].Biography);
-                    }
-                    // Displaying the username
-                    $('#username-info').text(username);
                 },
                 error: function () {
-                    console.log("Error loading profile data");
+                    console.log('Error fetching user info');
                 }
             });
         }
 
-        function enableEditFunctionality() {
-            // ... Your existing code for enabling edit functionality
+        $('#add-to-watchlist').click(function () {
+            //const movieTitle = $('#movie-title').text();
+            addToWatchlist(movieID);
+        });
 
-            // Edit Profile button event listener
-            $('#edit-profile-button').click(function () {
-                // Show the edit profile form
-                $('#edit-profile-form').show();
-            });
+        $('#add-to-watched-list').click(function () {
+            //const movieTitle = $('#movie-title').text();
+            addToWatchedList(movieID);
+        });
 
-            // Submit Edit button event listener
-            $('#submit-edit').click(function () {
-                // Validate and submit the edited profile data
-                const editedActor = $('#edit-actor-input').val();
-                const editedMovie = $('#edit-movie-input').val();
-                const editedDirector = $('#edit-director-input').val();
-                const editedGenre = $('#edit-genre-input').val();
-                const editedBio = $('#edit-bio-input').val();
-
-                // You can add further validation if needed
-
-                // Submit the edited data
-                submitEditedData('favActor', editedActor);
-                submitEditedData('favMovie', editedMovie);
-                submitEditedData('favDirector', editedDirector);
-                submitEditedData('favGenre', editedGenre);
-                submitEditedData('biography', editedBio);
-
-                // Hide the edit profile form after submission
-                $('#edit-profile-form').hide();
+        // Fetch movie reviews when the page loads
+        function fetchMovieReviews(movieID) {
+            $.ajax({
+                url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
+                method: 'GET',
+                data: { title: movieID },
+                dataType: 'json',
+                success: function (reviews) {
+                    if (reviews && reviews.length > 0) {
+                        reviews.forEach(review => {
+                            $('#reviews-list').append(`<li>${review.title}: ${review.content}</li>`);
+                        });
+                    } else {
+                        $('#reviews-list').append('<li>No reviews available</li>');
+                    }
+                },
+                error: function () {
+                    console.log('Error fetching reviews');
+                }
             });
         }
 
-        function submitEditedData(profileField, sanitizedValue) {
-            // Perform AJAX request to submit edited data
+        // Submit review function
+        $('#review-form').submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const movieTitle = $('#movie-title').text();
+            const reviewTitle = $('#review-title').val();
+            const reviewContent = $('#review-content').val();
+
             $.ajax({
-                url: 'RabbitMQ/updateProfileData.php',
+                url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
                 method: 'POST',
                 data: {
-                    username: sessionStorage.getItem('username'),
-                    field: profileField,
-                    value: sanitizedValue
+                    title: movieTitle,
+                    reviewTitle: reviewTitle,
+                    reviewContent: reviewContent,
                 },
-                dataType: 'json',
-                success: function (result) {
-                    // Handle success response if needed
+                success: function () {
+                    console.log('Review submitted successfully');
+                    // Clear form fields after submission
+                    $('#review-title').val('');
+                    $('#review-content').val('');
+                    // Refresh the reviews list after submission
+                    fetchMovieReviews(movieTitle);
                 },
                 error: function () {
-                    console.log("Error updating profile data");
+                    console.log('Error submitting review');
+                }
+            });
+        });
+
+        function displayMovieDetails(movieDetails) {
+            $('#movie-title').text(movieDetails.Title);
+            $('#genre').text(movieDetails.Genre.join(', '));
+            $('#director').text(movieDetails.Director);
+            $('#year').text(movieDetails.ReleaseDate.substring(0, 4));
+            $('#bio').text(movieDetails.Overview);
+            $('#poster-image').attr('src', movieDetails.PosterURL); // Update poster image src
+            // Update other elements with additional details if needed
+        }
+
+        function addToWatchlist(movieID) {
+            // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
+            // Include username if needed
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                method: 'POST',
+                data: {
+                    "type": "addToWatchList",
+                    "username": username,
+                    "MovieID": Number(movieID),
+                    "movieTitle": movieRequest.Title,
+                    "posterURL": movieRequest.PosterURL,
+                    "year": movieRequest.ReleaseDate.substring(0,4),
+                },
+                success: function () {
+                    console.log(`Movie added to watch list: ${movieRequest.Title}`);
+                },
+                error: function () {
+                    console.log("Error adding movie to watch list");
+                }
+            });
+        }
+
+        function addToWatchedList(movieID) {
+            // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
+            // Include username if needed
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                method: 'POST',
+                data: {
+                    "type": "addToWatchedList",
+                    "username": username,
+                    "MovieID": Number(movieID),
+                    "movieTitle": movieRequest.Title,
+                    "posterURL": movieRequest.PosterURL,
+                    "year": movieRequest.ReleaseDate.substring(0,4),
+                },
+                success: function () {
+                    console.log(`Movie added to watched list: ${movieRequest.Title}`);
+                },
+                error: function () {
+                    console.log("Error adding movie to watched list");
                 }
             });
         }
     </script>
-    
 </body>
 </html>
-
-
-
