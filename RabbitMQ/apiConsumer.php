@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         
         case "getMediaDetails":
-            $request['mediaID'] = $_GET['mediaID'];
+            $request['movieID'] = $_GET['movieID'];
             $request['mediaType'] = $_GET['mediaType'];
             break;
         
