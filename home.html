@@ -122,6 +122,11 @@
                     // Handle errors here
                 }
             });
+            
+            // Append the "Type" field to the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('Type', 'searchMoviesAndTVShows');
+            history.replaceState(null, null, '?' + urlParams.toString());
         }
 
         function displayResults(results) {
@@ -153,3 +158,4 @@
     </script>
 </body>
 </html>
+

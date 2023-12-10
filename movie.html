@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,18 +54,21 @@
         xhr.send();
         const urlParams = new URLSearchParams(window.location.search);
         let movieID = urlParams.get('movieID');
-       
+
         function loadMovieInfo() {
             if (movieID) {
                 console.log(movieID);
-                // $('#movie-title').text(movieID);
-                
-                // Simulate the API call to fetch movie details
+
+                // Use the new API endpoint that takes "Type" and "ID"
                 $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php', // Replace with your actual API endpoint
+                    url: 'RabbitMQ/apiConsumer.php',
                     method: 'GET',
                     dataType: 'json',
-                    data: { "type": "getMoviesByDetails", "movieID": Number(movieID)},
+                    data: {
+                        "type": "getMediaDetails",
+                        "mediaID": Number(movieID),
+                        "mediaType": "movie" // Adjust the mediaType as needed (e.g., "movie" or "tvshow")
+                    },
                     success: function (result) {
                         if (result) {
                             console.log(result);
@@ -106,16 +108,16 @@
 
         $('#add-to-watchlist').click(function () {
             // Now you can use the global variable 'username' in other parts of the code
-            addToWatchlist(movieID, username);
+            addToWatchlist(movieID);
         });
 
         $('#add-to-watched-list').click(function () {
             // Now you can use the global variable 'username' in other parts of the code
-            addToWatchedList(movieID, username);
+            addToWatchedList(movieID);
         });
 
-         // Fetch movie reviews when the page loads
-         function fetchMovieReviews(movieID) {
+        // Fetch movie reviews when the page loads
+        function fetchMovieReviews(movieID) {
             $.ajax({
                 url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
                 method: 'GET',
@@ -164,9 +166,9 @@
                     console.log('Error submitting review');
                 }
             });
-        });
+        }
 
-        function displayMovieDetails(movieDetails) {
+        , function displayMovieDetails(movieDetails) {
             $('#movie-title').text(movieDetails.Title);
             $('#genre').text(movieDetails.Genre.join(', '));
             $('#director').text(movieDetails.Director);
@@ -176,7 +178,7 @@
             // Update other elements with additional details if needed
         }
 
-        function addToWatchlist(movieID) {
+        , function addToWatchlist(movieID) {
             // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
             // Include username if needed
             $.ajax({
@@ -188,7 +190,7 @@
                     "MovieID": Number(movieID),
                     "movieTitle": movieRequest.Title,
                     "posterURL": movieRequest.PosterURL,
-                    "year": movieRequest.ReleaseDate.substring(0,4),
+                    "year": movieRequest.ReleaseDate.substring(0, 4),
                 },
                 success: function () {
                     console.log(`Movie added to watch list: ${movieRequest.Title}`);
@@ -199,7 +201,7 @@
             });
         }
 
-        function addToWatchedList(movieID) {
+        , function addToWatchedList(movieID) {
             // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
             // Include username if needed
             $.ajax({
@@ -211,7 +213,7 @@
                     "MovieID": Number(movieID),
                     "movieTitle": movieRequest.Title,
                     "posterURL": movieRequest.PosterURL,
-                    "year": movieRequest.ReleaseDate.substring(0,4),
+                    "year": movieRequest.ReleaseDate.substring(0, 4),
                 },
                 success: function () {
                     console.log(`Movie added to watched list: ${movieRequest.Title}`);
@@ -221,7 +223,8 @@
                 }
             });
         }
-
+        )
     </script>
 </body>
 </html>
+       
