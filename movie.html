@@ -57,7 +57,7 @@
             function loadMediaInfo() {
                 console.log("load media info is starting");
                 const urlParams = new URLSearchParams(window.location.search);
-                let mediaID = urlParams.get('mediaID');
+                let mediaID = urlParams.get('movieID');
                 let Type = urlParams.get('Type'); // Added Type variable
 
                 if (mediaID && Type) {
@@ -186,7 +186,7 @@
             }
 
             // Add to watchlist function
-            function addToWatchlist(mediaID) {
+            function addToWatchlist(movieID) {
                 // Send the media title to RabbitMQ for processing (similar to addToWatchedList function)
                 // Include username if needed
                 $.ajax({
@@ -195,7 +195,7 @@
                     data: {
                         "type": "addToWatchList",
                         "username": username,
-                        "MediaID": Number(mediaID),
+                        "MediaID": Number(movieID),
                         "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
                         "posterURL": mediaRequest.PosterURL,
                         "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
