@@ -40,11 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $request['personName'] = $_POST['personName'];
             break;
 
-        // Handle recommendation for actor or director request
-        case "recommendationActorDirector":
-            $request['username'] = $_POST['username'];
-            break;
-
         // Default case for invalid request types
         default:
             echo json_encode(["error" => "Invalid request type"]);
@@ -76,18 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $request['mediaType'] = $_GET['mediaType'];
             break;
         
-        /*
-        // Handle get movie by details request
-        case "getMoviesByDetails":
-            $request['movieID'] = $_GET['movieID'];
-            break;
-
-        // Handle get movie by details request
-        case "getTVByDetails":
-            $request['tvID'] = $_GET['tvID'];
-            break;
-        */
-        
         // Handle get recent watched recommendations 
         case "getRecentWatchedRecommendations":
             $request['username'] = $_GET['username'];
@@ -95,6 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle get most recent watched movie request
         case "getMostRecentWatched":
+            $request['username'] = $_GET['username'];
+            break;
+
+        // Handle recommendation for actor or director request
+        case "recommendationActorDirector":
             $request['username'] = $_GET['username'];
             break;
 
