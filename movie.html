@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +40,7 @@
     <script>
         // Load the navbar component
         const navbarContainer = document.getElementById('navbar-container');
-        let username = sessionStorage.getItem('username');
+        let username; // Declare the global username variable
 
         const xhr = new XMLHttpRequest();
         let movieRequest;
@@ -55,7 +56,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         let movieID = urlParams.get('movieID');
        
-            function loadMovieInfo() {
+        function loadMovieInfo() {
             if (movieID) {
                 console.log(movieID);
                 // $('#movie-title').text(movieID);
@@ -79,7 +80,6 @@
                 });
             }
         }
-        
 
         function fetchUsername() {
             // Fetch the username using AJAX from getUserInfo.php
@@ -89,7 +89,7 @@
                 dataType: 'json',
                 success: function (response) {
                     if (response.username) {
-                        const username = response.username;
+                        username = response.username; // Assign the fetched username to the global variable
                         console.log('Logged-in username:', username);
                         // Here you can use the username for your functionality
                         // For example, if needed, you can send the username while adding movies to the watchlist
@@ -105,17 +105,17 @@
         }
 
         $('#add-to-watchlist').click(function () {
-            //const movieTitle = $('#movie-title').text();
-            addToWatchlist(movieID);
+            // Now you can use the global variable 'username' in other parts of the code
+            addToWatchlist(movieID, username);
         });
 
         $('#add-to-watched-list').click(function () {
-            //const movieTitle = $('#movie-title').text();
-            addToWatchedList(movieID);
+            // Now you can use the global variable 'username' in other parts of the code
+            addToWatchedList(movieID, username);
         });
 
-        // Fetch movie reviews when the page loads
-        function fetchMovieReviews(movieID) {
+         // Fetch movie reviews when the page loads
+         function fetchMovieReviews(movieID) {
             $.ajax({
                 url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
                 method: 'GET',
@@ -221,6 +221,7 @@
                 }
             });
         }
+
     </script>
 </body>
 </html>
