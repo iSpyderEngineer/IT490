@@ -52,17 +52,17 @@ function requestProcessor($request) {
         // Handle adding a movie to the watch list
         case "addToWatchList":
             echo "adding to watch list\n";
-            return addToWatchList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year']);
+            return addToWatchList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year'], $request['mediaType']);
 
         // Handle adding a movie to the watched list
         case "addToWatchedList":
             echo "adding to watched list\n";
-            return addToWatchedList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year']);
+            return addToWatchedList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year'], $request['mediaType']);
         
         // Handle updating the user profile
         case "updateUserProfile":
             echo "updating user profile\n";
-            return updateUserProfile($request['username'], $request['favoriteActor'], $request['favoriteMovie'], $request['favoriteDirector'], $request['favoriteGenres'], $request['biography']);
+            return updateUserProfile($request['username'], $request['favActor'], $request['favMovie'], $request['favDirector'], $request['favGenres'], $request['biography']);
 
         // Handle search for movie reviews
         case "searchMovieReviews":
@@ -87,7 +87,7 @@ function requestProcessor($request) {
         // Handle adding to watched list and removing from watch list
         case "addToWatchedListAndRemoveFromWatchList":
             echo "adding to watched list and removing from watch list\n";
-            return addToWatchedListAndRemoveFromWatchList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year']);
+            return addToWatchedListAndRemoveFromWatchList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year'], $request['mediaType']);
         
         // Default case for unhandled request types
         default:
