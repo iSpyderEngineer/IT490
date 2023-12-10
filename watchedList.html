@@ -40,7 +40,7 @@
                 // Use AJAX to get the user's watchlist data.
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php', // Replace with the actual URL
-                    method: 'POST',
+                    method: 'GET',
                     dataType: 'json',
                     data: {
                         type: 'getWatchedList',
