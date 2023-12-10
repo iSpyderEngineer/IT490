@@ -67,7 +67,7 @@
                     data: {
                         "type": "getMediaDetails",
                         "movieID": Number(movieID),
-                        "mediaType": "movie" // Adjust the mediaType as needed (e.g., "movie" or "tvshow")
+                        "mediaType": String(Type) // Adjust the mediaType as needed (e.g., "movie" or "tvshow")
                     },
                     success: function (result) {
                         if (result) {
