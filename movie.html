@@ -37,197 +37,200 @@
     <button id="add-to-watched-list">Add to Watched List</button>
 
     <script>
-        // Load the navbar component
-        const navbarContainer = document.getElementById('navbar-container');
-        let username; // Declare the global username variable
+        $(document).ready(function () {
+            // Load the navbar component
+            const navbarContainer = document.getElementById('navbar-container');
+            let username; // Declare the global username variable
 
-        const xhr = new XMLHttpRequest();
-        let movieRequest;
-        xhr.open('GET', 'components/navbar.html', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                navbarContainer.innerHTML = xhr.responseText;
-                loadMovieInfo();
-                fetchUsername(); // Fetch username when the page loads
+            const xhr = new XMLHttpRequest();
+            let movieRequest;
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    navbarContainer.innerHTML = xhr.responseText;
+                    loadMovieInfo();
+                    fetchUsername(); // Fetch username when the page loads
+                }
+            };
+            xhr.send();
+            const urlParams = new URLSearchParams(window.location.search);
+            let movieID = urlParams.get('movieID');
+            let Type = urlParams.get('Type'); // Added Type variable
+
+            function loadMovieInfo() {
+                if (movieID && Type) {
+                    console.log("Movie ID and Type found:", movieID, Type);
+
+                    // Use the new API endpoint that takes "Type" and "ID"
+                    $.ajax({
+                        url: 'RabbitMQ/apiConsumer.php',
+                        method: 'GET',
+                        dataType: 'json',
+                        data: {
+                            "type": "getMediaDetails",
+                            "movieID": Number(movieID),
+                            "mediaType": Type,
+                        },
+                        success: function (result) {
+                            if (result) {
+                                console.log("API Result:", result);
+                                movieRequest = result;
+                                displayMovieDetails(result);
+                            }
+                        },
+                        error: function () {
+                            console.log("Error loading movie info");
+                        }
+                    });
+                } else {
+                    console.log("Movie ID or Type not found:", movieID, Type);
+                }
             }
-        };
-        xhr.send();
-        const urlParams = new URLSearchParams(window.location.search);
-        let movieID = urlParams.get('movieID');
-        let Type = urlParams.get('Type'); // Added Type variable
 
-        function loadMovieInfo() {
-            if (movieID && Type) {
-                console.log(movieID);
-
-                // Use the new API endpoint that takes "Type" and "ID"
+            function fetchUsername() {
+                // Fetch the username using AJAX from getUserInfo.php
                 $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
+                    url: 'getUserInfo.php',
                     method: 'GET',
                     dataType: 'json',
-                    data: {
-                        "type": "getMediaDetails",
-                        "movieID": Number(movieID),
-                        "mediaType": String(Type),
-                    },
-                    success: function (result) {
-                        if (result) {
-                            console.log(result);
-                            movieRequest = result;
-                            displayMovieDetails(result);
+                    success: function (response) {
+                        if (response.username) {
+                            username = response.username; // Assign the fetched username to the global variable
+                            console.log('Logged-in username:', username);
+                            // Here you can use the username for your functionality
+                            // For example, if needed, you can send the username while adding movies to the watchlist
+                        } else {
+                            console.log('User not logged in');
+                            // Handle case where the user is not logged in
                         }
                     },
                     error: function () {
-                        console.log("Error loading movie info");
+                        console.log('Error fetching user info');
                     }
                 });
             }
-        }
 
-        function fetchUsername() {
-            // Fetch the username using AJAX from getUserInfo.php
-            $.ajax({
-                url: 'getUserInfo.php',
-                method: 'GET',
-                dataType: 'json',
-                success: function (response) {
-                    if (response.username) {
-                        username = response.username; // Assign the fetched username to the global variable
-                        console.log('Logged-in username:', username);
-                        // Here you can use the username for your functionality
-                        // For example, if needed, you can send the username while adding movies to the watchlist
-                    } else {
-                        console.log('User not logged in');
-                        // Handle case where the user is not logged in
+            $('#add-to-watchlist').click(function () {
+                // Now you can use the global variable 'username' in other parts of the code
+                addToWatchlist(movieID);
+            });
+
+            $('#add-to-watched-list').click(function () {
+                // Now you can use the global variable 'username' in other parts of the code
+                addToWatchedList(movieID);
+            });
+
+            // Fetch movie reviews when the page loads
+            function fetchMovieReviews(movieID) {
+                $.ajax({
+                    url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
+                    method: 'GET',
+                    data: { title: movieID },
+                    dataType: 'json',
+                    success: function (reviews) {
+                        if (reviews && reviews.length > 0) {
+                            reviews.forEach(review => {
+                                $('#reviews-list').append(`<li>${review.title}: ${review.content}</li>`);
+                            });
+                        } else {
+                            $('#reviews-list').append('<li>No reviews available</li>');
+                        }
+                    },
+                    error: function () {
+                        console.log('Error fetching reviews');
                     }
-                },
-                error: function () {
-                    console.log('Error fetching user info');
-                }
-            });
-        }
+                });
+            }
 
-        $('#add-to-watchlist').click(function () {
-            // Now you can use the global variable 'username' in other parts of the code
-            addToWatchlist(movieID);
-        });
+            // Submit review function
+            $('#review-form').submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
 
-        $('#add-to-watched-list').click(function () {
-            // Now you can use the global variable 'username' in other parts of the code
-            addToWatchedList(movieID);
-        });
+                const movieTitle = $('#movie-title').text();
+                const reviewTitle = $('#review-title').val();
+                const reviewContent = $('#review-content').val();
 
-        // Fetch movie reviews when the page loads
-        function fetchMovieReviews(movieID) {
-            $.ajax({
-                url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
-                method: 'GET',
-                data: { title: movieID },
-                dataType: 'json',
-                success: function (reviews) {
-                    if (reviews && reviews.length > 0) {
-                        reviews.forEach(review => {
-                            $('#reviews-list').append(`<li>${review.title}: ${review.content}</li>`);
-                        });
-                    } else {
-                        $('#reviews-list').append('<li>No reviews available</li>');
+                $.ajax({
+                    url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
+                    method: 'POST',
+                    data: {
+                        title: movieTitle,
+                        reviewTitle: reviewTitle,
+                        reviewContent: reviewContent,
+                    },
+                    success: function () {
+                        console.log('Review submitted successfully');
+                        // Clear form fields after submission
+                        $('#review-title').val('');
+                        $('#review-content').val('');
+                        // Refresh the reviews list after submission
+                        fetchMovieReviews(movieTitle);
+                    },
+                    error: function () {
+                        console.log('Error submitting review');
                     }
-                },
-                error: function () {
-                    console.log('Error fetching reviews');
-                }
+                });
             });
-        }
 
-        // Submit review function
-        $('#review-form').submit(function (event) {
-            event.preventDefault(); // Prevent default form submission
+            // Display movie details function
+            function displayMovieDetails(movieDetails) {
+                $('#movie-title').text(movieDetails.Title);
+                $('#genre').text(movieDetails.Genre.join(', '));
+                $('#director').text(movieDetails.Director);
+                $('#year').text(movieDetails.ReleaseDate.substring(0, 4));
+                $('#bio').text(movieDetails.Overview);
+                $('#poster-image').attr('src', movieDetails.PosterURL); // Update poster image src
+                // Update other elements with additional details if needed
+            }
 
-            const movieTitle = $('#movie-title').text();
-            const reviewTitle = $('#review-title').val();
-            const reviewContent = $('#review-content').val();
+            // Add to watchlist function
+            function addToWatchlist(movieID) {
+                // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
+                // Include username if needed
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                    method: 'POST',
+                    data: {
+                        "type": "addToWatchList",
+                        "username": username,
+                        "MovieID": Number(movieID),
+                        "movieTitle": movieRequest.Title,
+                        "posterURL": movieRequest.PosterURL,
+                        "year": movieRequest.ReleaseDate.substring(0, 4),
+                    },
+                    success: function () {
+                        console.log(`Movie added to watch list: ${movieRequest.Title}`);
+                    },
+                    error: function () {
+                        console.log("Error adding movie to watch list");
+                    }
+                });
+            }
 
-            $.ajax({
-                url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
-                method: 'POST',
-                data: {
-                    title: movieTitle,
-                    reviewTitle: reviewTitle,
-                    reviewContent: reviewContent,
-                },
-                success: function () {
-                    console.log('Review submitted successfully');
-                    // Clear form fields after submission
-                    $('#review-title').val('');
-                    $('#review-content').val('');
-                    // Refresh the reviews list after submission
-                    fetchMovieReviews(movieTitle);
-                },
-                error: function () {
-                    console.log('Error submitting review');
-                }
-            });
+            // Add to watched list function
+            function addToWatchedList(movieID) {
+                // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
+                // Include username if needed
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                    method: 'POST',
+                    data: {
+                        "type": "addToWatchedList",
+                        "username": username,
+                        "MovieID": Number(movieID),
+                        "movieTitle": movieRequest.Title,
+                        "posterURL": movieRequest.PosterURL,
+                        "year": movieRequest.ReleaseDate.substring(0, 4),
+                    },
+                    success: function () {
+                        console.log(`Movie added to watched list: ${movieRequest.Title}`);
+                    },
+                    error: function () {
+                        console.log("Error adding movie to watched list");
+                    }
+                });
+            }
         });
-
-        // Display movie details function
-        function displayMovieDetails(movieDetails) {
-            $('#movie-title').text(movieDetails.Title);
-            $('#genre').text(movieDetails.Genre.join(', '));
-            $('#director').text(movieDetails.Director);
-            $('#year').text(movieDetails.ReleaseDate.substring(0, 4));
-            $('#bio').text(movieDetails.Overview);
-            $('#poster-image').attr('src', movieDetails.PosterURL); // Update poster image src
-            // Update other elements with additional details if needed
-        }
-
-        // Add to watchlist function
-        function addToWatchlist(movieID) {
-            // Send the movie title to RabbitMQ for processing (similar to addToWatchedList function)
-            // Include username if needed
-            $.ajax({
-                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
-                method: 'POST',
-                data: {
-                    "type": "addToWatchList",
-                    "username": username,
-                    "MovieID": Number(movieID),
-                    "movieTitle": movieRequest.Title,
-                    "posterURL": movieRequest.PosterURL,
-                    "year": movieRequest.ReleaseDate.substring(0, 4),
-                },
-                success: function () {
-                    console.log(`Movie added to watch list: ${movieRequest.Title}`);
-                },
-                error: function () {
-                    console.log("Error adding movie to watch list");
-                }
-            });
-        }
-
-        // Add to watched list function
-        function addToWatchedList(movieID) {
-            // Send the movie title to RabbitMQ for processing (similar to addToWatchlist function)
-            // Include username if needed
-            $.ajax({
-                url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
-                method: 'POST',
-                data: {
-                    "type": "addToWatchedList",
-                    "username": username,
-                    "MovieID": Number(movieID),
-                    "movieTitle": movieRequest.Title,
-                    "posterURL": movieRequest.PosterURL,
-                    "year": movieRequest.ReleaseDate.substring(0, 4),
-                },
-                success: function () {
-                    console.log(`Movie added to watched list: ${movieRequest.Title}`);
-                },
-                error: function () {
-                    console.log("Error adding movie to watched list");
-                }
-            });
-        }
     </script>
 </body>
 </html>
-
