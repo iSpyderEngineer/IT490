@@ -96,28 +96,6 @@ function requestProcessor($request){
         // Return an error if 'movieID' parameter is missing
         return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
       }
-
-    /* case "getMoviesByDetails":
-      // Handle requests to get movie details
-      if (isset($request['movieID'])) {
-        $response = getMoviesByDetails($request['movieID']);
-        var_dump($response);
-        return $response;
-      } else {
-        // Return an error if 'movieID' parameter is missing
-        return ['status' => 'error', 'message' => 'Movie ID parameter is missing'];
-      }
-
-    case "getTVByDetails":
-      // Handle requests to get tv details
-      if (isset($request['tvID'])) {
-        $response = getTVByDetails($request['tvID']);
-        var_dump($response);
-        return $response;
-      } else {
-        // Return an error if 'tvID' parameter is missing
-        return ['status' => 'error', 'message' => 'TV ID parameter is missing'];
-      } */
   
     case "getRecentWatchedRecommendations":
       // Handle requests for recent watched recommendations
