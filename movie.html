@@ -195,7 +195,7 @@
                     data: {
                         "type": "addToWatchList",
                         "username": username,
-                        "MediaID": Number(movieID),
+                        "MediaID": Number(mediaID),
                         "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
                         "posterURL": mediaRequest.PosterURL,
                         "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
