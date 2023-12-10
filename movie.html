@@ -41,9 +41,11 @@
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
             let username; // Declare the global username variable
+            let mediaID; // Declare the global mediaID variable
+            let mediaType; // Declare the global mediaType variable
+            let mediaRequest;
 
             const xhr = new XMLHttpRequest();
-            let mediaRequest;
             xhr.open('GET', 'components/navbar.html', true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
@@ -57,11 +59,11 @@
             function loadMediaInfo() {
                 console.log("load media info is starting");
                 const urlParams = new URLSearchParams(window.location.search);
-                let mediaID = urlParams.get('movieID');
-                let Type = urlParams.get('Type'); // Added Type variable
+                mediaID = urlParams.get('movieID');
+                mediaType = urlParams.get('Type'); // Added Type variable
 
-                if (mediaID && Type) {
-                    console.log("Media ID and Type found:", mediaID, Type);
+                if (mediaID && mediaType) {
+                    console.log("Media ID and Type found:", mediaID, mediaType);
 
                     // Use the new API endpoint that takes "Type" and "ID"
                     $.ajax({
@@ -71,13 +73,13 @@
                         data: {
                             "type": "getMediaDetails",
                             "movieID": Number(mediaID),
-                            "mediaType": Type,
+                            "mediaType": mediaType,
                         },
                         success: function (result) {
                             if (result) {
                                 console.log("API Result:", result);
                                 mediaRequest = result;
-                                displayMediaDetails(result, Type);
+                                displayMediaDetails(result, mediaType);
                             }
                         },
                         error: function () {
@@ -85,7 +87,7 @@
                         }
                     });
                 } else {
-                    console.log("Media ID or Type not found:", mediaID, Type);
+                    console.log("Media ID or Type not found:", mediaID, mediaType);
                 }
             }
 
@@ -113,13 +115,13 @@
             }
 
             $('#add-to-watchlist').click(function () {
-                // Now you can use the global variable 'username' in other parts of the code
-                addToWatchlist(mediaID);
+                // Now you can use the global variables in other parts of the code
+                addToWatchlist();
             });
 
             $('#add-to-watched-list').click(function () {
-                // Now you can use the global variable 'username' in other parts of the code
-                addToWatchedList(mediaID);
+                // Now you can use the global variables in other parts of the code
+                addToWatchedList();
             });
 
             // Fetch media reviews when the page loads
@@ -186,7 +188,7 @@
             }
 
             // Add to watchlist function
-            function addToWatchlist(movieID) {
+            function addToWatchlist() {
                 // Send the media title to RabbitMQ for processing (similar to addToWatchedList function)
                 // Include username if needed
                 $.ajax({
@@ -196,12 +198,13 @@
                         "type": "addToWatchList",
                         "username": username,
                         "MediaID": Number(mediaID),
-                        "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
+                        "mediaTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
                         "posterURL": mediaRequest.PosterURL,
-                        "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "mediaType": mediaType,
                     },
                     success: function () {
-                        console.log(`Media added to watch list: ${mediaRequest[Type === 'movie' ? 'Title' : 'name']}`);
+                        console.log(`Media added to watch list: ${mediaRequest[mediaType === 'movie' ? 'Title' : 'name']}`);
                     },
                     error: function () {
                         console.log("Error adding media to watch list");
@@ -210,7 +213,7 @@
             }
 
             // Add to watched list function
-            function addToWatchedList(mediaID) {
+            function addToWatchedList() {
                 // Send the media title to RabbitMQ for processing (similar to addToWatchlist function)
                 // Include username if needed
                 $.ajax({
@@ -220,12 +223,13 @@
                         "type": "addToWatchedList",
                         "username": username,
                         "MediaID": Number(mediaID),
-                        "mediaTitle": mediaRequest[Type === 'movie' ? 'Title' : 'name'],
+                        "mediaTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
                         "posterURL": mediaRequest.PosterURL,
-                        "year": type === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "mediaType": mediaType,
                     },
                     success: function () {
-                        console.log(`Media added to watched list: ${mediaRequest[Type === 'movie' ? 'Title' : 'name']}`);
+                        console.log(`Media added to watched list: ${mediaRequest[mediaType === 'movie' ? 'Title' : 'name']}`);
                     },
                     error: function () {
                         console.log("Error adding media to watched list");
@@ -239,4 +243,3 @@
     </script>
 </body>
 </html>
-
