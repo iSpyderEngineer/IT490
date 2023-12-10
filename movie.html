@@ -175,12 +175,12 @@
 
             // Display movie details function
             function displayMovieDetails(movieDetails) {
-                $('#movie-title').text(movieDetails.Title);
-                $('#genre').text(movieDetails.Genre.join(', '));
+                $('#name').text(movieDetails.Title);
+                $('#Genre').text(movieDetails.Genre.join(', '));
                 $('#director').text(movieDetails.Director);
-                $('#year').text(movieDetails.ReleaseDate.substring(0, 4));
-                $('#bio').text(movieDetails.Overview);
-                $('#poster-image').attr('src', movieDetails.PosterURL); // Update poster image src
+                $('#first_air_date').text(movieDetails.ReleaseDate.substring(0, 4));
+                $('#Overview').text(movieDetails.Overview);
+                $('#posterURL').attr('src', movieDetails.PosterURL); // Update poster image src
                 // Update other elements with additional details if needed
             }
 
