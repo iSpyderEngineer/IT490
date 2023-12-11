@@ -29,6 +29,8 @@
             <input type="text" id="review-title" name="review-title"><br>
             <label for="review-content">Review Content:</label><br>
             <textarea id="review-content" name="review-content"></textarea><br>
+            <label for="review-rating">Rating:</label><br>
+            <input type="number" id="review-rating" name="review-rating" min="1" max="5"><br>
             <input type="submit" value="Submit Review">
         </form>
     </div>
@@ -37,13 +39,15 @@
     <button id="add-to-watched-list">Add to Watched List</button>
 
     <script>
+        // Declare global variables
+        let mediaID;
+        let mediaType;
+        let mediaRequest;
+
         $(document).ready(function () {
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
             const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
-            let mediaID; // Declare the global mediaID variable
-            let mediaType; // Declare the global mediaType variable
-            let mediaRequest;
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
@@ -80,6 +84,7 @@
                                 console.log("API Result:", result);
                                 mediaRequest = result;
                                 displayMediaDetails(result, mediaType);
+                                fetchMediaReviews(mediaID);
                             }
                         },
                         error: function () {
@@ -104,14 +109,18 @@
             // Fetch media reviews when the page loads
             function fetchMediaReviews(mediaID) {
                 $.ajax({
-                    url: 'your-backend-endpoint-for-reviews', // Replace with actual backend endpoint
+                    url: 'RabbitMQ/dbConsumer.php',
                     method: 'GET',
-                    data: { title: mediaID },
+                    data: {
+                        "type": "searchMovieReviews",
+                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                    },
                     dataType: 'json',
                     success: function (reviews) {
+                        $('#reviews-list').empty(); // Clear existing reviews
                         if (reviews && reviews.length > 0) {
                             reviews.forEach(review => {
-                                $('#reviews-list').append(`<li>${review.title}: ${review.content}</li>`);
+                                $('#reviews-list').append(`<li>${review.rating}/5 - ${review.review}</li>`);
                             });
                         } else {
                             $('#reviews-list').append('<li>No reviews available</li>');
@@ -130,22 +139,27 @@
                 const mediaTitle = $('#media-title').text();
                 const reviewTitle = $('#review-title').val();
                 const reviewContent = $('#review-content').val();
+                const reviewRating = $('#review-rating').val();
 
                 $.ajax({
-                    url: 'your-backend-endpoint-for-review-submission', // Replace with actual backend endpoint
+                    url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
-                        title: mediaTitle,
-                        reviewTitle: reviewTitle,
-                        reviewContent: reviewContent,
+                        "type": "insertReview",
+                        "username": username,
+                        "MovieID": mediaID,
+                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                        "rating": reviewRating,
+                        "review": reviewContent,
                     },
                     success: function () {
                         console.log('Review submitted successfully');
                         // Clear form fields after submission
                         $('#review-title').val('');
                         $('#review-content').val('');
+                        $('#review-rating').val('');
                         // Refresh the reviews list after submission
-                        fetchMediaReviews(mediaTitle);
+                        fetchMediaReviews(mediaID);
                     },
                     error: function () {
                         console.log('Error submitting review');
@@ -220,3 +234,4 @@
     </script>
 </body>
 </html>
+
