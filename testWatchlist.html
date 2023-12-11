@@ -86,27 +86,29 @@
             }
         }
 
-        function deleteFromWatchlist() {
-            const watchlistId = $('#watchlist-id').val();
-
+        function deleteFromWatchlist(watchlistId, movieTitle) {
             if (watchlistId) {
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: 'POST',
-                    data: {
-                        type: 'deleteFromWatchList',
-                        watchListID: watchlistId
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        console.log('Movie deleted from watchlist:', response);
-                        // Refresh watchlist after deleting a movie
-                        getWatchlist(sessionStorage.getItem('username'));
-                    },
-                    error: function (error) {
-                        console.error('Error deleting movie from watchlist:', error);
-                    }
-                });
+                if (confirm(`Are you sure you want to delete ${movieTitle} from your watchlist?`)) {
+                    $.ajax({
+                        url: 'RabbitMQ/dbConsumer.php',
+                        method: 'POST',
+                        data: {
+                            type: 'deleteFromWatchList',
+                            watchListID: watchlistId
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log('Movie deleted from watchlist:', response);
+                            // Display alert with deleted movie title
+                            alert(`${movieTitle} deleted from watchlist`);
+                            // Refresh watchlist after deleting a movie
+                            getWatchlist(sessionStorage.getItem('username'));
+                        },
+                        error: function (error) {
+                            console.error('Error deleting movie from watchlist:', error);
+                        }
+                    });
+                }
             } else {
                 console.error('Watchlist ID cannot be empty.');
             }
@@ -129,6 +131,7 @@
                         <h3>${movie.Movietitle}</h3>
                         <p>Year: ${movie.Year}</p>
                         <img src="${movie.PosterURL}" alt="${movie.Movietitle} Poster">
+                        <button onclick="deleteFromWatchlist('${movie.watchListID}', '${movie.Movietitle}')">Delete</button>
                     `;
                     watchlistContainer.appendChild(movieBlock);
                 });
@@ -143,3 +146,4 @@
     </script>
 </body>
 </html>
+
