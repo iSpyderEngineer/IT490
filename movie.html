@@ -26,7 +26,7 @@
         <h3>Add Your Review</h3>
         <form id="review-form">
             <label for="review-title">Review Title:</label><br>
-            <input type="text" id="review-title" name="review-title"><br>
+            <input type="text" id="review-title" name="review-title" readonly><br>
             <label for="review-content">Review Content:</label><br>
             <textarea id="review-content" name="review-content"></textarea><br>
             <label for="review-rating">Rating:</label><br>
@@ -85,6 +85,8 @@
                                 mediaRequest = result;
                                 displayMediaDetails(result, mediaType);
                                 fetchMediaReviews(mediaID);
+                                // Set review form title to media title
+                                $('#review-title').val(result[mediaType === 'movie' ? 'Title' : 'name']);
                             }
                         },
                         error: function () {
@@ -137,7 +139,6 @@
                 event.preventDefault(); // Prevent default form submission
 
                 const mediaTitle = $('#media-title').text();
-                const reviewTitle = $('#review-title').val();
                 const reviewContent = $('#review-content').val();
                 const reviewRating = $('#review-rating').val();
 
@@ -234,4 +235,3 @@
     </script>
 </body>
 </html>
-
