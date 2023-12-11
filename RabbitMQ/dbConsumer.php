@@ -71,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
             $request['movieTitle'] = $_POST['movieTitle'];
             $request['rating'] = $_POST['rating'];
             $request['review'] = $_POST['review'];
+            $request['mediaType'] = $_POST['mediaType'];
             break;
 
         // Handle deletion of a movie from the watch list

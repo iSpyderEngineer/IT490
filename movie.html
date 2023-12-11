@@ -152,6 +152,7 @@
                         "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
                         "rating": reviewRating,
                         "review": reviewContent,
+                        "mediaType": mediaType,
                     },
                     success: function () {
                         console.log('Review submitted successfully');
