@@ -77,7 +77,7 @@ function requestProcessor($request) {
         // Handle insertion of a movie review
         case "insertReview":
             echo "inserting review\n";
-            return insertReview($request['accountId'], $request['MovieID'], $request['movieTitle'], $request['rating'], $request['review']);
+            return insertReview($request['username'], $request['MovieID'], $request['movieTitle'], $request['rating'], $request['review']);
 
         // Handle deletion of a movie from the watch list
         case "deleteFromWatchList":

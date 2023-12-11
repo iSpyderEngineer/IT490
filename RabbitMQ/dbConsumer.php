@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle insertion of a new movie review
         case "insertReview":
-            $request['accountId'] = $_POST['accountId'];
+            $request['username'] = $_POST['username'];
             $request['MovieID'] = $_POST['MovieID'];
             $request['movieTitle'] = $_POST['movieTitle'];
             $request['rating'] = $_POST['rating'];
