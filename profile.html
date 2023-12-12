@@ -80,11 +80,7 @@
     <script>
         $(document).ready(function () {
             // Load the navbar component
-            const navbarContainer = $('#navbar-container');
-
-            $.get('components/navbar.html', function (data) {
-                navbarContainer.html(data);
-
+            $('#navbar-container').load('components/navbar.html', function () {
                 // Call other functions after the navbar is loaded (if needed)
                 loadProfileData();
 
@@ -150,13 +146,13 @@
 
         function enableEditFunctionality() {
             // Edit Profile button event listener
-            $('#edit-profile-button').click(function () {
+            $(document).on('click', '#edit-profile-button', function () {
                 // Show the edit profile form
                 $('#edit-profile-form').show();
             });
 
             // Submit Edit button event listener
-            $('#submit-edit').click(function () {
+            $(document).on('click', '#submit-edit', function () {
                 // Validate and submit the edited profile data
                 const editedActor = $('#edit-actor-input').val();
                 const editedMovie = $('#edit-movie-input').val();
@@ -201,6 +197,7 @@
     
 </body>
 </html>
+
 
 
 
