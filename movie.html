@@ -31,6 +31,19 @@
             <textarea id="review-content" name="review-content"></textarea><br>
             <label for="review-rating">Rating:</label><br>
             <input type="number" id="review-rating" name="review-rating" min="1" max="5"><br>
+
+            <!-- Add the fields for preferences -->
+            <label for="favActor">Favorite Actor:</label><br>
+            <input type="text" id="favActor" name="favActor"><br>
+            <label for="favGenre">Favorite Genre:</label><br>
+            <input type="text" id="favGenre" name="favGenre"><br>
+            <label for="favDirector">Favorite Director:</label><br>
+            <input type="text" id="favDirector" name="favDirector"><br>
+            <label for="favMovie">Favorite Movie:</label><br>
+            <input type="text" id="favMovie" name="favMovie"><br>
+            <label for="biography">Biography:</label><br>
+            <textarea id="biography" name="biography"></textarea><br>
+
             <input type="submit" value="Submit Review">
         </form>
     </div>
@@ -138,14 +151,12 @@
                     "rating": reviewRating,
                     "review": reviewContent,
                     "mediaType": mediaType,
+                    "favActor": $('#favActor').val(),
+                    "favGenre": $('#favGenre').val(),
+                    "favDirector": $('#favDirector').val(),
+                    "favMovie": $('#favMovie').val(),
+                    "biography": $('#biography').val(),
                 };
-
-                // Add preferences to payload
-                payload.favActor = $('#favActor').val();
-                payload.favGenre = $('#favGenre').val();
-                payload.favDirector = $('#favDirector').val();
-                payload.favMovie = $('#favMovie').val();
-                payload.biography = $('#biography').val();
 
                 sendToDBConsumer(payload, "Review submitted successfully");
             });
@@ -204,3 +215,4 @@
     </script>
 </body>
 </html>
+
