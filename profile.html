@@ -78,39 +78,32 @@
     <button id="edit-profile-button">Edit Profile</button>
 
     <script>
-        // Load the navbar component
-        const navbarContainer = document.getElementById('navbar-container');
-    
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', 'components/navbar.html', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                navbarContainer.innerHTML = xhr.responseText;
-    
+        $(document).ready(function () {
+            // Load the navbar component
+            $('#navbar-container').load('components/navbar.html', function () {
                 // Call other functions after the navbar is loaded (if needed)
                 loadProfileData();
-    
+
                 // Event listener for the "Profile" link in the navbar
                 $('#profile-link').click(function (event) {
                     event.preventDefault(); // Prevent the default link behavior
                     loadProfileData();
                 });
-    
-                // Check if it's the user's own profile page to enable edit functionality
+
+                // Check if it's the user's own profile page to enable edit functionality, set up for potential future proofing but doesn't really check as of writing
                 const isOwnProfile = isCurrentUserProfile(); // Function to check if it's the user's own profile
                 if (isOwnProfile) {
                     enableEditFunctionality();
                 }
-            }
-        };
-        xhr.send();
-    
+            });
+        });
+
         function isCurrentUserProfile() {
             const currentSessionUsername = sessionStorage.getItem('username');
-            const profileUsername = "";  // There is no PHP echo here as we use sessionStorage
-            return currentSessionUsername === profileUsername;
+            const profileUsername = "";  // This exists for in the future if we let users see each other's profile pages's
+            return true;
         }
-    
+
         function loadProfileData() {
             const username = sessionStorage.getItem('username');
             $.ajax({
@@ -135,6 +128,9 @@
                         $('#genre-info').text(result[0].FavoriteGenres);
                         $('#edit-genre-input').val(result[0].FavoriteGenres);
                     }
+                    if (result[0].RateScore) {
+                        $('#rate-info').text(result[0].RateScore);
+                    }
                     if (result[0].Biography) {
                         $('#bio-info').text(result[0].Biography);
                         $('#edit-bio-input').val(result[0].Biography);
@@ -149,16 +145,14 @@
         }
 
         function enableEditFunctionality() {
-            // ... Your existing code for enabling edit functionality
-
             // Edit Profile button event listener
-            $('#edit-profile-button').click(function () {
+            $(document).on('click', '#edit-profile-button', function () {
                 // Show the edit profile form
                 $('#edit-profile-form').show();
             });
 
             // Submit Edit button event listener
-            $('#submit-edit').click(function () {
+            $(document).on('click', '#submit-edit', function () {
                 // Validate and submit the edited profile data
                 const editedActor = $('#edit-actor-input').val();
                 const editedMovie = $('#edit-movie-input').val();
@@ -203,4 +197,7 @@
     
 </body>
 </html>
+
+
+
 
