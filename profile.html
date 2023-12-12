@@ -90,7 +90,7 @@
                     loadProfileData();
                 });
 
-                // Check if it's the user's own profile page to enable edit functionality
+                // Check if it's the user's own profile page to enable edit functionality, set up for potential future proofing but doesn't really check as of writing
                 const isOwnProfile = isCurrentUserProfile(); // Function to check if it's the user's own profile
                 if (isOwnProfile) {
                     enableEditFunctionality();
@@ -100,8 +100,8 @@
 
         function isCurrentUserProfile() {
             const currentSessionUsername = sessionStorage.getItem('username');
-            const profileUsername = "";  // There is no PHP echo here as we use sessionStorage
-            return currentSessionUsername === profileUsername;
+            const profileUsername = "";  // This exists for in the future if we let users see each other's profile pages's
+            return true;
         }
 
         function loadProfileData() {
