@@ -130,29 +130,17 @@
                 const reviewContent = $('#review-content').val();
                 const reviewRating = $('#review-rating').val();
 
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: 'POST',
-                    data: {
-                        "type": "insertReview",
-                        "username": username,
-                        "MovieID": mediaID,
-                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
-                        "rating": reviewRating,
-                        "review": reviewContent,
-                        "mediaType": mediaType,
-                    },
-                    success: function () {
-                        console.log('Review submitted successfully');
-                        $('#review-title').val('');
-                        $('#review-content').val('');
-                        $('#review-rating').val('');
-                        fetchMediaReviews(mediaID);
-                    },
-                    error: function () {
-                        console.log('Error submitting review');
-                    }
-                });
+                const payload = {
+                    "type": "insertReview",
+                    "username": username,
+                    "MovieID": mediaID,
+                    "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                    "rating": reviewRating,
+                    "review": reviewContent,
+                    "mediaType": mediaType,
+                };
+
+                sendToDBConsumer(payload, "Review submitted successfully");
             });
 
             function displayMediaDetails(mediaDetails, type) {
@@ -209,4 +197,3 @@
     </script>
 </body>
 </html>
-
