@@ -78,39 +78,36 @@
     <button id="edit-profile-button">Edit Profile</button>
 
     <script>
-        // Load the navbar component
-        const navbarContainer = document.getElementById('navbar-container');
-    
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', 'components/navbar.html', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                navbarContainer.innerHTML = xhr.responseText;
-    
+        $(document).ready(function () {
+            // Load the navbar component
+            const navbarContainer = $('#navbar-container');
+
+            $.get('components/navbar.html', function (data) {
+                navbarContainer.html(data);
+
                 // Call other functions after the navbar is loaded (if needed)
                 loadProfileData();
-    
+
                 // Event listener for the "Profile" link in the navbar
                 $('#profile-link').click(function (event) {
                     event.preventDefault(); // Prevent the default link behavior
                     loadProfileData();
                 });
-    
+
                 // Check if it's the user's own profile page to enable edit functionality
                 const isOwnProfile = isCurrentUserProfile(); // Function to check if it's the user's own profile
                 if (isOwnProfile) {
                     enableEditFunctionality();
                 }
-            }
-        };
-        xhr.send();
-    
+            });
+        });
+
         function isCurrentUserProfile() {
             const currentSessionUsername = sessionStorage.getItem('username');
             const profileUsername = "";  // There is no PHP echo here as we use sessionStorage
             return currentSessionUsername === profileUsername;
         }
-    
+
         function loadProfileData() {
             const username = sessionStorage.getItem('username');
             $.ajax({
@@ -152,8 +149,6 @@
         }
 
         function enableEditFunctionality() {
-            // ... Your existing code for enabling edit functionality
-
             // Edit Profile button event listener
             $('#edit-profile-button').click(function () {
                 // Show the edit profile form
@@ -206,5 +201,6 @@
     
 </body>
 </html>
+
 
 
