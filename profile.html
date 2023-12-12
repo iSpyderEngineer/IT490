@@ -115,31 +115,36 @@
                 data: { type: 'getUserProfile', username: username },
                 dataType: 'json',
                 success: function (result) {
-                    if (result[0].FavoriteActor) {
-                        $('#actor-info').text(result[0].FavoriteActor);
-                        $('#edit-actor-input').val(result[0].FavoriteActor);
+                    if (result && result.length > 0) {
+                        const userProfile = result[0];
+
+                        if (userProfile.FavoriteActor) {
+                            $('#actor-info').text(userProfile.FavoriteActor);
+                            $('#edit-actor-input').val(userProfile.FavoriteActor);
+                        }
+                        if (userProfile.FavoriteMovie) {
+                            $('#movie-info').text(userProfile.FavoriteMovie);
+                            $('#edit-movie-input').val(userProfile.FavoriteMovie);
+                        }
+                        if (userProfile.FavoriteDirector) {
+                            $('#director-info').text(userProfile.FavoriteDirector);
+                            $('#edit-director-input').val(userProfile.FavoriteDirector);
+                        }
+                        if (userProfile.FavoriteGenres) {
+                            $('#genre-info').text(userProfile.FavoriteGenres);
+                            $('#edit-genre-input').val(userProfile.FavoriteGenres);
+                        }
+                        if (userProfile.RateScore) {
+                            $('#rate-info').text(userProfile.RateScore);
+                        }
+                        if (userProfile.Biography) {
+                            $('#bio-info').text(userProfile.Biography);
+                            $('#edit-bio-input').val(userProfile.Biography);
+                        }
+
+                        // Displaying the username
+                        $('#username-info').text(username);
                     }
-                    if (result[0].FavoriteMovie) {
-                        $('#movie-info').text(result[0].FavoriteMovie);
-                        $('#edit-movie-input').val(result[0].FavoriteMovie);
-                    }
-                    if (result[0].FavoriteDirector) {
-                        $('#director-info').text(result[0].FavoriteDirector);
-                        $('#edit-director-input').val(result[0].FavoriteDirector);
-                    }
-                    if (result[0].FavoriteGenres) {
-                        $('#genre-info').text(result[0].FavoriteGenres);
-                        $('#edit-genre-input').val(result[0].FavoriteGenres);
-                    }
-                    if (result[0].RateScore) {
-                        $('#rate-info').text(result[0].RateScore);
-                    }
-                    if (result[0].Biography) {
-                        $('#bio-info').text(result[0].Biography);
-                        $('#edit-bio-input').val(result[0].Biography);
-                    }
-                    // Displaying the username
-                    $('#username-info').text(username);
                 },
                 error: function () {
                     console.log("Error loading profile data");
@@ -193,6 +198,7 @@
                 dataType: 'json',
                 success: function (result) {
                     // Handle success response if needed
+                    console.log('Profile data updated successfully:', result);
                 },
                 error: function () {
                     console.log("Error updating profile data");
