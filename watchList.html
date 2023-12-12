@@ -161,10 +161,10 @@
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
                     movieBlock.innerHTML = `
-                        <img src="${movie.PosterURL}" alt="${movie.Movietitle} Poster">
-                        <h3>${movie.Movietitle}</h3>
+                        <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
+                        <h3>${movie.MovieTitle}</h3>
                         <p>Year: ${movie.Year}</p>
-                        <button class="delete-button" onclick="deleteFromWatchlist(${movie.WatchlistID})">Delete</button>
+                        <button class="delete-button" onclick="deleteFromWatchlist(${movie.MovieID})">Delete</button>
                     `;
                     movieContainer.appendChild(movieBlock);
                 });
@@ -187,3 +187,5 @@
     </script>
 </body>
 </html>
+
+
