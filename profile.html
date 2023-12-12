@@ -82,7 +82,7 @@
             // Load the navbar component
             $('#navbar-container').load('components/navbar.html', function () {
                 // Call other functions after the navbar is loaded (if needed)
-                loadProfileData();
+                // Removed loadProfileData() from here
 
                 // Event listener for the "Profile" link in the navbar
                 $('#profile-link').click(function (event) {
@@ -95,6 +95,9 @@
                 if (isOwnProfile) {
                     enableEditFunctionality();
                 }
+
+                // Explicitly call loadProfileData() after the document is ready
+                loadProfileData();
             });
         });
 
