@@ -31,19 +31,6 @@
             <textarea id="review-content" name="review-content"></textarea><br>
             <label for="review-rating">Rating:</label><br>
             <input type="number" id="review-rating" name="review-rating" min="1" max="5"><br>
-
-            <!-- Add the fields for preferences -->
-            <label for="favActor">Favorite Actor:</label><br>
-            <input type="text" id="favActor" name="favActor"><br>
-            <label for="favGenre">Favorite Genre:</label><br>
-            <input type="text" id="favGenre" name="favGenre"><br>
-            <label for="favDirector">Favorite Director:</label><br>
-            <input type="text" id="favDirector" name="favDirector"><br>
-            <label for="favMovie">Favorite Movie:</label><br>
-            <input type="text" id="favMovie" name="favMovie"><br>
-            <label for="biography">Biography:</label><br>
-            <textarea id="biography" name="biography"></textarea><br>
-
             <input type="submit" value="Submit Review">
         </form>
     </div>
@@ -56,27 +43,33 @@
         let mediaID;
         let mediaType;
         let mediaRequest;
-        let username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
 
         $(document).ready(function () {
             // Load the navbar component
             const navbarContainer = document.getElementById('navbar-container');
+            const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
+
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                     navbarContainer.innerHTML = xhr.responseText;
                     loadMediaInfo();
+                    console.log("document ready has been loaded");
                 }
             };
             xhr.send();
 
             function loadMediaInfo() {
+                console.log("load media info is starting");
                 const urlParams = new URLSearchParams(window.location.search);
                 mediaID = urlParams.get('movieID');
-                mediaType = urlParams.get('Type');
+                mediaType = urlParams.get('Type'); // Added Type variable
 
                 if (mediaID && mediaType) {
+                    console.log("Media ID and Type found:", mediaID, mediaType);
+
+                    // Use the new API endpoint that takes "Type" and "ID"
                     $.ajax({
                         url: 'RabbitMQ/apiConsumer.php',
                         method: 'GET',
@@ -88,9 +81,11 @@
                         },
                         success: function (result) {
                             if (result) {
+                                console.log("API Result:", result);
                                 mediaRequest = result;
                                 displayMediaDetails(result, mediaType);
                                 fetchMediaReviews(mediaID);
+                                // Set review form title to media title
                                 $('#review-title').val(result[mediaType === 'movie' ? 'Title' : 'name']);
                             }
                         },
@@ -104,13 +99,16 @@
             }
 
             $('#add-to-watchlist').click(function () {
+                // Now you can use the global variables in other parts of the code
                 addToWatchlist();
             });
 
             $('#add-to-watched-list').click(function () {
+                // Now you can use the global variables in other parts of the code
                 addToWatchedList();
             });
 
+            // Fetch media reviews when the page loads
             function fetchMediaReviews(mediaID) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
@@ -121,7 +119,7 @@
                     },
                     dataType: 'json',
                     success: function (reviews) {
-                        $('#reviews-list').empty();
+                        $('#reviews-list').empty(); // Clear existing reviews
                         if (reviews && reviews.length > 0) {
                             reviews.forEach(review => {
                                 $('#reviews-list').append(`<li>${review.rating}/5 - ${review.review}</li>`);
@@ -136,83 +134,105 @@
                 });
             }
 
+            // Submit review function
             $('#review-form').submit(function (event) {
-                event.preventDefault();
+                event.preventDefault(); // Prevent default form submission
 
                 const mediaTitle = $('#media-title').text();
                 const reviewContent = $('#review-content').val();
                 const reviewRating = $('#review-rating').val();
 
-                const payload = {
-                    "type": "insertReview",
-                    "username": username,
-                    "MovieID": mediaID,
-                    "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
-                    "rating": reviewRating,
-                    "review": reviewContent,
-                    "mediaType": mediaType,
-                    "favActor": $('#favActor').val(),
-                    "favGenre": $('#favGenre').val(),
-                    "favDirector": $('#favDirector').val(),
-                    "favMovie": $('#favMovie').val(),
-                    "biography": $('#biography').val(),
-                };
-
-                sendToDBConsumer(payload, "Review submitted successfully");
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: {
+                        "type": "insertReview",
+                        "username": username,
+                        "MovieID": mediaID,
+                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                        "rating": reviewRating,
+                        "review": reviewContent,
+                        "mediaType": mediaType,
+                    },
+                    success: function () {
+                        console.log('Review submitted successfully');
+                        // Clear form fields after submission
+                        $('#review-title').val('');
+                        $('#review-content').val('');
+                        $('#review-rating').val('');
+                        // Refresh the reviews list after submission
+                        fetchMediaReviews(mediaID);
+                    },
+                    error: function () {
+                        console.log('Error submitting review');
+                    }
+                });
             });
 
+            // Display media details function
             function displayMediaDetails(mediaDetails, type) {
                 $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
                 $('#genre').text(mediaDetails.Genre.join(', '));
                 $('#director').text(mediaDetails.Director);
                 $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
                 $('#bio').text(mediaDetails.Overview);
-                $('#poster-image').attr('src', mediaDetails.PosterURL);
+                $('#poster-image').attr('src', mediaDetails.PosterURL); // Update poster image src
+                // Update other elements with additional details if needed
             }
 
+            // Add to watchlist function
             function addToWatchlist() {
-                const payload = {
-                    "type": "addToWatchList",
-                    "username": username,
-                    "MovieID": mediaID,
-                    "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
-                    "posterURL": mediaRequest.PosterURL,
-                    "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
-                    "mediaType": mediaType,
-                };
-                sendToDBConsumer(payload, "Media added to watch list");
-            }
-
-            function addToWatchedList() {
-                const payload = {
-                    "type": "addToWatchedList",
-                    "username": username,
-                    "MovieID": Number(mediaID),
-                    "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
-                    "posterURL": mediaRequest.PosterURL,
-                    "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
-                    "mediaType": mediaType,
-                };
-                sendToDBConsumer(payload, "Media added to watched list");
-            }
-
-            function sendToDBConsumer(payload, successMessage) {
+                // Send the media title to RabbitMQ for processing (similar to addToWatchedList function)
+                // Include username if needed
                 $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
                     method: 'POST',
-                    data: payload,
+                    data: {
+                        "type": "addToWatchList",
+                        "username": username,
+                        "MovieID": mediaID,
+                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                        "posterURL": mediaRequest.PosterURL,
+                        "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "mediaType": mediaType,
+                    },
                     success: function () {
-                        console.log(successMessage);
+                        console.log(`Media added to watch list: ${mediaRequest[mediaType === 'movie' ? 'Title' : 'name']}`);
                     },
                     error: function () {
-                        console.log(`Error ${successMessage}`);
+                        console.log("Error adding media to watch list");
+                    }
+                });
+            }
+
+            // Add to watched list function
+            function addToWatchedList() {
+                // Send the media title to RabbitMQ for processing (similar to addToWatchlist function)
+                // Include username if needed
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                    method: 'POST',
+                    data: {
+                        "type": "addToWatchedList",
+                        "username": username,
+                        "MovieID": Number(mediaID),
+                        "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
+                        "posterURL": mediaRequest.PosterURL,
+                        "year": mediaType === 'movie' ? mediaRequest.ReleaseDate.substring(0, 4) : mediaRequest.first_air_date.substring(0, 4),
+                        "mediaType": mediaType,
+                    },
+                    success: function () {
+                        console.log(`Media added to watched list: ${mediaRequest[mediaType === 'movie' ? 'Title' : 'name']}`);
+                    },
+                    error: function () {
+                        console.log("Error adding media to watched list");
                     }
                 });
             }
         });
 
-        loadMediaInfo(); // Call loadMediaInfo directly when the document is ready
+        // Call loadMediaInfo directly when the document is ready
+        loadMediaInfo();
     </script>
 </body>
 </html>
-

@@ -162,29 +162,31 @@
 
                 // You can add further validation if needed
 
-                // Submit the edited data
-                submitEditedData('favActor', editedActor);
-                submitEditedData('favMovie', editedMovie);
-                submitEditedData('favDirector', editedDirector);
-                submitEditedData('favGenre', editedGenre);
-                submitEditedData('biography', editedBio);
+                // Prepare the payload with all edited data
+                const payload = {
+                    type: 'updateProfile',
+                    username: sessionStorage.getItem('username'),
+                    favActor: editedActor,
+                    favMovie: editedMovie,
+                    favDirector: editedDirector,
+                    favGenre: editedGenre,
+                    biography: editedBio
+                };
+
+                // Submit the edited data in one payload
+                submitEditedData(payload);
 
                 // Hide the edit profile form after submission
                 $('#edit-profile-form').hide();
             });
         }
 
-        function submitEditedData(profileField, sanitizedValue) {
+        function submitEditedData(payload) {
             // Perform AJAX request to submit edited data
             $.ajax({
                 url: 'RabbitMQ/dbConsumer.php',
                 method: 'POST',
-                data: {
-                    type: 'updateProfile', // Assuming you want to update the profile
-                    username: sessionStorage.getItem('username'),
-                    field: profileField,
-                    value: sanitizedValue
-                },
+                data: payload,
                 dataType: 'json',
                 success: function (result) {
                     // Handle success response if needed
@@ -198,8 +200,3 @@
     
 </body>
 </html>
-
-
-
-
-
