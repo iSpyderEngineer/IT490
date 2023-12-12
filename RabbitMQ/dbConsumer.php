@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
             break;
 
         // Handle user profile updates and preferences validation
-        case "updateUserProfile":
         case "updateProfile":
         case "validatePreferences":
             $request['username'] = $_POST['username'];

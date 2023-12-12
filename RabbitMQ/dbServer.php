@@ -63,11 +63,6 @@ function requestProcessor($request) {
         case "addToWatchedList":
             echo "adding to watched list\n";
             return addToWatchedList($request['username'], $request['MovieID'], $request['movieTitle'], $request['posterURL'], $request['year'], $request['mediaType']);
-        
-        // Handle updating the user profile
-        case "updateUserProfile":
-            echo "updating user profile\n";
-            return updateUserProfile($request['username'], $request['favActor'], $request['favMovie'], $request['favDirector'], $request['favGenres'], $request['biography']);
 
         // Handle search for movie reviews
         case "searchMovieReviews":
