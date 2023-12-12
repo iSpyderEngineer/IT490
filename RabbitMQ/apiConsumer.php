@@ -29,11 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
             $request['personName'] = $_POST['personName'];
             break;
 
-        // Handle recommendation for actor or director request
-        case "recommendationActorDirector":
-            $request['username'] = $_POST['username'];
-            break;
-
         // Default case for invalid request types
         default:
             echo json_encode(["error" => "Invalid request type"]);
@@ -45,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
     
     // Switch case to handle different request types
     switch ($request['type']) {
+        // Handle recommendation for actor or director request
+        case "recommendationActorDirector":
+            $request['username'] = $_GET['username'];
+            break;
+
         // Handle get movies by actor request
         case "getMoviesByActor":
             $request['actorName'] = $_GET['actorName'];
