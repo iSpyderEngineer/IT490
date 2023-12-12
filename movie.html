@@ -140,6 +140,13 @@
                     "mediaType": mediaType,
                 };
 
+                // Add preferences to payload
+                payload.favActor = $('#favActor').val();
+                payload.favGenre = $('#favGenre').val();
+                payload.favDirector = $('#favDirector').val();
+                payload.favMovie = $('#favMovie').val();
+                payload.biography = $('#biography').val();
+
                 sendToDBConsumer(payload, "Review submitted successfully");
             });
 
