@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
         case "updateProfile":
         case "validatePreferences":
             $request['username'] = $_POST['username'];
-            $request['MovieID'] = $_POST['MovieID'];
             $request['favActor'] = $_POST['favActor'];
             $request['favGenre'] = $_POST['favGenre'];
             $request['favDirector'] = $_POST['favDirector'];
