@@ -135,6 +135,9 @@
                         $('#genre-info').text(result[0].FavoriteGenres);
                         $('#edit-genre-input').val(result[0].FavoriteGenres);
                     }
+                    if (result[0].RateScore) {
+                        $('#rate-info').text(result[0].RateScore);
+                    }
                     if (result[0].Biography) {
                         $('#bio-info').text(result[0].Biography);
                         $('#edit-bio-input').val(result[0].Biography);
@@ -203,4 +206,5 @@
     
 </body>
 </html>
+
 
