@@ -35,6 +35,16 @@
             padding: 5px 10px;
             border-radius: 5px;
         }
+
+        .move-to-watched-button {
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #4285f4;
+            color: #ffffff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -144,6 +154,31 @@
             }
         }
 
+        function moveToWatchedList(movieId, movieTitle, posterURL, year, mediaType) {
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'addToWatchedListAndRemoveFromWatchList',
+                    username: sessionStorage.getItem('username'),
+                    MovieID: movieId,
+                    movieTitle: movieTitle,
+                    posterURL: posterURL,
+                    year: year,
+                    mediaType: mediaType
+                },
+                dataType: 'json',
+                success: function (response) {
+                    console.log('Movie moved to watched list:', response);
+                    // Refresh watchlist after moving a movie
+                    getWatchlist(sessionStorage.getItem('username'));
+                },
+                error: function (error) {
+                    console.error('Error moving movie to watched list:', error);
+                }
+            });
+        }
+
         function displayWatchlist(response) {
             const watchlistContainer = document.getElementById('watchlist-container');
             watchlistContainer.innerHTML = '';
@@ -169,6 +204,7 @@
                         </a>
                         <p>Year: ${movie.Year}</p>
                         <button class="delete-button" onclick="deleteFromWatchlist(${movie.MovieID})">Delete</button>
+                        <button class="move-to-watched-button" onclick="moveToWatchedList(${movie.MovieID}, '${movie.MovieTitle}', '${movie.PosterURL}', '${movie.Year}', '${movie.MediaType}')">Move to Watched List</button>
                     `;
                     movieContainer.appendChild(movieBlock);
                 });
@@ -191,7 +227,3 @@
     </script>
 </body>
 </html>
-
-
-
-
