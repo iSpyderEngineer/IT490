@@ -74,7 +74,7 @@ class rabbitMQServer
                     'password' => $this->PASSWORD,
                     'vhost' => $this->VHOST,
                     'heartbeat' => $this->heartbeat,
-                    'timeout' => $this->timeout
+                    'read_timeout' => $this->timeout
                 );
                 $conn = new AMQPConnection($params);
                 if ($conn->connect()) {
@@ -255,7 +255,7 @@ class rabbitMQClient
                     'password' => $this->PASSWORD,
                     'vhost' => $this->VHOST,
                     'heartbeat' => $this->heartbeat,
-                    'timeout' => $this->timeout
+                    'read_timeout' => $this->timeout
                 );
 
                 $conn = new AMQPConnection($params);
