@@ -53,8 +53,8 @@
 
     <div id="delete-from-watchlist-form">
         <h2>Delete from Watchlist</h2>
-        <label for="watchlist-id">Watchlist ID:</label>
-        <input type="text" id="watchlist-id" name="watchlist-id" required>
+        <label for="watchlist-id">Movie ID:</label>
+        <input type="text" id="movie-id" name="movie-id" required>
         <button onclick="deleteFromWatchlist()">Delete from Watchlist</button>
     </div>
 
@@ -118,14 +118,16 @@
             }
         }
 
-        function deleteFromWatchlist(watchlistId) {
-            if (watchlistId) {
+        function deleteFromWatchlist() {
+            const movieId = $('#movie-id').val();
+
+            if (movieId) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
                         type: 'deleteFromWatchList',
-                        watchListID: watchlistId
+                        movieID: movieId
                     },
                     dataType: 'json',
                     success: function (response) {
@@ -138,7 +140,7 @@
                     }
                 });
             } else {
-                console.error('Watchlist ID cannot be empty.');
+                console.error('Movie ID cannot be empty.');
             }
         }
 
@@ -161,8 +163,10 @@
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
                     movieBlock.innerHTML = `
-                        <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
-                        <h3>${movie.MovieTitle}</h3>
+                        <a href="movies.html?mediaType=${movie.MediaType}&mediaID=${movie.MovieID}">
+                            <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
+                            <h3>${movie.MovieTitle}</h3>
+                        </a>
                         <p>Year: ${movie.Year}</p>
                         <button class="delete-button" onclick="deleteFromWatchlist(${movie.MovieID})">Delete</button>
                     `;
@@ -187,6 +191,7 @@
     </script>
 </body>
 </html>
+
 
 
 
