@@ -29,12 +29,12 @@
     
     <script>
         function generateSessionId() {
-            // Function to generate a random and unique session ID
+            // This function is used to set the session ID
             return 'session_' + Math.random().toString(36).substr(2, 9);
         }
 
         function storeSessionInformation(uname, sessionid) {
-            // Store session information in sessionStorage
+            // I use this to store the data in session storage
             sessionStorage.setItem('sessionid', sessionid);
             sessionStorage.setItem('username', uname);
         }
@@ -45,10 +45,10 @@
             let uname = formData.get("username");
             let password = formData.get("password");
 
-            // Hash the password using SHA-256
+            // Where we hash the password using SHA-256
             let hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
 
-            formData.set("password", hashedPassword); // Update the password in the form data
+            formData.set("password", hashedPassword); // Replaces the original password in the form with a hashed password
 
             console.log("Logging in");
     
@@ -66,7 +66,7 @@
                     if (data.returnCode == "1") {
                         console.log("Login successful");
                         
-                        // Use the sessionid returned from the server
+                        // Uses a returned session ID 
                         let sessionid = result.sessionid;
 
                         storeSessionInformation(uname, sessionid);
