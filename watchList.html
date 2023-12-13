@@ -202,6 +202,7 @@
                             <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
                             <h3>${movie.MovieTitle}</h3>
                         </a>
+                        <p hidden>${movie.ListID}</p>
                         <p>Year: ${movie.Year}</p>
                         <button class="delete-button" onclick="deleteFromWatchlist(${movie.MovieID})">Delete</button>
                         <button class="move-to-watched-button" onclick="moveToWatchedList(${movie.MovieID}, '${movie.MovieTitle}', '${movie.PosterURL}', '${movie.Year}', '${movie.MediaType}')">Move to Watched List</button>
