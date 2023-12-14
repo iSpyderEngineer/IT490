@@ -128,7 +128,7 @@
             }
         }
 
-        function deleteFromWatchlist($listID) {
+        function deleteFromWatchlist(listID) {
             console.log("requesting delete from watchlist");
             const ListID = listID;
 
@@ -138,7 +138,7 @@
                     method: 'POST',
                     data: {
                         type: 'deleteFromWatchList',
-                        watchListID: ListID
+                        ListID: ListID
                     },
                     dataType: 'json',
                     success: function (response) {
@@ -221,9 +221,17 @@
             } else {
                 // Handle case where watchlist is empty
                 console.log('Watchlist is empty');
-                const noWatchlistMessage = document.createElement('p');
-                noWatchlistMessage.textContent = 'Watchlist is empty.';
-                watchlistContainer.appendChild(noWatchlistMessage);
+                const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
+                if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
+                    const noWatchlistMessage = document.createElement('p');
+                    noWatchlistMessage.textContent = 'Watchlist is empty.';
+                    watchlistContainer.appendChild(noWatchlistMessage);
+                } else {
+                    // In case of unexpected empty response
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'An error occurred while fetching the watchlist.';
+                    watchlistContainer.appendChild(errorMessage);
+                }
             }
         }
     </script>
