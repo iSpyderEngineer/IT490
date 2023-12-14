@@ -199,7 +199,7 @@
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
                     movieBlock.innerHTML = `
-                        <a href="movie.html?mediaType=${movie.MediaType}&mediaID=${movie.MovieID}">
+                        <a href="movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}">
                             <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
                             <h3>${movie.MovieTitle}</h3>
                         </a>
