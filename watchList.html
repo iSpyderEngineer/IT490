@@ -128,16 +128,17 @@
             }
         }
 
-        function deleteFromWatchlist() {
-            const movieId = $('#movie-id').val();
+        function deleteFromWatchlist($listID) {
+            console.log("requesting delete from watchlist");
+            const ListID = listID;
 
-            if (movieId) {
+            if (ListID) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
                         type: 'deleteFromWatchList',
-                        movieID: movieId
+                        watchListID: ListID
                     },
                     dataType: 'json',
                     success: function (response) {
@@ -202,9 +203,9 @@
                             <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
                             <h3>${movie.MovieTitle}</h3>
                         </a>
-                        <p hidden>${movie.ListID}</p>
+                        <p hidden id="list-id">${movie.ListID}</p>
                         <p>Year: ${movie.Year}</p>
-                        <button class="delete-button" onclick="deleteFromWatchlist(${movie.MovieID})">Delete</button>
+                        <button class="delete-button" onclick="deleteFromWatchlist(${movie.ListID})">Delete</button>
                         <button class="move-to-watched-button" onclick="moveToWatchedList(${movie.MovieID}, '${movie.MovieTitle}', '${movie.PosterURL}', '${movie.Year}', '${movie.MediaType}')">Move to Watched List</button>
                     `;
                     movieContainer.appendChild(movieBlock);
