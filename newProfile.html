@@ -106,7 +106,7 @@
             try {
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php?type=searchPerson',
-                    method: 'GET',
+                    method: 'POST',
                     data: { personName },
                     dataType: 'json'
                 });
@@ -121,7 +121,7 @@
             try {
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php?type=searchMoviesAndTVShows',
-                    method: 'GET',
+                    method: 'POST',
                     data: { query: movieName },
                     dataType: 'json'
                 });
@@ -137,7 +137,7 @@
                 try {
                     let response = await $.ajax({
                         url: 'RabbitMQ/dbConsumer.php',
-                        method: "GET",
+                        method: "POST",
                         data: {
                             type: "validatePreferences",
                             username: username,
