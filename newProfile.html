@@ -48,6 +48,7 @@
     </div>
 
     <script>
+        
         let error = $("#error");
 
         // Search and populate movie dropdown options on input change for favoriteMovie
@@ -57,16 +58,49 @@
         });
 
         $("#submitProfile").on("click", async function () {
-            // Validate actor, director, and movie existence (unchanged)
+            const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
 
-            // Retrieve values from inputs (unchanged)
+            const favoriteActor = $("#favoriteActorInput").val();
+            const favoriteDirector = $("#favoriteDirectorInput").val();
+            const favoriteMovie = $("#favoriteMovieInput").val();
+            const favoriteGenre = $("#favoriteGenre").val();
+            const biography = sanitizeBiography($("#biography").val());
 
-            // All exist, proceed with submission
-            await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
-            showMessage("Profile submitted successfully!", "success");
-            sessionStorage.removeItem('username');
-            window.location.href = "index.html";
+            const isActorValid = await validatePersonExists(favoriteActor);
+            const isDirectorValid = await validatePersonExists(favoriteDirector);
+            const isMovieValid = await validateMovieExists(favoriteMovie);
+
+            if (!isActorValid) {
+                showMessage("Favorite actor does not exist!", "error");
+                return;
+            }
+
+            if (!isDirectorValid) {
+                showMessage("Favorite director does not exist!", "error");
+                return;
+            }
+
+            if (!isMovieValid) {
+                showMessage("Favorite movie does not exist!", "error");
+                return;
+            }
+
+            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
+                showMessage("All fields are required!", "error");
+                return;
+            }
+
+            try {
+                await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+                showMessage("Profile submitted successfully!", "success");
+                sessionStorage.removeItem('username');
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error(error);
+                showMessage("Failed to submit profile!", "error");
+            }
         });
+
 
         async function validatePersonExists(personName) {
             try {
