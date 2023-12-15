@@ -69,13 +69,23 @@
             const isDirectorValid = await validatePersonExists(favoriteDirector);
             const isMovieValid = await validateMovieExists(favoriteMovie);
 
-            if (!isActorValid || !isDirectorValid || !isMovieValid) {
-                showMessage("One or more fields do not exist!", "error");
+            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
+                showMessage("All fields are required!", "error");
                 return;
             }
 
-            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
-                showMessage("All fields are required!", "error");
+            if (!isActorValid) {
+                showMessage("Favorite actor does not exist!", "error");
+                return;
+            }
+
+            if (!isDirectorValid) {
+                showMessage("Favorite director does not exist!", "error");
+                return;
+            }
+
+            if (!isMovieValid) {
+                showMessage("Favorite movie does not exist!", "error");
                 return;
             }
 
@@ -161,3 +171,4 @@
     </script>
 </body>
 </html>
+
