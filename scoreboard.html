@@ -21,13 +21,35 @@
 
     <h1>Leaderboard Test</h1>
 
+    <div id="navbar-container"></div>
+
     <div id="leaderboard-container">
         <!-- Display leaderboard here -->
     </div>
 
     <script>
+
+        function loadNavbar() {
+            const navbarContainer = document.getElementById('navbar-container');
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        navbarContainer.innerHTML = xhr.responseText;
+                    } else {
+                        console.error('Error loading navbar:', xhr.status);
+                    }
+                }
+            };
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.send();
+        }
+
+
+
         document.addEventListener('DOMContentLoaded', function () {
             // Make AJAX request to get leaderboard
+            loadNavbar();
             getLeaderboard();
         });
 

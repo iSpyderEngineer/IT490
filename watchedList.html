@@ -42,9 +42,13 @@
 <body>
     <h1>Watchedlist Management</h1>
 
+    <div id="navbar-container"></div>
+
     <div id="watchedlist-container">
         <!-- Display watchlist here -->
     </div>
+
+    
 
     <script>
 
@@ -68,6 +72,7 @@
             // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
             console.log('Username in sessionStorage:', username);
+
             loadNavbar();
 
             // Check if the username is available
