@@ -76,6 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["type"])) {
         case "deleteFromWatchList":
             $request['watchListID'] = $_POST['watchListID'];
             break;
+        
+        // Handle deletion of a movie from the watched list
+        case "deleteFromWatchedList":
+            $request['watchedListID'] = $_POST['watchedListID'];
+            break;
 
         // Default case for invalid request types
         default:
