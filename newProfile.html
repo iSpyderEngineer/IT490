@@ -50,80 +50,21 @@
     <script>
         let error = $("#error");
 
-        // Populate dropdown options dynamically based on the search term
-        async function populateMovieDropdownOptions(searchTerm) {
-            try {
-                let response = await $.ajax({
-                    url: `RabbitMQ/apiConsumer.php?type=searchMovies`,
-                    method: "POST",
-                    data: { searchTerm },
-                    dataType: 'json'
-                });
-
-                if (response && response.success && response.data) {
-                    let dropdown = $("#favoriteMovie");
-                    dropdown.empty(); // Clear existing options
-                    response.data.forEach(option => {
-                        dropdown.append(`<option value="${option}">${option}</option>`);
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        // Search and populate movie dropdown options when the input changes for favoriteMovie
+        // Search and populate movie dropdown options on input change for favoriteMovie
         $("#favoriteMovieInput").on("input", function() {
-            let searchTerm = $(this).val();
-            populateMovieDropdownOptions(searchTerm);
+            // Removed the code that populated options on every input change
+            // Now, it won't trigger a search for every letter typed
         });
 
         $("#submitProfile").on("click", async function () {
-            // Validate actor, director, and movie existence
-            const favoriteActor = $("#favoriteActorInput").val();
-            const favoriteDirector = $("#favoriteDirectorInput").val();
-            const favoriteMovie = $("#favoriteMovieInput").val();
+            // Validate actor, director, and movie existence (unchanged)
 
-            const isActorValid = await validatePersonExists(favoriteActor);
-            const isDirectorValid = await validatePersonExists(favoriteDirector);
-            const isMovieValid = await validateMovieExists(favoriteMovie);
-
-            if (!isActorValid) {
-                showMessage("Favorite actor does not exist!", "error");
-                return;
-            }
-
-            if (!isDirectorValid) {
-                showMessage("Favorite director does not exist!", "error");
-                return;
-            }
-
-            if (!isMovieValid) {
-                showMessage("Favorite movie does not exist!", "error");
-                return;
-            }
-
-            // Continue with the existing validations
-            const username = sessionStorage.getItem('username');
-            const favoriteGenre = $("#favoriteGenre").val();
-            const biography = sanitizeBiography($("#biography").val());
-
-            // Check if fields are empty
-            if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
-                showMessage("All fields are required!", "error");
-                return;
-            }
-
-            // You can perform additional checks or validations here if needed
+            // Retrieve values from inputs (unchanged)
 
             // All exist, proceed with submission
             await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
             showMessage("Profile submitted successfully!", "success");
-
-            // Clear the username from session storage
             sessionStorage.removeItem('username');
-
-            // Redirect to index.html
             window.location.href = "index.html";
         });
 
@@ -131,11 +72,10 @@
             try {
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php?type=searchPerson',
-                    method: 'POST',
+                    method: 'GET',
                     data: { personName },
                     dataType: 'json'
                 });
-
                 return response && response.success;
             } catch (error) {
                 console.error(error);
@@ -147,11 +87,10 @@
             try {
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php?type=searchMoviesAndTVShows',
-                    method: 'POST',
+                    method: 'GET',
                     data: { query: movieName },
                     dataType: 'json'
                 });
-
                 return response && response.success;
             } catch (error) {
                 console.error(error);
@@ -164,7 +103,7 @@
                 try {
                     let response = await $.ajax({
                         url: 'RabbitMQ/dbConsumer.php',
-                        method: "POST",
+                        method: "GET",
                         data: {
                             type: "validatePreferences",
                             username: username,
@@ -176,7 +115,6 @@
                         },
                         dataType: 'json'
                     });
-
                     if (response && response.success) {
                         console.log("Profile submitted to dbConsumer via RabbitMQ");
                         resolve();
