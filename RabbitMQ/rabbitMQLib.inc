@@ -2,41 +2,41 @@
 
 require_once('get_host_info.inc');
 
-// Class for managing RabbitMQ Server communication
+// class for managing RabbitMQ Server communication
 class rabbitMQServer
 {
-    // Properties to store RabbitMQ server configuration
-    private $machine = "";
-    public $BROKER_HOSTS;
-    private $BROKER_PORT;
-    private $USER;
-    private $PASSWORD;
-    private $VHOST;
-    private $exchange;
-    private $exchangeName;
-    private $queue;
-    private $routing_key = '*';
-    private $exchange_type = "topic";
-    private $auto_delete = false;
-    private $lastBrokerIndex = 0; // Index of the last used broker
-    private $heartbeat = 10; // Heartbeat interval
-    private $offlineHosts = []; // List of offline hosts
-    private $retryInterval = 60; // Retry interval for offline hosts
-    private $response_queue = []; // Queue for storing responses
+    // properties to store RabbitMQ Server configuration
+    private $machine = ""; // stores the machine name
+    private $BROKER_HOSTS; // stores an array of broker hosts
+    private $BROKER_PORT; // stores the broker port
+    private $USER; // stores the username for authentication
+    private $PASSWORD; // stores the password for authentication
+    private $VHOST; // stores the virtual host
+    private $exchange; // stores an AMQPExchange object
+    private $exchangeName; // stores the name of the exchange
+    private $queue; // stores the name of the queue
+    private $routing_key = '*'; // stores the routing key for binding
+    private $exchange_type = "topic"; // stores the exchange type
+    private $auto_delete = false; // sets the exchange to not auto-delete
+    private $lastBrokerIndex = 0; // index of the last used broker
+    private $heartbeat = 10; // heartbeat interval
+    private $offlineHosts = []; // array of offline hosts
+    private $retryInterval = 120; // retry interval for offline hosts
+    private $conn; // current rabbit connection
 
-    // Initializes server settings based on the provided configuration
+    // initializes server settings based on the provided configuration
     function __construct($machine, $server = "rabbitMQ")    
     {
-        // Load server configurations
+        // load server configurations from class parameter
         $this->machine = getHostInfo(array($machine));
-        // Assign configuration values
+        // assign configuration values from class parameter 
         $this->BROKER_HOSTS = $this->machine[$server]["BROKER_HOSTS"];
         $this->BROKER_PORT = $this->machine[$server]["BROKER_PORT"];
         $this->USER = $this->machine[$server]["USER"];
         $this->PASSWORD = $this->machine[$server]["PASSWORD"];
         $this->VHOST = $this->machine[$server]["VHOST"];
 
-        // Set optional settings for exchange type and auto delete
+        // set optional settings for exchange type and auto delete
         if (isset($this->machine[$server]["EXCHANGE_TYPE"])) {
             $this->exchange_type = $this->machine[$server]["EXCHANGE_TYPE"];
         }
@@ -44,28 +44,63 @@ class rabbitMQServer
             $this->auto_delete = $this->machine[$server]["AUTO_DELETE"];
         }
 
-        // Set exchange and queue information
+        // set exchange and queue information
         $this->exchangeName = $this->machine[$server]["EXCHANGE"];
         $this->queue = $this->machine[$server]["QUEUE"];
+
+        $this->conn = null;
     }
 
-    // Connects to a RabbitMQ broker, handling failovers and retries
-    private function connectToBroker() 
+    // initializes the message handler with the necessary configuration
+    private function init_request_queue() 
+    {
+        $this->conn = $this->connect_to_broker();
+        $this->validate_connection_and_channel();
+
+        // create a new exchange object and declare it with the class properties
+        $this->exchange = new AMQPExchange($this->channel);
+        $this->exchange->setName($this->exchangeName); 
+        $this->exchange->setType($this->exchange_type);
+        
+        // ensure the exchange is marked as durable if it's already declared as such on the server
+        $this->exchange->setFlags(AMQP_DURABLE);
+        $this->exchange->declareExchange();
+
+        // makes an amqp queue object and sets the name and durable flags
+        $this->conn_queue = new AMQPQueue($this->channel);
+        $this->conn_queue->setName($this->queue);
+        $this->conn_queue->setFlags(AMQP_DURABLE);
+
+        // set the queue arguments for dead letter exchange and message TTL
+        $queue_arguments = array(
+            'x-dead-letter-exchange' => 'dead_letter_exchange',
+            'x-dead-letter-routing-key' => 'dead_letter_routing_key',
+            'x-message-ttl' => 30000 // TTL for messages in milliseconds
+        );
+        $this->conn_queue->setArguments($queue_arguments);
+
+        // declare the queue and bind it to the exchange
+        $this->conn_queue->declareQueue();
+        $this->conn_queue->bind($this->exchangeName, $this->routing_key);
+    }
+
+    // connects to a RabbitMQ broker while handling failovers and retries to broker hosts
+    private function connect_to_broker() 
     {
         $currentTime = time();
         $brokerCount = count($this->BROKER_HOSTS);
 
-        // Loop through broker hosts to find a viable connection
+        // loop through broker hosts to find a working connection
         for ($i = 0; $i < $brokerCount; $i++) {
             $index = ($this->lastBrokerIndex + $i) % $brokerCount;
             $host = $this->BROKER_HOSTS[$index];
 
-            // Skip offline hosts based on the retry interval
+            // skip any offline hosts based on retry interval
             if (isset($this->offlineHosts[$host]) && $currentTime - $this->offlineHosts[$host] < $this->retryInterval) {
                 continue;
             }
             try {
-                // Attempt to establish a connection
+                // attempt to establish a connection
                 $params = array(
                     'host' => $host,
                     'port' => $this->BROKER_PORT,
@@ -76,13 +111,14 @@ class rabbitMQServer
                 );
                 $conn = new AMQPConnection($params);
                 if ($conn->connect()) {
-                    // Remove host from offline list on successful connection
+                    $this->conn = $conn;
+                    // remove host from offline list on successful connection
                     unset($this->offlineHosts[$host]);
                     $this->lastBrokerIndex = ($index + 1) % $brokerCount;
                     return $conn;
                 }
             } catch (Exception $e) {
-                // Mark host as offline on connection failure
+                // add host to offline list on connection failure
                 $this->offlineHosts[$host] = $currentTime;
                 error_log("Connection failed to RabbitMQ broker at $host: " . $e->getMessage());
             }
@@ -90,138 +126,182 @@ class rabbitMQServer
         throw new Exception("Unable to connect to any RabbitMQ brokers.");
     }
 
-    // Reconnects to RabbitMQ broker
-    private function reconnect() {
-        // Close existing connection if any
+    // reconnects to RabbitMQ broker
+    private function reconnect() 
+    {
+        // close existing connection if any
         if (isset($this->conn) && $this->conn->isConnected()) {
             $this->conn->disconnect();
         }
 
         try {
-            // Re-establish connection
-            $this->conn = $this->connectToBroker();
+            // re-establish connection
+            $this->conn = $this->connect_to_broker();
             $this->channel = new AMQPChannel($this->conn);
 
-            // Create a new exchange object and assign it to the class property
+            // create a new exchange object and assign it to the class property
             $this->exchange = new AMQPExchange($this->channel);
             $this->exchange->setName($this->exchangeName); 
 
-            // Set up the queue
+            // set up the queue
             $this->conn_queue = new AMQPQueue($this->channel);
             $this->conn_queue->setName($this->queue);
             $this->conn_queue->bind($this->exchangeName, $this->routing_key);
         } catch (Exception $e) {
-            // Log the exception and handle it
+            // log the exception and rethrow to handle the exception further up the call stack
             error_log("Could not reconnect: " . $e->getMessage());
             throw $e;
         }
     }
 
-    // Processes incoming messages, checking for routing key and handling responses
-    function process_message($msg) {
+    // validates the connection and channel
+    private function validate_connection_and_channel() 
+    {
+        // throws an exception if either the connection or channel is invalid
+        if (!$this->conn) {
+            throw new Exception("Failed to establish a connection to the broker.");
+        }
+        $this->channel = new AMQPChannel($this->conn);
+        if (!$this->channel) {
+            throw new Exception("Failed to establish a channel.");
+        }
+    }
+
+    // closes current connection
+    private function close_connection() 
+    {
+        // check if a connection exists and is connected, then disconnect it
+        if ($this->conn && $this->conn->isConnected()) {
+            $this->conn->disconnect();
+        }
+    }
+
+    // processes message from client instance
+    function process_message($msg) 
+    {
         try {
             $routingKey = $msg->getRoutingKey();
+            // check if the message's routing key matches the expected routing key
             if ($routingKey !== $this->routing_key && $routingKey !== $this->queue . ".response") {
-                $this->conn_queue->nack($msg->getDeliveryTag(), AMQP_NOPARAM);
+                // if false, negatively acknowledge the message and requeue it
+                $this->conn_queue->nack($msg->getDeliveryTag(), AMQP_REQUEUE);
                 return;
             }
 
+            // extract the message body and decode it as JSON
             $body = $msg->getBody();
             $payload = json_decode($body, true);
             $response = null;
 
+            // if a callback function is set, invoke it with the payload
             if (isset($this->callback)) {
                 $response = call_user_func($this->callback, $payload);
             }
 
+            // if the message has a 'replyTo' property, publish the response
             if ($msg->getReplyTo()) {
-                if (!$this->channel) {
-                    throw new Exception("Channel is not available for publishing the response.");
-                }
-                if (!$this->exchange) {
-                    // Initialize the exchange if not already done
-                    $this->exchange = new AMQPExchange($this->channel);
-                    $this->exchange->setName($this->exchangeName);
-                }
-                $this->exchange->setType($this->exchange_type);
-
-                $replykey = $this->queue . ".response";
-                $this->exchange->publish(json_encode($response), $replykey, AMQP_NOPARAM, array(
-                    'correlation_id' => $msg->getCorrelationId()
-                ));
+                $this->publish_response($response, $msg);
             }
 
-            // Acknowledge the message if no exception occurs
+            // acknowledge the successful processing of the message
             $this->conn_queue->ack($msg->getDeliveryTag());
         } catch (Exception $e) {
+            // log any exceptions that occur during message processing
             error_log("Exception in process_message: " . $e->getMessage());
-            $this->reconnect();
-            $this->conn_queue->nack($msg->getDeliveryTag(), AMQP_REQUEUE);
+            // close the connection and rethrow the exception to handle it further up the call stack
+            $this->close_connection();
+            throw $e;
         }
     }
 
-    // Starts processing requests and continuously listens for messages
-    function process_requests($callback) {
+    // continuously processes incoming messages
+    function process_requests($callback) 
+    {
         $this->callback = $callback;
 
         while (true) {
             try {
-                // Establish a connection and set up message processing environment
-                $this->conn = $this->connectToBroker();
-                if (!$this->conn) {
-                    throw new Exception("Failed to establish a connection to the broker.");
-                }
-                $this->channel = new AMQPChannel($this->conn);
-                if (!$this->channel) {
-                    throw new Exception("Failed to establish a channel.");
-                }
-
-                $exchange = new AMQPExchange($this->channel);
-                $exchange->setName($this->exchangeName);
-                $exchange->setType($this->exchange_type);
-
-                $this->conn_queue = new AMQPQueue($this->channel);
-                $this->conn_queue->setName($this->queue);
-                $this->conn_queue->bind($exchange->getName(), $this->routing_key);
-
-                // Inner loop to continuously consume messages
-                while (true) {
-                    $this->conn_queue->consume(array($this, 'process_message'));
-                    $this->channel->wait();
-                }
+                // initialize the message handler and consume messages
+                $this->init_request_queue();
+                $this->consume_messages();
             } catch (Exception $e) {
+                // log and handle any errors that occur during message processing
                 error_log("Error in process_requests: " . $e->getMessage());
-                // Decide on error handling strategy here (e.g., retry, sleep, exit)
-                sleep(3); // Example: Wait for 3 seconds before retrying
+                // close the connection
+                $this->close_connection();
+                // sleep before retrying after an error
+                sleep(3);
             }
         }
     }
+
+    // publishes a response message
+    private function publish_response($response, $msg) 
+    {
+        // check if the channel is available for publishing, throw an exception if false
+        if (!$this->channel) {
+            throw new Exception("Channel is not available for publishing the response.");
+        }
+        // if the exchange is not initialized, create and initialize it
+        if (!$this->exchange) {
+            $this->exchange = new AMQPExchange($this->channel);
+            $this->exchange->setName($this->exchangeName);
+        }
+        // set the exchange type and publish the response message
+        $this->exchange->setType($this->exchange_type);
+
+        // set the reply key based on the queue and add the response message to the exchange
+        $replykey = $this->queue . ".response";
+        $this->exchange->publish(json_encode($response), $replykey, AMQP_NOPARAM, array(
+            'correlation_id' => $msg->getCorrelationId()
+        ));
+    }
+
+    // continuously consumes messages
+    private function consume_messages() 
+    {
+        // sets the prefetch count to the channel
+        $prefetchCount = 1;
+        $this->channel->qos(null, $prefetchCount);
+
+        // while loop to consume any messages
+        while (true) {
+            $this->conn_queue->consume(array($this, 'process_message'));
+            $this->channel->wait();
+        }
+    }
+
+    // destructor to close current connection when the class object is destroyed
+    function __destruct() {
+        $this->close_connection();
+    }
 }
 
-// Class for managing RabbitMQ Client operations
+// class for managing RabbitMQ Client communication
 class rabbitMQClient
 {
-    // Properties to store RabbitMQ client configuration
-    private $machine = "";
-    public $BROKER_HOSTS;
-    private $BROKER_PORT;
-    private $USER;
-    private $PASSWORD;
-    private $VHOST;
-    private $exchange;
-    private $queue;
-    private $routing_key = '*';
-    private $exchange_type = "topic";
-    private $responseQueue = null;
-    private $lastBrokerIndex = 0; // Index of the last used broker
-    private $heartbeat = 10; // Heartbeat interval
-    private $offlineHosts = []; // List of offline hosts
-    private $retryInterval = 60; // Retry interval for offline hosts
+    // properties to store RabbitMQ Client configuration
+    private $machine = ""; // stores the machine name
+    private $BROKER_HOSTS; // stores an array of broker hosts
+    private $BROKER_PORT; // stores the broker port
+    private $USER; // stores the username for authentication
+    private $PASSWORD; // stores the password for authentication
+    private $VHOST; // stores the virtual host
+    private $exchange; // stores an AMQPExchange object
+    private $queue; // stores the name of the queue
+    private $routing_key = '*'; // stores the routing key for binding
+    private $exchange_type = "topic"; // stores the exchange type
+    private $responseQueue = null; // stores a name for responseQueue
+    private $lastBrokerIndex = 0; // stores index of the last used broker
+    private $heartbeat = 10; // stores heartbeat interval
+    private $offlineHosts = []; // stores a list of offline hosts
+    private $retryInterval = 600; // stores retry interval for offline hosts
+    private $conn; // stores current rabbit connection
 
-    // Constructor to initialize client settings based on the provided configuration
+    // constructor to initialize client settings based on the provided configuration
     function __construct($machine, $server = "rabbitMQ")
     {
-        // Load and set client configurations from the specified machine
+        // load client configurations from class parameter
         $this->machine = getHostInfo(array($machine));
         $this->BROKER_HOSTS = $this->machine[$server]["BROKER_HOSTS"];
         $this->BROKER_PORT = $this->machine[$server]["BROKER_PORT"];
@@ -229,53 +309,67 @@ class rabbitMQClient
         $this->PASSWORD = $this->machine[$server]["PASSWORD"];
         $this->VHOST = $this->machine[$server]["VHOST"];
 
-        // Optional settings for exchange type
+        // optional settings for exchange type
         if (isset($this->machine[$server]["EXCHANGE_TYPE"])) {
             $this->exchange_type = $this->machine[$server]["EXCHANGE_TYPE"];
         }
 
-        // Set exchange and queue information
+        // set exchange and queue information
         $this->exchange = $this->machine[$server]["EXCHANGE"];
         $this->queue = $this->machine[$server]["QUEUE"];
 
-        // Initialize the response queue
-        $this->initResponseQueue();
+        // initialize the response queue
+        $this->init_response_queue();
+
+        $this->conn = null;
     }
 
-    private function initResponseQueue() {
-        $conn = $this->connectToBroker();
+    // initializes the response queue
+    private function init_response_queue()
+    {
+        // connect to the RabbitMQ broker
+        $conn = $this->connect_to_broker();
         $channel = new AMQPChannel($conn);
 
-        // Initialize the exchange instance
+        // create an exchange instance and set its name
         $this->exchangeInstance = new AMQPExchange($channel);
-        $this->exchangeInstance->setName($this->exchange); // This should be the exchange name
+        $this->exchangeInstance->setName($this->exchange);
 
-        // Initialize the response queue
+        // create a response queue instance
         $this->responseQueue = new AMQPQueue($channel);
         $this->responseQueue->setName($this->queue . "_response");
         $this->responseQueue->setFlags(AMQP_DURABLE);
+
+        // configure queue arguments regarding dead letter exchange and message TTL
+        $queue_arguments = array(
+            'x-dead-letter-exchange' => 'dead_letter_exchange',
+            'x-dead-letter-routing-key' => 'dead_letter_routing_key',
+            'x-message-ttl' => 30000 // 30 seconds expressed in milliseconds
+        );
+
+        $this->responseQueue->setArguments($queue_arguments);
         $this->responseQueue->declareQueue();
-        $this->responseQueue->bind($this->exchange, $this->routing_key . ".response"); // Use the exchange name here
+        $this->responseQueue->bind($this->exchange, $this->routing_key . ".response");
     }
 
-    // Connects to a RabbitMQ broker, handling failovers and retries
-    private function connectToBroker() 
+    // connects to a RabbitMQ broker
+    private function connect_to_broker() 
     {
         $currentTime = time();
         $brokerCount = count($this->BROKER_HOSTS);
 
-        // Loop through broker hosts to find a viable connection
+        // loop through broker hosts to establish a connection
         for ($i = 0; $i < $brokerCount; $i++) {
             $index = ($this->lastBrokerIndex + $i) % $brokerCount;
             $host = $this->BROKER_HOSTS[$index];
 
-            // Skip offline hosts if the retry interval has not passed
+            // skip offline hosts if the retry interval has not passed
             if (isset($this->offlineHosts[$host]) && $currentTime - $this->offlineHosts[$host] < $this->retryInterval) {
                 continue;
             }
 
             try {
-                // Attempt to establish a connection
+                // attempt to establish a connection with RabbitMQ broker
                 $params = array(
                     'host' => $host,
                     'port' => $this->BROKER_PORT,
@@ -287,98 +381,138 @@ class rabbitMQClient
 
                 $conn = new AMQPConnection($params);
                 if ($conn->connect()) {
-                    // Connection successful, remove from offline hosts if it's listed
+                    // when the connection is successful, remove host from offline list if listed
+                    $this->conn = $conn;
                     unset($this->offlineHosts[$host]);
                     $this->lastBrokerIndex = ($index + 1) % $brokerCount;
                     return $conn;
                 }
             } catch (Exception $e) {
-                // Connection failed, mark host as offline
+                // when the connection fails, mark host as offline and log the error
                 $this->offlineHosts[$host] = $currentTime;
                 error_log("Connection failed to RabbitMQ broker at $host: " . $e->getMessage());
             }
         }
+        // if no connection is established, throw an exception
         throw new Exception("Unable to connect to any RabbitMQ brokers.");
     }
 
-    // Processes responses received from the server
+    // closes the connection
+    private function close_connection() 
+    {
+        if ($this->conn && $this->conn->isConnected()) {
+            $this->conn->disconnect();
+        }
+    }
+
+    // processes responses received from the server
     function process_response($response) 
     {
+        // extract the correlation ID from the response
         $uid = $response->getCorrelationId();
+
+        // check if the correlation ID is known (matches a sent request)
         if (!isset($this->response_queue[$uid])) {
+            // log an error for an unknown correlation ID
             error_log("Unknown UID: $uid");
             return true;
         }
 
-        // Acknowledge the response message
+        // acknowledge the response from the server
         $this->responseQueue->ack($response->getDeliveryTag());
 
+        // decode the response body as JSON
         $body = $response->getBody();
         $payload = json_decode($body, true);
+
+        // store the response in the response queue
         $this->response_queue[$uid] = $payload ?? "[empty response]";
+
+        // indicate that the response processing is not complete
         return false;
     }
 
-
-    // Sends a request to the server and waits for a response
-    function send_request($message) {
+    function send_request($message) 
+    {
+        // generate a unique identifier for the request
         $uid = uniqid();
         $json_message = json_encode($message);
 
         try {
-            // Ensure the response queue is initialized
-            $this->initResponseQueue();
-
-            // Now, we use the exchange instance to publish the message
-            $this->exchangeInstance->publish($json_message, $this->routing_key, AMQP_NOPARAM, array(
-                'reply_to' => $this->responseQueue->getName(),
-                'correlation_id' => $uid
-            ));
-
-            // Initialize the response queue to an empty state
-            $this->response_queue[$uid] = "waiting";
-
-            // Consume messages from the response queue
-            while (isset($this->response_queue[$uid]) && $this->response_queue[$uid] == "waiting") {
-                $this->responseQueue->consume(array($this, 'process_response'));
-            }
-
-            // Retrieve the response
-            $response = $this->response_queue[$uid] ?? null;
-            // Clean up the queue
-            unset($this->response_queue[$uid]);
-
-            return $response; // Return the response received from the server
-
+            // initialize the response queue for handling the response
+            $this->init_response_queue();
+            // publish the message to the server with a correlation ID
+            $this->publish_message($json_message, $uid);
+            // wait for and retrieve the response from the server
+            return $this->wait_for_response($uid);
         } catch (Exception $e) {
-            // Log the exception and return null or false to indicate failure
+            // log an error, close the connection, and rethrow the exception
             error_log("Error in send_request: " . $e->getMessage());
-            return null;
+            $this->close_connection();
+            throw $e;
         }
     }
 
-    // Publishes a message to the server without waiting for a response
+    // publishes a message to the server
+    private function publish_message($json_message, $uid) 
+    {
+        // publish the JSON message to the server's exchange with relevant metadata
+        $this->exchangeInstance->publish($json_message, $this->routing_key, AMQP_NOPARAM, array(
+            'reply_to' => $this->responseQueue->getName(),
+            'correlation_id' => $uid
+        ));
+    }
+
+    // waits for a response from the server
+    private function wait_for_response($uid) 
+    {
+        // mark the response as "waiting" in the response queue
+        $this->response_queue[$uid] = "waiting";
+
+        // continuously consume responses and process them until not "waiting"
+        while (isset($this->response_queue[$uid]) && $this->response_queue[$uid] == "waiting") {
+            $this->responseQueue->consume(array($this, 'process_response'));
+        }
+
+        // retrieve and return the response from the response queue
+        $response = $this->response_queue[$uid] ?? null;
+        unset($this->response_queue[$uid]);
+        return $response;
+    }
+
+    // publishes a message to the server
     function publish($message)
     {
         $json_message = json_encode($message);
         try {
-            // Establish a connection for message publishing
-            $conn = $this->connectToBroker();
+            // connect to the broker and set up the exchange and queue
+            $conn = $this->connect_to_broker();
             $channel = new AMQPChannel($conn);
             $exchange = new AMQPExchange($channel);
             $exchange->setName($this->exchange);
             $exchange->setType($this->exchange_type);
 
-            // Set up the queue for message publishing
             $this->conn_queue = new AMQPQueue($channel);
             $this->conn_queue->setName($this->queue);
             $this->conn_queue->bind($exchange->getName(), $this->routing_key);
-            // Publish the message to the exchange
+
+            // publish the message to the server's exchange
             return $exchange->publish($json_message, $this->routing_key);
         } catch (AMQPConnectionException $e) {
+            // log an error for AMQP connection exception
             error_log("AMQP Connection Exception in publish: " . $e->getMessage());
         } catch (Exception $e) {
+            // log a general exception error
             error_log("General Exception in publish: " . $e->getMessage());
+        }
+    }
+
+    // destructor function to close the connection when the class object is destroyed
+    function __destruct() 
+    {
+        // close the connection when object is destroyed
+        if ($this->conn && $this->conn->isConnected()) {
+            $this->conn->disconnect();
         }
     }
 }
