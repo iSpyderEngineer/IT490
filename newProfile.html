@@ -74,18 +74,8 @@
                 return;
             }
 
-            if (!isActorValid) {
-                showMessage("Favorite actor does not exist!", "error");
-                return;
-            }
-
-            if (!isDirectorValid) {
-                showMessage("Favorite director does not exist!", "error");
-                return;
-            }
-
-            if (!isMovieValid) {
-                showMessage("Favorite movie does not exist!", "error");
+            if (!isActorValid || !isDirectorValid || !isMovieValid) {
+                showMessage("One or more fields do not exist!", "error");
                 return;
             }
 
@@ -171,4 +161,3 @@
     </script>
 </body>
 </html>
-
