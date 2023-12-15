@@ -48,7 +48,6 @@
     </div>
 
     <script>
-        
         let error = $("#error");
 
         // Search and populate movie dropdown options on input change for favoriteMovie
@@ -70,18 +69,8 @@
             const isDirectorValid = await validatePersonExists(favoriteDirector);
             const isMovieValid = await validateMovieExists(favoriteMovie);
 
-            if (!isActorValid) {
-                showMessage("Favorite actor does not exist!", "error");
-                return;
-            }
-
-            if (!isDirectorValid) {
-                showMessage("Favorite director does not exist!", "error");
-                return;
-            }
-
-            if (!isMovieValid) {
-                showMessage("Favorite movie does not exist!", "error");
+            if (!isActorValid || !isDirectorValid || !isMovieValid) {
+                showMessage("One or more fields do not exist!", "error");
                 return;
             }
 
@@ -107,7 +96,7 @@
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php',
                     method: 'POST',
-                    data: {"type": "searchPerson" , "personName": personName  },
+                    data: {"type": "searchPerson", "personName": personName},
                     dataType: 'json'
                 });
                 return response && response.success;
@@ -122,7 +111,7 @@
                 let response = await $.ajax({
                     url: 'RabbitMQ/apiConsumer.php',
                     method: 'POST',
-                    data: {"type": "searchMoviesAndTVShows", "query": movieName ,},
+                    data: {"type": "searchMoviesAndTVShows", "query": movieName},
                     dataType: 'json'
                 });
                 return response && response.success;
