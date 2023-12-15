@@ -105,9 +105,9 @@
         async function validatePersonExists(personName) {
             try {
                 let response = await $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php?type=searchPerson',
+                    url: 'RabbitMQ/apiConsumer.php',
                     method: 'POST',
-                    data: { personName },
+                    data: {Type: "searchMoviesAndTVShows" ,personName: personName  },
                     dataType: 'json'
                 });
                 return response && response.success;
@@ -120,9 +120,9 @@
         async function validateMovieExists(movieName) {
             try {
                 let response = await $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php?type=searchMoviesAndTVShows',
+                    url: 'RabbitMQ/apiConsumer.php',
                     method: 'POST',
-                    data: { query: movieName },
+                    data: {Type: "searchMoviesAndTVShows", query: movieName ,},
                     dataType: 'json'
                 });
                 return response && response.success;
