@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-// Include required files for RabbitMQ connection and database-related functions
+// Include necessary files for RabbitMQ connection and database-related functions
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
@@ -9,8 +9,8 @@ require_once('../Backend/dbFunctions.inc');
 // Function to process incoming requests
 function requestProcessor($request) {
       // Print a message indicating the request received and show request details
-    echo "received request" . PHP_EOL; 
-    var_dump($request);
+      echo "received request from Backend Server" . PHP_EOL; 
+      var_dump($request);
 
     // Switch case to handle different types of requests based on the 'type' field
     switch ($request['type']) {
@@ -83,6 +83,11 @@ function requestProcessor($request) {
         case "deleteFromWatchList":
             echo "deleting from watch list\n";
             return deleteFromWatchList($request['watchListID']);
+        
+        // Handle deletion of a movie from the watch list
+        case "deleteFromWatchedList":
+            echo "deleting from watched list\n";
+            return deleteFromWatchedList($request['watchedListID']);
         
         // Handle adding to watched list and removing from watch list
         case "addToWatchedListAndRemoveFromWatchList":
