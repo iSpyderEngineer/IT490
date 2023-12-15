@@ -21,7 +21,6 @@
                     <th>Favorite Movie:</th>
                     <td>
                         <input type="text" id="favoriteMovieInput" size="25" required>
-                        <!-- Removed the select for favoriteMovie -->
                     </td>
                 </tr>
                 <tr>
@@ -50,39 +49,11 @@
     <script>
         let error = $("#error");
 
-        // Populate dropdown options dynamically based on the search term
-        async function populateMovieDropdownOptions(searchTerm) {
-            try {
-                let response = await $.ajax({
-                    url: `RabbitMQ/apiConsumer.php?type=searchMovies`,
-                    method: "POST",
-                    data: { searchTerm },
-                    dataType: 'json'
-                });
-
-                if (response && response.success && response.data) {
-                    let dropdown = $("#favoriteMovie");
-                    dropdown.empty(); // Clear existing options
-                    response.data.forEach(option => {
-                        dropdown.append(`<option value="${option}">${option}</option>`);
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        // Search and populate movie dropdown options when the input changes for favoriteMovie
-        $("#favoriteMovieInput").on("input", function() {
-            let searchTerm = $(this).val();
-            populateMovieDropdownOptions(searchTerm);
-        });
-
         $("#submitProfile").on("click", async function () {
             const username = sessionStorage.getItem('username'); // Grab username from session storage
 
             let favoriteActor = $("#favoriteActorInput").val();
-            let favoriteMovie = $("#favoriteMovieInput").val(); // Update to read value from the input
+            let favoriteMovie = $("#favoriteMovieInput").val();
             let favoriteDirector = $("#favoriteDirectorInput").val();
             let favoriteGenre = $("#favoriteGenre").val();
             let biography = sanitizeBiography($("#biography").val());
@@ -92,8 +63,6 @@
                 showMessage("All fields are required!", "error");
                 return;
             }
-
-            // You can perform additional checks or validations here if needed
 
             // All exist, proceed with submission
             await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
@@ -147,4 +116,5 @@
     </script>
 </body>
 </html>
+
 
