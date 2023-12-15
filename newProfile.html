@@ -21,6 +21,7 @@
                     <th>Favorite Movie:</th>
                     <td>
                         <input type="text" id="favoriteMovieInput" size="25" required>
+                        <!-- Removed the select for favoriteMovie -->
                     </td>
                 </tr>
                 <tr>
@@ -49,29 +50,60 @@
     <script>
         let error = $("#error");
 
+        // Populate dropdown options dynamically based on the search term
+        async function populateMovieDropdownOptions(searchTerm) {
+            try {
+                let response = await $.ajax({
+                    url: `RabbitMQ/apiConsumer.php?type=searchMovies`,
+                    method: "POST",
+                    data: { searchTerm },
+                    dataType: 'json'
+                });
+
+                if (response && response.success && response.data) {
+                    let dropdown = $("#favoriteMovie");
+                    dropdown.empty(); // Clear existing options
+                    response.data.forEach(option => {
+                        dropdown.append(`<option value="${option}">${option}</option>`);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Search and populate movie dropdown options when the input changes for favoriteMovie
+        $("#favoriteMovieInput").on("input", function() {
+            let searchTerm = $(this).val();
+            populateMovieDropdownOptions(searchTerm);
+        });
+
         $("#submitProfile").on("click", async function () {
-            const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
+            const username = sessionStorage.getItem('username'); // Grab username from session storage
 
-            const favoriteActor = $("#favoriteActorInput").val();
-            const favoriteDirector = $("#favoriteDirectorInput").val();
-            const favoriteMovie = $("#favoriteMovieInput").val();
-            const favoriteGenre = $("#favoriteGenre").val();
-            const biography = sanitizeBiography($("#biography").val());
+            let favoriteActor = $("#favoriteActorInput").val();
+            let favoriteMovie = $("#favoriteMovieInput").val(); // Update to read value from the input
+            let favoriteDirector = $("#favoriteDirectorInput").val();
+            let favoriteGenre = $("#favoriteGenre").val();
+            let biography = sanitizeBiography($("#biography").val());
 
+            // Check if fields are empty
             if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
                 showMessage("All fields are required!", "error");
                 return;
             }
 
-            try {
-                await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
-                showMessage("Profile submitted successfully!", "success");
-                sessionStorage.removeItem('username');
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error(error);
-                showMessage("Failed to submit profile!", "error");
-            }
+            // You can perform additional checks or validations here if needed
+
+            // All exist, proceed with submission
+            await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
+            showMessage("Profile submitted successfully!", "success");
+
+            // Clear the username from session storage
+            sessionStorage.removeItem('username');
+
+            // Redirect to index.html
+            window.location.href = "index.html";
         });
 
         function submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
@@ -81,16 +113,17 @@
                         url: 'RabbitMQ/dbConsumer.php',
                         method: "POST",
                         data: {
-                            "type": "validatePreferences",
-                            "username": username,
-                            "favActor": favoriteActor,
-                            "favDirector": favoriteDirector,
-                            "favGenre": favoriteGenre,
-                            "favMovie": favoriteMovie,
-                            "biography": biography
+                            type: "validatePreferences",
+                            username: username,
+                            favActor: favoriteActor,
+                            favDirector: favoriteDirector,
+                            favGenre: favoriteGenre,
+                            favMovie: favoriteMovie,
+                            biography: biography
                         },
                         dataType: 'json'
                     });
+
                     if (response && response.success) {
                         console.log("Profile submitted to dbConsumer via RabbitMQ");
                         resolve();
