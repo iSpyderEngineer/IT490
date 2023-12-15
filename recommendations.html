@@ -2,31 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movie Recommendations</title>
+    <title>Recommendations</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .movie-container {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 10px;
-        }
-
-        .movie-block {
-            border: 1px solid #ccc;
-            margin-right: 10px;
-            padding: 10px;
-            width: 200px; /* Adjust the width as needed */
-            cursor: pointer;
-        }
-
-        .movie-image {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include the navbar -->
+    <link rel="import" href="/components/navbar.html">
 </head>
 <body>
+    <!-- Use the navbar component -->
+    <navbar></navbar>
+
     <h1>Movie Recommendations</h1>
 
     <div id="movies-by-genre-container">
@@ -157,4 +142,5 @@
     </script>
 </body>
 </html>
+
 

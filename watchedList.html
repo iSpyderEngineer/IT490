@@ -47,10 +47,28 @@
     </div>
 
     <script>
+
+        function loadNavbar() {
+                    const navbarContainer = document.getElementById('navbar-container');
+                    const xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                navbarContainer.innerHTML = xhr.responseText;
+                            } else {
+                                console.error('Error loading navbar:', xhr.status);
+                            }
+                        }
+                    };
+                    xhr.open('GET', 'components/navbar.html', true);
+                    xhr.send();
+                }
+
         document.addEventListener('DOMContentLoaded', function () {
             // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
             console.log('Username in sessionStorage:', username);
+            loadNavbar();
 
             // Check if the username is available
             if (username) {
