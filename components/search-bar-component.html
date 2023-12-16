@@ -6,11 +6,11 @@
 </div>
 
 <script>
-  // Define a searchMovies function
+  // Define a searchMovies function to call 
   function searchMovies() {
       let query = $('#search-input').val();
 
-      // Make an AJAX request to your APIConsumer
+      // Makes an AJAX request to the APIConsumer
       $.ajax({
           url: 'RabbitMQ/apiConsumer.php',
           method: 'POST',
@@ -20,8 +20,8 @@
           },
           dataType: 'json',
           success: function(response) {
-              // Handle the API response here and display the results as hyperlinks
-              console.log(response); // Example: Logging the response to the console
+              // Handles the API responses and display the results as hyperlinks
+              console.log(response); 
               displayResults(response);
           },
           error: function(jqXHR, textStatus, errorThrown) {
@@ -38,7 +38,7 @@
       // Loop through each item in the results array and create hyperlinks for titles
       results.forEach(function(item) {
           let title = item['Title'];
-          let titleLink = $('<a>').text(title).attr('href', '#'); // You can set the actual URL for each title here
+          let titleLink = $('<a>').text(title).attr('href', '#'); // where the actual url is set
 
           // Append the title hyperlink to the search results div
           searchResultsDiv.append(titleLink).append('<br>');
