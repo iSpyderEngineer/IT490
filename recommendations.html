@@ -149,7 +149,7 @@
 
                     let mediaId = movie.MediaID || movie.MovieID;
                     movieBlock.innerHTML = `
-                        <a href="movie.html?type=${movie.MediaType}&id=${mediaId}">
+                        <a href="movie.html?Type=${movie.MediaType}&id=${mediaId}">
                             <img class="movie-image" src="${movie.posterURL}" alt="${movie.title}">
                             <h3>${movie.movieTitle}</h3>
                         </a>
