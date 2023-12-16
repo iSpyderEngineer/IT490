@@ -48,6 +48,7 @@ class rabbitMQServer
         $this->exchangeName = $this->machine[$server]["EXCHANGE"];
         $this->queue = $this->machine[$server]["QUEUE"];
 
+        // set current rabbitMQ connection to null
         $this->conn = null;
     }
 
@@ -262,7 +263,7 @@ class rabbitMQServer
     {
         // sets the prefetch count to the channel
         $prefetchCount = 1;
-        $this->channel->qos(null, $prefetchCount);
+        $this->channel->qos(0, $prefetchCount);
 
         // while loop to consume any messages
         while (true) {
@@ -434,21 +435,20 @@ class rabbitMQClient
 
     function send_request($message) 
     {
-        // generate a unique identifier for the request
-        $uid = uniqid();
-        $json_message = json_encode($message);
-
         try {
-            // initialize the response queue for handling the response
+            $uid = uniqid();
+            $json_message = json_encode($message);
+
             $this->init_response_queue();
-            // publish the message to the server with a correlation ID
             $this->publish_message($json_message, $uid);
-            // wait for and retrieve the response from the server
             return $this->wait_for_response($uid);
+
         } catch (Exception $e) {
-            // log an error, close the connection, and rethrow the exception
+            // log error
             error_log("Error in send_request: " . $e->getMessage());
+            // close connection
             $this->close_connection();
+            // rethrow exception
             throw $e;
         }
     }
@@ -466,15 +466,23 @@ class rabbitMQClient
     // waits for a response from the server
     private function wait_for_response($uid) 
     {
-        // mark the response as "waiting" in the response queue
         $this->response_queue[$uid] = "waiting";
 
-        // continuously consume responses and process them until not "waiting"
-        while (isset($this->response_queue[$uid]) && $this->response_queue[$uid] == "waiting") {
-            $this->responseQueue->consume(array($this, 'process_response'));
+        try {
+            while (isset($this->response_queue[$uid]) && $this->response_queue[$uid] == "waiting") {
+                $this->responseQueue->consume(array($this, 'process_response'));
+            }
+        } catch (Exception $e) {
+            // log error
+            error_log("Error in wait_for_response: " . $e->getMessage());
+            // remove the waiting status
+            unset($this->response_queue[$uid]);
+            // close connection
+            $this->close_connection();
+            // rethrow exception
+            throw $e;
         }
 
-        // retrieve and return the response from the response queue
         $response = $this->response_queue[$uid] ?? null;
         unset($this->response_queue[$uid]);
         return $response;
