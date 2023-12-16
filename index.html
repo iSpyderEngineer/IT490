@@ -52,7 +52,9 @@
             formData.set("password", hashedPassword); // Replaces the original password in the form with a hashed password
 
             console.log("Logging in");
-    
+            
+            //ajax call to send form data to log in method through rabbitMQ
+
             $.ajax({
                 url: 'RabbitMQ/dbConsumer.php',
                 method: "POST",
@@ -86,7 +88,7 @@
                 }
             });
         }
-
+//shows an alert if there is a problem at all
         function showMessage(message) {
             $("#failure").html("<div class='alert alert-error'>" + message + "</div>");
         }

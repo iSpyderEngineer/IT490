@@ -58,23 +58,23 @@
             let favoriteGenre = $("#favoriteGenre").val();
             let biography = sanitizeBiography($("#biography").val());
 
-            // Check if fields are empty
+            // Checks if fields are empty
             if (!favoriteActor || !favoriteMovie || !favoriteDirector || !favoriteGenre || !biography) {
                 showMessage("All fields are required!", "error");
                 return;
             }
 
-            // All exist, proceed with submission
+            // If All exist, Then proceed with submission
             await submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography);
             showMessage("Profile submitted successfully!", "success");
 
-            // Clear the username from session storage
+            // Clears the username from session storage to allow the user to log in again
             sessionStorage.removeItem('username');
 
-            // Redirect to index.html
+            // Redirectx to index.html
             window.location.href = "index.html";
         });
-
+// ajax to submitting the profile data to the backend
         function submitProfileToRabbitMQ(username, favoriteActor, favoriteDirector, favoriteGenre, favoriteMovie, biography) {
             return new Promise(async (resolve, reject) => {
                 try {

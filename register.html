@@ -80,7 +80,7 @@
 
             try {
                 let response = await $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php', // Use dbConsumer.php for registration
+                    url: 'RabbitMQ/dbConsumer.php', 
                     method: "POST",
                     data: formData,
                     dataType: 'json'
@@ -88,7 +88,7 @@
             
                 console.log(response);
 
-                // Check the returnCode even if it's in quotes
+                // Check the returnCode even if it's in quotes (we were having double encode problems)
                 showMessage(response.message, response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1 ? "success" : "error");
 
                 if (response.returnCode === "1" || response.returnCode === 1 || response["returnCode"] === "1" || response["returnCode"] === 1) {

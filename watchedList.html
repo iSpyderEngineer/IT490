@@ -16,7 +16,7 @@
             border: 1px solid #ccc;
             margin-right: 10px;
             padding: 10px;
-            width: 200px; /* Adjust the width as needed */
+            width: 200px; /* Adjusts the width as needed */
             display: flex;
             flex-direction: column;
         }
@@ -69,7 +69,7 @@
                 }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Retrieve username from sessionStorage
+            // Retrieves the username from sessionStorage
             const username = sessionStorage.getItem('username');
             console.log('Username in sessionStorage:', username);
 
@@ -191,11 +191,11 @@
                 const scrollButton = document.createElement('button');
                 scrollButton.textContent = 'See More';
                 scrollButton.addEventListener('click', function () {
-                    movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
+                    movieContainer.scrollLeft += 200; // Adjusts the scrolling distance as needed
                 });
                 watchedlistContainer.appendChild(scrollButton);
             } else {
-                // Handle case where watchedlist is empty
+                // Handles the case where watchedlist is empty
                 console.log('Watchedlist is empty');
                 const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
                 if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {

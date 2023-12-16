@@ -11,10 +11,10 @@
     
     <div id="welcomeMessage"></div>
 
-    <!-- Include the navbar container -->
+    <!--container for navbar -->
     <div id="navbar-container"></div>
 
-    <!-- Include the search bar component -->
+    <!-- container for navbar for independet stylizing -->
     <div class="search-bar">
         <input type="text" id="search-input" placeholder="Search for movies Here!" class="search-input">
         <button id="search-button">Search</button>
@@ -27,7 +27,7 @@
         const username = sessionStorage.getItem('username');
 
         if (!sessionid || !username) {
-            // Redirect to the login page if session information is not found
+            // Redirect to the login page if session information is not found (safety check to insure pur pages can't be randomly accessed)
             location.href = "index.html";
         }
 
@@ -49,7 +49,7 @@
                 dataType: 'json',
                 success: function (result) {
                     if (result.returnCode != "1") {
-                        // Clear session information and redirect to the login page
+                        // can be used to validate the session of the servers can be configured that way 
                         sessionStorage.removeItem('sessionid');
                         sessionStorage.removeItem('username');
                         location.href = "index.html";
@@ -75,7 +75,7 @@
                 method: 'POST',
                 data: sessionData,
                 success: function () {
-                    // Clear session information and redirect to the login page
+                    // replaced by the logout and prfile functions in the navbar but i am scared of breaking things 
                     sessionStorage.removeItem('sessionid');
                     sessionStorage.removeItem('username');
                     location.href = "index.html";
@@ -90,8 +90,10 @@
             let welcomeMessage = document.getElementById("welcomeMessage");
             welcomeMessage.innerHTML = `Welcome, ${username} to Scene Sync! Try and find some movies you'd like based on ur preferences.`;
         }
+// a welcome message for the page that we can easily drag around and stylize independently
 
-        // Fetch and inject the navbar component
+
+        // Fetches and imports the navbar component
         fetch('components/navbar.html')
             .then(response => response.text())
             .then(data => {
@@ -100,11 +102,11 @@
             })
             .catch(error => console.error(error));
 
-        // Define a searchMovies function
+        // defines the search movie function
         function searchMovies() {
             let query = $('#search-input').val();
 
-            // Make an AJAX request to your APIConsumer
+            // The ajax request to send the query to apiconsumer
             $.ajax({
                 url: 'RabbitMQ/apiConsumer.php',
                 method: 'POST',
@@ -119,11 +121,11 @@
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.error(errorThrown);
-                    // Handle errors here
+                    // where error handeling occurs
                 }
             });
             
-            // Append the "Type" field to the URL
+            // Adds the "Type" field to the URL
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('Type', 'searchMoviesAndTVShows');
             history.replaceState(null, null, '?' + urlParams.toString());
@@ -138,13 +140,13 @@
                 let movieID = item['ID'];
                 let Type = item['Type'];
 
-                // Append the "Type" parameter to the URL
+                // Adds the "Type" parameter to the URL
                 const urlParams = new URLSearchParams();
                 urlParams.set('movieID', movieID);
                 urlParams.set('Type', Type);
                 let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString());
                 
-                // Add click event listener to the titleLink
+                // event listener for titleLink that lets us do the redirecting to movie
                 titleLink.click(function () {
                     // Redirect to movie.html with the movieID parameter
                     location.href = 'movie.html?' + urlParams.toString();
@@ -154,7 +156,7 @@
             });
         }
 
-        // Add an event listener for the search button click
+        // The event listener for the search button click
         $(document).ready(function () {
             $('#search-button').click(function () {
                 searchMovies();

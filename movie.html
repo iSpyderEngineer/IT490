@@ -39,19 +39,19 @@
     <button id="add-to-watched-list">Add to Watched List</button>
 
     <script>
-        // Declare global variables
+        // declaring the variables to use througout the page
         let mediaID;
         let mediaType;
         let mediaRequest;
 
         $(document).ready(function () {
-            // Load the navbar component
+            // where the nav bar component gets loaded
             const navbarContainer = document.getElementById('navbar-container');
             const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
-            xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function () { //runs the load on document ready so once the page starts it begins the process of adding things
                 if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                     navbarContainer.innerHTML = xhr.responseText;
                     loadMediaInfo();
@@ -60,16 +60,16 @@
             };
             xhr.send();
 
-            function loadMediaInfo() {
+            function loadMediaInfo() { //function that takes an ajax response to popluate the page with data from the response
                 console.log("load media info is starting");
                 const urlParams = new URLSearchParams(window.location.search);
                 mediaID = urlParams.get('movieID');
-                mediaType = urlParams.get('Type'); // Added Type variable
+                mediaType = urlParams.get('Type'); 
 
                 if (mediaID && mediaType) {
                     console.log("Media ID and Type found:", mediaID, mediaType);
 
-                    // Use the new API endpoint that takes "Type" and "ID"
+                    // sends the movieID and media typeto our backend function
                     $.ajax({
                         url: 'RabbitMQ/apiConsumer.php',
                         method: 'GET',
@@ -85,7 +85,7 @@
                                 mediaRequest = result;
                                 displayMediaDetails(result, mediaType);
                                 fetchMediaReviews(mediaID);
-                                // Set review form title to media title
+                                // Sets the review form title to media title
                                 $('#review-title').val(result[mediaType === 'movie' ? 'Title' : 'name']);
                             }
                         },
@@ -99,12 +99,12 @@
             }
 
             $('#add-to-watchlist').click(function () {
-                // Now you can use the global variables in other parts of the code
+                // sends the global variables here so that add to watchlist has everything it needs
                 addToWatchlist();
             });
 
             $('#add-to-watched-list').click(function () {
-                // Now you can use the global variables in other parts of the code
+                // 
                 addToWatchedList();
             });
 
@@ -119,7 +119,7 @@
                     },
                     dataType: 'json',
                     success: function (reviews) {
-                        $('#reviews-list').empty(); // Clear existing reviews
+                        $('#reviews-list').empty(); // clears the review list when nessacary
                         if (reviews && reviews.length > 0) {
                             reviews.forEach(review => {
                                 $('#reviews-list').append(`<li>${review.rating}/5 - ${review.review}</li>`);
@@ -136,7 +136,7 @@
 
             // Submit review function
             $('#review-form').submit(function (event) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); // Prevents default form submission
 
                 const mediaTitle = $('#media-title').text();
                 const reviewContent = $('#review-content').val();
@@ -156,7 +156,7 @@
                     },
                     success: function () {
                         console.log('Review submitted successfully');
-                        // Clear form fields after submission
+                        // Clears form fields after submission
                         $('#review-title').val('');
                         $('#review-content').val('');
                         $('#review-rating').val('');
@@ -176,16 +176,15 @@
                 $('#director').text(mediaDetails.Director);
                 $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
                 $('#bio').text(mediaDetails.Overview);
-                $('#poster-image').attr('src', mediaDetails.PosterURL); // Update poster image src
-                // Update other elements with additional details if needed
+                $('#poster-image').attr('src', mediaDetails.PosterURL); 
+                
             }
 
             // Add to watchlist function
             function addToWatchlist() {
-                // Send the media title to RabbitMQ for processing (similar to addToWatchedList function)
-                // Include username if needed
+                // Send the media title to RabbitMQ for processing
                 $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                    url: 'RabbitMQ/dbConsumer.php', 
                     method: 'POST',
                     data: {
                         "type": "addToWatchList",
@@ -205,12 +204,11 @@
                 });
             }
 
-            // Add to watched list function
+            
             function addToWatchedList() {
-                // Send the media title to RabbitMQ for processing (similar to addToWatchlist function)
-                // Include username if needed
+                // Send the media title to RabbitMQ for processing (runs a check so that way watchlist work regardless of whether the page is a movie or a tv show)
                 $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php', // Replace with actual URL
+                    url: 'RabbitMQ/dbConsumer.php', 
                     method: 'POST',
                     data: {
                         "type": "addToWatchedList",
@@ -231,7 +229,7 @@
             }
         });
 
-        // Call loadMediaInfo directly when the document is ready
+        // Call loadMediaInfo directly when the document is ready (second check for consistency)
         loadMediaInfo();
     </script>
 </body>

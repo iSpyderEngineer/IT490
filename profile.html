@@ -5,7 +5,7 @@
     <title>About username</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
-    <link rel="stylesheet" href="styles.css"> <!-- Include your CSS file -->
+    <link rel="stylesheet" href="styles.css"> 
 </head>
 <body>
     <div id="navbar-container"></div>
@@ -47,7 +47,7 @@
         <p id="bio-info"></p>
     </div>
 
-    <!-- Edit Profile Form -->
+    <!-- the form that gets populated and revealed so that users can edit their own profile -->
     <div id="edit-profile-form" style="display: none;">
         <h2>Edit Profile</h2>
         <form id="profile-form">
@@ -79,10 +79,9 @@
 
     <script>
         $(document).ready(function () {
-            // Load the navbar component
+            // Loads the navbar component
             $('#navbar-container').load('components/navbar.html', function () {
-                // Call other functions after the navbar is loaded (if needed)
-                // Removed loadProfileData() from here
+                
 
                 // Event listener for the "Profile" link in the navbar
                 $('#profile-link').click(function (event) {
@@ -96,7 +95,7 @@
                     enableEditFunctionality();
                 }
 
-                // Explicitly call loadProfileData() after the document is ready
+                // Explicitly call loadProfileData() after the document is ready (safety check)
                 loadProfileData();
             });
         });
@@ -142,7 +141,7 @@
                             $('#edit-bio-input').val(userProfile.Biography);
                         }
 
-                        // Displaying the username
+                        // Displays the username
                         $('#username-info').text(username);
                     }
                 },
@@ -168,9 +167,9 @@
                 const editedGenre = $('#edit-genre-input').val();
                 const editedBio = $('#edit-bio-input').val();
 
-                // You can add further validation if needed
+                
 
-                // Prepare the payload with all edited data
+                // Prepares the payload with all edited data
                 const payload = {
                     type: 'updateProfile',
                     username: sessionStorage.getItem('username'),

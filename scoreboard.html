@@ -75,7 +75,7 @@
             leaderboardContainer.innerHTML = '';
 
             if (leaderboard && leaderboard.length > 0) {
-                // Display leaderboard
+                // Displays the leaderboard
                 const sectionTitle = document.createElement('h2');
                 sectionTitle.textContent = 'Leaderboard';
                 leaderboardContainer.appendChild(sectionTitle);
@@ -91,7 +91,7 @@
                     leaderboardContainer.appendChild(entryBlock);
                 });
             } else {
-                // Handle case where leaderboard is empty
+                // Handle the case where leaderboard is empty
                 console.log('Leaderboard is empty');
                 const noLeaderboardMessage = document.createElement('p');
                 noLeaderboardMessage.textContent = 'Leaderboard is empty.';

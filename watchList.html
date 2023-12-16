@@ -16,7 +16,7 @@
                 border: 1px solid #ccc;
                 margin-right: 10px;
                 padding: 10px;
-                width: 200px; /* Adjust the width as needed */
+                width: 200px; /* Adjusts the width as needed */
                 display: flex;
                 flex-direction: column;
             }
@@ -53,7 +53,7 @@
         <div id="navbar-container"></div>
 
         <div id="watchlist-container">
-            <!-- Display watchlist here -->
+            
         </div>
         
 
@@ -83,9 +83,9 @@
 
                 loadNavbar();
 
-                // Check if the username is available
+                // Checks if the username is available (makes sure it is set from storage session)
                 if (username) {
-                    // Make AJAX request to get watchlist
+                    // Makes an AJAX request to get watchlist
                     getWatchlist(username);
                 } else {
                     console.log("Username not found in sessionStorage");
@@ -119,7 +119,7 @@
                         method: 'POST',
                         data: {
                             type: 'addToWatchList',
-                            username: sessionStorage.getItem('username'), // Retrieve username from sessionStorage
+                            username: sessionStorage.getItem('username'), // Retrieves username from sessionStorage
                             movieTitle: movieTitle
                         },
                         dataType: 'json',
@@ -152,7 +152,7 @@
                         dataType: 'json',
                         success: function (response) {
                             console.log('Movie deleted from watchlist:', response);
-                            // Refresh watchlist after deleting a movie
+                            // Refreshes the watchlist after deleting a movie so the user doesn't have to manually reload
                             getWatchlist(sessionStorage.getItem('username'));
                         },
                         error: function (error) {
