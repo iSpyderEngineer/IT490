@@ -5,7 +5,27 @@
     <title>Recommendations</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <!-- Include the navbar -->
+    <style>
+        .movie-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 10px;
+        }
+
+        .movie-block {
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            padding: 10px;
+            width: 200px; /* Adjust the width as needed */
+            cursor: pointer;
+        }
+
+        .movie-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
     
 </head>
 <body>
@@ -49,15 +69,12 @@
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Retrieve username from sessionStorage
             const username = sessionStorage.getItem('username');
             console.log('Username in sessionStorage:', username);
 
             loadNavbar();
 
-            // Check if the username is available
             if (username) {
-                // Make AJAX requests to get movie recommendations
                 getMoviesByMovieAndGenre(username);
                 getRecentWatchedRecommendations(username);
                 getRecommendationActorDirector(username);
@@ -78,9 +95,7 @@
                 success: function (response) {
                     displayRecommendations('movies-by-genre-container', 'Movies by Genre Recommendations', response);
                 },
-                error: function (error) {
-                    console.error('Error fetching movies by genre recommendations:', error);
-                }
+                error: handle500Error('movies-by-genre-container', 'Movies by Genre Recommendations')
             });
         }
 
@@ -96,9 +111,7 @@
                 success: function (response) {
                     displayRecommendations('recent-watched-container', 'Recent Watched Recommendations', response);
                 },
-                error: function (error) {
-                    console.error('Error fetching recent watched recommendations:', error);
-                }
+                error: handle500Error('recent-watched-container', 'Recent Watched Recommendations')
             });
         }
 
@@ -114,9 +127,7 @@
                 success: function (response) {
                     displayRecommendations('actor-director-container', 'Actor/Director Recommendations', response);
                 },
-                error: function (error) {
-                    console.error('Error fetching actor/director recommendations:', error);
-                }
+                error: handle500Error('actor-director-container', 'Actor/Director Recommendations')
             });
         }
 
@@ -124,22 +135,21 @@
             const container = document.getElementById(containerId);
 
             if (recommendations && recommendations.length > 0) {
-                // Display section title
                 const sectionTitle = document.createElement('h2');
                 sectionTitle.textContent = title;
                 container.appendChild(sectionTitle);
 
-                // Create a container for the movie blocks with scrolling
                 const movieContainer = document.createElement('div');
                 movieContainer.classList.add('movie-container');
                 container.appendChild(movieContainer);
 
-                // Display recommendations
                 recommendations.slice(0, 10).forEach(movie => {
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
+
+                    let mediaId = movie.MediaID || movie.MovieID;
                     movieBlock.innerHTML = `
-                        <a href="movie.html?type=${movie.MediaType}&id=${movie.MediaID}">
+                        <a href="movie.html?type=${movie.MediaType}&id=${mediaId}">
                             <img class="movie-image" src="${movie.posterURL}" alt="${movie.title}">
                             <h3>${movie.movieTitle}</h3>
                         </a>
@@ -147,23 +157,32 @@
                     movieContainer.appendChild(movieBlock);
                 });
 
-                // Add a button for scrolling to see more recommendations
                 const scrollButton = document.createElement('button');
                 scrollButton.textContent = 'See More';
                 scrollButton.addEventListener('click', function () {
-                    movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
+                    movieContainer.scrollLeft += 200;
                 });
                 container.appendChild(scrollButton);
             } else {
-                // Handle case where no recommendations are found
                 console.log(`No recommendations found for ${title}`);
                 const noRecommendationsMessage = document.createElement('p');
                 noRecommendationsMessage.textContent = `No recommendations available for ${title}.`;
                 container.appendChild(noRecommendationsMessage);
             }
         }
+
+        function handle500Error(containerId, title) {
+            return function(error) {
+                console.error(`Error fetching ${title} recommendations:`, error);
+                if (error.status === 500) {
+                    const container = document.getElementById(containerId);
+                    container.innerHTML = `<p>There was a connectivity issue while fetching ${title} recommendations.</p>`;
+                }
+            };
+        }
     </script>
 </body>
 </html>
+
 
 
