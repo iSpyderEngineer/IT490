@@ -52,6 +52,65 @@ class rabbitMQServer
         $this->conn = null;
     }
 
+    // processes message from client instance
+    function process_message($msg) 
+    {
+        try {
+            $routingKey = $msg->getRoutingKey();
+            // check if the message's routing key matches the expected routing key
+            if ($routingKey !== $this->routing_key && $routingKey !== $this->queue . ".response") {
+                // if false, negatively acknowledge the message and requeue it
+                $this->conn_queue->nack($msg->getDeliveryTag(), AMQP_REQUEUE);
+                return;
+            }
+
+            // extract the message body and decode it as JSON
+            $body = $msg->getBody();
+            $payload = json_decode($body, true);
+            $response = null;
+
+            // if a callback function is set, invoke it with the payload
+            if (isset($this->callback)) {
+                $response = call_user_func($this->callback, $payload);
+            }
+
+            // if the message has a 'replyTo' property, publish the response
+            if ($msg->getReplyTo()) {
+                $this->publish_response($response, $msg);
+            }
+
+            // acknowledge the successful processing of the message
+            $this->conn_queue->ack($msg->getDeliveryTag());
+        } catch (Exception $e) {
+            // log any exceptions that occur during message processing
+            error_log("Exception in process_message: " . $e->getMessage());
+            // close the connection and rethrow the exception to handle it further up the call stack
+            $this->close_connection();
+            throw $e;
+        }
+    }
+
+    // continuously processes incoming messages
+    function process_requests($callback) 
+    {
+        $this->callback = $callback;
+
+        while (true) {
+            try {
+                // initialize the message handler and consume messages
+                $this->init_request_queue();
+                $this->consume_messages();
+            } catch (Exception $e) {
+                // log and handle any errors that occur during message processing
+                error_log("Error in process_requests: " . $e->getMessage());
+                // close the connection
+                $this->close_connection();
+                // sleep before retrying after an error
+                sleep(3);
+            }
+        }
+    }
+
     // initializes the message handler with the necessary configuration
     private function init_request_queue() 
     {
@@ -177,65 +236,6 @@ class rabbitMQServer
         }
     }
 
-    // processes message from client instance
-    function process_message($msg) 
-    {
-        try {
-            $routingKey = $msg->getRoutingKey();
-            // check if the message's routing key matches the expected routing key
-            if ($routingKey !== $this->routing_key && $routingKey !== $this->queue . ".response") {
-                // if false, negatively acknowledge the message and requeue it
-                $this->conn_queue->nack($msg->getDeliveryTag(), AMQP_REQUEUE);
-                return;
-            }
-
-            // extract the message body and decode it as JSON
-            $body = $msg->getBody();
-            $payload = json_decode($body, true);
-            $response = null;
-
-            // if a callback function is set, invoke it with the payload
-            if (isset($this->callback)) {
-                $response = call_user_func($this->callback, $payload);
-            }
-
-            // if the message has a 'replyTo' property, publish the response
-            if ($msg->getReplyTo()) {
-                $this->publish_response($response, $msg);
-            }
-
-            // acknowledge the successful processing of the message
-            $this->conn_queue->ack($msg->getDeliveryTag());
-        } catch (Exception $e) {
-            // log any exceptions that occur during message processing
-            error_log("Exception in process_message: " . $e->getMessage());
-            // close the connection and rethrow the exception to handle it further up the call stack
-            $this->close_connection();
-            throw $e;
-        }
-    }
-
-    // continuously processes incoming messages
-    function process_requests($callback) 
-    {
-        $this->callback = $callback;
-
-        while (true) {
-            try {
-                // initialize the message handler and consume messages
-                $this->init_request_queue();
-                $this->consume_messages();
-            } catch (Exception $e) {
-                // log and handle any errors that occur during message processing
-                error_log("Error in process_requests: " . $e->getMessage());
-                // close the connection
-                $this->close_connection();
-                // sleep before retrying after an error
-                sleep(3);
-            }
-        }
-    }
-
     // publishes a response message
     private function publish_response($response, $msg) 
     {
@@ -298,6 +298,7 @@ class rabbitMQClient
     private $offlineHosts = []; // stores a list of offline hosts
     private $retryInterval = 600; // stores retry interval for offline hosts
     private $conn; // stores current rabbit connection
+    private $consumerTimeout = 30; // stores a connection timeout value in seconds 
 
     // constructor to initialize client settings based on the provided configuration
     function __construct($machine, $server = "rabbitMQ")
@@ -323,6 +324,82 @@ class rabbitMQClient
         $this->init_response_queue();
 
         $this->conn = null;
+    }
+
+    // processes responses received from the server
+    function process_response($response) 
+    {
+        // extract the correlation ID from the response
+        $uid = $response->getCorrelationId();
+
+        // check if the correlation ID is known (matches a sent request)
+        if (!isset($this->response_queue[$uid])) {
+            // log an error for an unknown correlation ID
+            error_log("Unknown UID: $uid");
+            return true;
+        }
+
+        // acknowledge the response from the server
+        $this->responseQueue->ack($response->getDeliveryTag());
+
+        // decode the response body as JSON
+        $body = $response->getBody();
+        $payload = json_decode($body, true);
+
+        // store the response in the response queue
+        $this->response_queue[$uid] = $payload ?? "[empty response]";
+
+        // indicate that the response processing is not complete
+        return false;
+    }
+
+    // sends requests to the request queue
+    function send_request($message) 
+    {
+        try {
+            // generate a unique id and json encode the request
+            $uid = uniqid();
+            $json_message = json_encode($message);
+
+            // make a response queue, publish the message, and wait for a response
+            $this->init_response_queue();
+            $this->publish_message($json_message, $uid);
+            return $this->wait_for_response($uid);
+
+        } catch (Exception $e) {
+            // log the error and return an error response
+            error_log("Error in send_request: " . $e->getMessage());
+            return ["error" => "An error occurred while sending the request."];
+        }
+    }
+
+    // publishes a message to the server
+    function publish($message)
+    {
+        $json_message = json_encode($message);
+        try {
+            // connect to the broker and set up the exchange and queue
+            $conn = $this->connect_to_broker();
+            $channel = new AMQPChannel($conn);
+            $exchange = new AMQPExchange($channel);
+            $exchange->setName($this->exchange);
+            $exchange->setType($this->exchange_type);
+
+            $this->conn_queue = new AMQPQueue($channel);
+            $this->conn_queue->setName($this->queue);
+            $this->conn_queue->bind($exchange->getName(), $this->routing_key);
+
+            // publish the message to the server's exchange
+            return $exchange->publish($json_message, $this->routing_key);
+        } catch (AMQPConnectionException $e) {
+            // log an error for AMQP connection exception
+            error_log("AMQP Connection Exception in publish: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            // log a general exception error
+            error_log("General Exception in publish: " . $e->getMessage());
+            return false;
+        }
     }
 
     // initializes the response queue
@@ -377,7 +454,8 @@ class rabbitMQClient
                     'login' => $this->USER,
                     'password' => $this->PASSWORD,
                     'vhost' => $this->VHOST,
-                    'heartbeat' => $this->heartbeat
+                    'heartbeat' => $this->heartbeat,
+                    'timeout' => $this->consumerTimeout,
                 );
 
                 $conn = new AMQPConnection($params);
@@ -403,53 +481,6 @@ class rabbitMQClient
     {
         if ($this->conn && $this->conn->isConnected()) {
             $this->conn->disconnect();
-        }
-    }
-
-    // processes responses received from the server
-    function process_response($response) 
-    {
-        // extract the correlation ID from the response
-        $uid = $response->getCorrelationId();
-
-        // check if the correlation ID is known (matches a sent request)
-        if (!isset($this->response_queue[$uid])) {
-            // log an error for an unknown correlation ID
-            error_log("Unknown UID: $uid");
-            return true;
-        }
-
-        // acknowledge the response from the server
-        $this->responseQueue->ack($response->getDeliveryTag());
-
-        // decode the response body as JSON
-        $body = $response->getBody();
-        $payload = json_decode($body, true);
-
-        // store the response in the response queue
-        $this->response_queue[$uid] = $payload ?? "[empty response]";
-
-        // indicate that the response processing is not complete
-        return false;
-    }
-
-    function send_request($message) 
-    {
-        try {
-            $uid = uniqid();
-            $json_message = json_encode($message);
-
-            $this->init_response_queue();
-            $this->publish_message($json_message, $uid);
-            return $this->wait_for_response($uid);
-
-        } catch (Exception $e) {
-            // log error
-            error_log("Error in send_request: " . $e->getMessage());
-            // close connection
-            $this->close_connection();
-            // rethrow exception
-            throw $e;
         }
     }
 
@@ -486,33 +517,6 @@ class rabbitMQClient
         $response = $this->response_queue[$uid] ?? null;
         unset($this->response_queue[$uid]);
         return $response;
-    }
-
-    // publishes a message to the server
-    function publish($message)
-    {
-        $json_message = json_encode($message);
-        try {
-            // connect to the broker and set up the exchange and queue
-            $conn = $this->connect_to_broker();
-            $channel = new AMQPChannel($conn);
-            $exchange = new AMQPExchange($channel);
-            $exchange->setName($this->exchange);
-            $exchange->setType($this->exchange_type);
-
-            $this->conn_queue = new AMQPQueue($channel);
-            $this->conn_queue->setName($this->queue);
-            $this->conn_queue->bind($exchange->getName(), $this->routing_key);
-
-            // publish the message to the server's exchange
-            return $exchange->publish($json_message, $this->routing_key);
-        } catch (AMQPConnectionException $e) {
-            // log an error for AMQP connection exception
-            error_log("AMQP Connection Exception in publish: " . $e->getMessage());
-        } catch (Exception $e) {
-            // log a general exception error
-            error_log("General Exception in publish: " . $e->getMessage());
-        }
     }
 
     // destructor function to close the connection when the class object is destroyed
