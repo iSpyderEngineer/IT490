@@ -75,7 +75,7 @@
                 city: $("#city").val(),
                 country: $("#country").val(),
                 zipcode: $("#zipcode").val(),
-                password: $("#password").val()
+                password: CryptoJS.SHA256($("#password").val()).toString(CryptoJS.enc.Hex)
             };
 
             try {
