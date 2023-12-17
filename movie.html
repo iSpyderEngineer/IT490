@@ -89,15 +89,16 @@
             const username = sessionStorage.getItem('username'); // Retrieve username from sessionStorage
 
             const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'components/navbar.html', true);
-            xhr.onreadystatechange = function () { //runs the load on document ready so once the page starts it begins the process of adding things
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    navbarContainer.innerHTML = xhr.responseText;
-                    loadMediaInfo();
-                    console.log("document ready has been loaded");
-                }
-            };
-            xhr.send();
+                xhr.open('GET', 'components/navbar.html', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                        navbarContainer.innerHTML = xhr.responseText;
+                        console.log("Navbar loaded");
+                        // Load media info once navbar is loaded
+                        loadMediaInfo();
+                    }
+                };
+                xhr.send();
         
             
             $('#add-to-watchlist').click(function () {
