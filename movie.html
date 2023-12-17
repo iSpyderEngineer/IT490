@@ -44,41 +44,6 @@
         let mediaType;
         let mediaRequest;
 
-        function loadMediaInfo() {
-            console.log("load media info is starting");
-            const urlParams = new URLSearchParams(window.location.search);
-            mediaID = urlParams.get('movieID');
-            mediaType = urlParams.get('Type');
-
-            if (mediaID && mediaType) {
-                console.log("Media ID and Type found:", mediaID, mediaType);
-
-                $.ajax({
-                    url: 'RabbitMQ/apiConsumer.php',
-                    method: 'GET',
-                    dataType: 'json',
-                    data: {
-                        "type": "getMediaDetails",
-                        "movieID": Number(mediaID),
-                        "mediaType": mediaType,
-                    },
-                    success: function (result) {
-                        if (result) {
-                            console.log("API Result:", result);
-                            mediaRequest = result;
-                            displayMediaDetails(result, mediaType);
-                            fetchMediaReviews(mediaID);
-                            $('#review-title').val(result[mediaType === 'movie' ? 'Title' : 'name']);
-                        }
-                    },
-                    error: function () {
-                        console.log("Error loading media info");
-                    }
-                });
-            } else {
-                console.log("Media ID or Type not found:", mediaID, mediaType);
-            }
-        }
 
         function displayMediaDetails(mediaDetails, type) {
             $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
@@ -133,30 +98,7 @@
             });
         }
 
-        $(document).ready(function () {
-            const navbarContainer = document.getElementById('navbar-container');
-            const username = sessionStorage.getItem('username');
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'components/navbar.html', true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    navbarContainer.innerHTML = xhr.responseText;
-                    console.log("Navbar loaded");
-                    loadMediaInfo();
-                }
-            };
-            xhr.send();
-
-            $('#add-to-watchlist').click(function () {
-                addToWatchlist();
-            });
-
-            $('#add-to-watched-list').click(function () {
-                addToWatchedList();
-            });
-
-            function fetchMediaReviews(mediaID) {
+        function fetchMediaReviews(mediaID) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'GET',
@@ -183,6 +125,68 @@
                 });
             }
 
+
+        
+        function loadMediaInfo() {
+            console.log("load media info is starting");
+            const urlParams = new URLSearchParams(window.location.search);
+            mediaID = urlParams.get('movieID');
+            mediaType = urlParams.get('Type');
+
+            if (mediaID && mediaType) {
+                console.log("Media ID and Type found:", mediaID, mediaType);
+
+                $.ajax({
+                    url: 'RabbitMQ/apiConsumer.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {
+                        "type": "getMediaDetails",
+                        "movieID": Number(mediaID),
+                        "mediaType": mediaType,
+                    },
+                    success: function (result) {
+                        if (result) {
+                            console.log("API Result:", result);
+                            mediaRequest = result;
+                            displayMediaDetails(result, mediaType);
+                            fetchMediaReviews(mediaID);
+                            $('#review-title').val(result[mediaType === 'movie' ? 'Title' : 'name']);
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading media info");
+                    }
+                });
+            } else {
+                console.log("Media ID or Type not found:", mediaID, mediaType);
+            }
+        }
+
+        $(document).ready(function () {
+            const navbarContainer = document.getElementById('navbar-container');
+            const username = sessionStorage.getItem('username');
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    navbarContainer.innerHTML = xhr.responseText;
+                    console.log("Navbar loaded");
+                    loadMediaInfo();
+                }
+            };
+            xhr.send();
+
+            $('#add-to-watchlist').click(function () {
+                addToWatchlist();
+            });
+
+            $('#add-to-watched-list').click(function () {
+                addToWatchedList();
+            });
+
+           
             $('#review-form').submit(function (event) {
                 event.preventDefault();
 
