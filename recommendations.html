@@ -59,7 +59,8 @@
 
     <script>
 
-        function loadNavbar(callback) {
+        
+        function loadNavbar() {
             const navbarContainer = document.getElementById('navbar-container');
             const xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
@@ -72,9 +73,6 @@
                         while (tempDiv.firstChild) {
                             navbarContainer.appendChild(tempDiv.firstChild);
                         }
-
-                        // Call the callback function after loading the navbar content
-                        callback();
                     } else {
                         console.error('Error loading navbar:', xhr.status);
                     }
@@ -83,7 +81,6 @@
             xhr.open('GET', 'components/navbar.html', true);
             xhr.send();
         }
-
 
 
 
