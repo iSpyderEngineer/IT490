@@ -56,7 +56,7 @@
             color: #fff;
             text-decoration: none;
             margin: 0 15px;
-            font-size: 18px; /* Increased font size for better readability */
+            font-size: 20px; /* Increased font size for better readability */
         }
 
         .result-container {
@@ -219,7 +219,13 @@
                 let resultContainer = $('<div>').addClass('result-container');
 
                 // Creates an image element for the poster
-                let posterImage = $('<img>').attr('src', posterURL).addClass('poster-image');
+                let posterImage = $('<img>')
+                    .attr('src', posterURL)
+                    .attr('alt', 'Movie Poster')
+                    .on('error', function () {
+                    $(this).attr('src', 'not-found.jpg'); // Set a default image if the poster fails to load
+                    })
+                    .addClass('poster-image');
 
                 // Creates a link for the title
                 let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString());
