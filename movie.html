@@ -98,7 +98,7 @@
                 }
             };
             xhr.send();
-
+        
             
             $('#add-to-watchlist').click(function () {
                 // sends the global variables here so that add to watchlist has everything it needs
@@ -234,6 +234,12 @@
 
         // Call loadMediaInfo directly when the document is ready (second check for consistency)
         loadMediaInfo();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadMediaInfo();
+            // double check to force this to work
+        });
+
     </script>
 </body>
 </html>
