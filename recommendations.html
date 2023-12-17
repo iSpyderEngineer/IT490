@@ -166,15 +166,36 @@
                     let mediaId = movie.MediaID || movie.MovieID;
                     let poster = movie.PosterURL || movie.poster_path;
                     let title = movie.Title || movie.title;
-                    movieBlock.innerHTML = `
-                        <a href="movie.html?movieID=${mediaId}&Type=${movie.MediaType}">
-                            <img class="movie-image" src="${poster}">
-                            <h3>${title}</h3>
-                        </a>
-                    `;
+
+                    const movieTitle = document.createElement('h3');
+                    movieTitle.textContent = title;
+                    movieTitle.classList.add('movie-title');
+
+                    const anchor = document.createElement('a');
+                    anchor.href = `movie.html?movieID=${mediaId}&Type=${movie.MediaType}`;
+
+                    const image = document.createElement('img');
+                    image.classList.add('movie-image');
+                    image.src = poster;
+
+                    anchor.appendChild(image);
+                    anchor.appendChild(movieTitle);
+                    movieBlock.appendChild(anchor);
 
                     movieContainer.appendChild(movieBlock);
                 });
+
+// Add style for movie title to limit its width and add ellipsis for overflow
+const style = document.createElement('style');
+style.textContent = `
+    .movie-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+`;
+document.head.appendChild(style);
 
                 const scrollButton = document.createElement('button');
                 scrollButton.textContent = 'See More';

@@ -183,14 +183,28 @@
                     movieBlock.innerHTML = `
                         <a href="movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}">
                             <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
-                            <h3>${movie.MovieTitle}</h3>
+                            <div class="movie-details">
+                                <h3 class="movie-title">${movie.MovieTitle}</h3>
+                                <p hidden id="list-id">${movie.ListID}</p>
+                                <p>Year: ${movie.Year}</p>
+                                <button class="delete-button" onclick="deleteFromWatchedlist(${movie.ListID})">Delete</button>
+                            </div>
                         </a>
-                        <p hidden id="list-id">${movie.ListID}</p>
-                        <p>Year: ${movie.Year}</p>
-                        <button class="delete-button" onclick="deleteFromWatchedlist(${movie.ListID})">Delete</button>
                     `;
                     movieContainer.appendChild(movieBlock);
                 });
+
+// Add style for movie title to limit its width and add ellipsis for overflow
+const style = document.createElement('style');
+style.textContent = `
+    .movie-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+`;
+document.head.appendChild(style);
 
                 // Add a button for scrolling to see more recommendations
                 const scrollButton = document.createElement('button');
