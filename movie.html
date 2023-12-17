@@ -1,4 +1,7 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>Media Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -96,7 +99,7 @@
         let mediaID;
         let mediaType;
         let mediaRequest;
-
+        const username = sessionStorage.getItem('username'); // Define username here
 
         function displayMediaDetails(mediaDetails, type) {
             $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
@@ -178,8 +181,6 @@
                 });
             }
 
-
-        
         function loadMediaInfo() {
             console.log("load media info is starting");
             const urlParams = new URLSearchParams(window.location.search);
@@ -218,7 +219,6 @@
 
         $(document).ready(function () {
             const navbarContainer = document.getElementById('navbar-container');
-            const username = sessionStorage.getItem('username');
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'components/navbar.html', true);
