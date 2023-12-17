@@ -39,6 +39,7 @@
         .movie-block a {
             text-decoration: none;
             color: inherit;
+            display: contents; /* Allows the link to wrap its children */
         }
 
         .movie-block img {
@@ -94,28 +95,26 @@
     <div id="navbar-container"></div>
 
     <div id="watchedlist-container">
-        <!-- Display watchlist here -->
+        <!-- Display watchedlist here -->
     </div>
-
-    
 
     <script>
 
         function loadNavbar() {
-                    const navbarContainer = document.getElementById('navbar-container');
-                    const xhr = new XMLHttpRequest();
-                    xhr.onreadystatechange = function() {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                navbarContainer.innerHTML = xhr.responseText;
-                            } else {
-                                console.error('Error loading navbar:', xhr.status);
-                            }
-                        }
-                    };
-                    xhr.open('GET', 'components/navbar.html', true);
-                    xhr.send();
+            const navbarContainer = document.getElementById('navbar-container');
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        navbarContainer.innerHTML = xhr.responseText;
+                    } else {
+                        console.error('Error loading navbar:', xhr.status);
+                    }
                 }
+            };
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.send();
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             // Retrieves the username from sessionStorage
@@ -238,17 +237,17 @@
                     movieContainer.appendChild(movieBlock);
                 });
 
-// Add style for movie title to limit its width and add ellipsis for overflow
-const style = document.createElement('style');
-style.textContent = `
-    .movie-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin: 0;
-    }
-`;
-document.head.appendChild(style);
+                // Add style for movie title to limit its width and add ellipsis for overflow
+                const style = document.createElement('style');
+                style.textContent = `
+                    .movie-title {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin: 0;
+                    }
+                `;
+                document.head.appendChild(style);
 
                 // Add a button for scrolling to see more recommendations
                 const scrollButton = document.createElement('button');
@@ -276,4 +275,5 @@ document.head.appendChild(style);
     </script>
 </body>
 </html>
+
 

@@ -10,85 +10,95 @@
       padding: 0;
   }
   
-  .navbar {
-      background-color: blue;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      flex-wrap: wrap; /* Allow flex items to wrap */
-  }
+        .navbar {
+            background-color: #2c3e50; /* Updated navbar background color */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px; /* Updated padding for a thicker navbar */
+            text-align: center;
+            flex-wrap: wrap; /* Allow flex items to wrap */
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 40px; /* Increased font size for better readability */
+        }
+
+        .navbar img {
+            width: 70px; /* Adjust the size as needed */
+            height: auto;
+        }
   
-  .navbar img {
-      width: 70px; /* Adjust the size as needed */
-      height: auto;
-  }
-  
-  .nav-links {
-      display: flex;
-  }
-  
-  .nav-item {
-      display: block;
-      background-color: purple;
-      color: white;
-      padding: 10px;
-      margin: 0 5px;
-      text-decoration: none;
-  }
-  
-  .profile-box {
-      position: relative;
-  }
-  
-  .profile-label {
-      display: block;
-      background-color: purple;
-      color: white;
-      padding: 10px;
-      cursor: pointer;
-  }
-  
-  .profile-dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background-color: blue;
-      min-width: 120px;
-      z-index: 1;
-  }
-  
-  .profile-box:hover .profile-dropdown {
-      display: block;
-  }
-  
-  .profile-dropdown a {
-      display: block;
-      padding: 10px;
-      color: white;
-      text-decoration: none;
-  }
-  
-  .profile-dropdown a:hover {
-      background-color: purple;
-  }
-  
-  .search-bar {
-      width: 100%; /* Occupy full width */
-      text-align: center; /* Center the content */
-      margin-top: 10px; /* Spacing from the navbar */
-  }
-  
-  .search-input {
-      width: 300px; /* Adjust width as needed */
-      padding: 8px;
-      border-radius: 20px; /* Round the corners */
-      border: none;
-      outline: none;
-      text-align: center;
-      font-size: 16px;
-  }</style>
+        .nav-links {
+            display: flex;
+        }
+        
+        .nav-item {
+            display: block;
+            background-color: purple;
+            color: white;
+            padding: 10px;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        
+        .profile-box {
+            position: relative;
+        }
+        
+        .profile-label {
+            display: block;
+            background-color: purple;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: blue;
+            min-width: 120px;
+            z-index: 1;
+        }
+        
+        .profile-box:hover .profile-dropdown {
+            display: block;
+        }
+        
+        .profile-dropdown a {
+            display: block;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .profile-dropdown a:hover {
+            background-color: purple;
+        }
+        
+        .search-bar {
+            width: 100%; /* Occupy full width */
+            text-align: center; /* Center the content */
+            margin-top: 10px; /* Spacing from the navbar */
+        }
+        
+        .search-input {
+            width: 300px; /* Adjust width as needed */
+            padding: 8px;
+            border-radius: 20px; /* Round the corners */
+            border: none;
+            outline: none;
+            text-align: center;
+            font-size: 16px;
+        }
+
+  </style>
 
 </head>
 <body>
