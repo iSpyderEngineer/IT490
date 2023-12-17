@@ -82,6 +82,16 @@
                 }
             }
 
+            function displayMediaDetails(mediaDetails, type) {
+                $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
+                $('#genre').text(mediaDetails.Genre.join(', '));
+                $('#director').text(mediaDetails.Director);
+                $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
+                $('#bio').text(mediaDetails.Overview);
+                $('#poster-image').attr('src', mediaDetails.PosterURL); 
+                
+            }
+
 
         $(document).ready(function () {
             // where the nav bar component gets loaded
@@ -173,16 +183,8 @@
                 });
             });
 
-            // Display media details function
-            function displayMediaDetails(mediaDetails, type) {
-                $('#media-title').text(mediaDetails[type === 'movie' ? 'Title' : 'name']);
-                $('#genre').text(mediaDetails.Genre.join(', '));
-                $('#director').text(mediaDetails.Director);
-                $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
-                $('#bio').text(mediaDetails.Overview);
-                $('#poster-image').attr('src', mediaDetails.PosterURL); 
-                
-            }
+            
+           
 
             // Add to watchlist function
             function addToWatchlist() {
