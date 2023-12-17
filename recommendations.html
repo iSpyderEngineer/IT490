@@ -51,13 +51,15 @@
 
     <script>
 
-        function loadNavbar() {
+        function loadNavbar(callback) {
             const navbarContainer = document.getElementById('navbar-container');
             const xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         navbarContainer.innerHTML = xhr.responseText;
+                        // Call the callback function after loading the navbar content
+                        callback();
                     } else {
                         console.error('Error loading navbar:', xhr.status);
                     }
@@ -66,6 +68,7 @@
             xhr.open('GET', 'components/navbar.html', true);
             xhr.send();
         }
+
 
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -148,11 +151,12 @@
                     movieBlock.classList.add('movie-block');
 
                     let mediaId = movie.MediaID || movie.MovieID;
-                    let poster = movie.posterURL || movie.poster_path;
+                    let poster = movie.PosterURL || movie.poster_path;
+                    let title = movie.Title || movie.title;
                     movieBlock.innerHTML = `
                         <a href="movie.html?Type=${movie.MediaType}&id=${mediaId}">
                             <img class="movie-image" src="${poster}">
-                            <h3>${movie.movieTitle}</h3>
+                            <h3>${title}</h3>
                         </a>
                     `;
                     movieContainer.appendChild(movieBlock);
