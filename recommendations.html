@@ -65,7 +65,14 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        navbarContainer.innerHTML = xhr.responseText;
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = xhr.responseText;
+
+                        // Append the loaded content to the navbarContainer
+                        while (tempDiv.firstChild) {
+                            navbarContainer.appendChild(tempDiv.firstChild);
+                        }
+
                         // Call the callback function after loading the navbar content
                         callback();
                     } else {
@@ -76,6 +83,7 @@
             xhr.open('GET', 'components/navbar.html', true);
             xhr.send();
         }
+
 
 
 
