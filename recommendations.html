@@ -185,17 +185,17 @@
                     movieContainer.appendChild(movieBlock);
                 });
 
-// Add style for movie title to limit its width and add ellipsis for overflow
-const style = document.createElement('style');
-style.textContent = `
-    .movie-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin: 0;
-    }
-`;
-document.head.appendChild(style);
+                // Add style for movie title to limit its width and add ellipsis for overflow
+                const style = document.createElement('style');
+                style.textContent = `
+                    .movie-title {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin: 0;
+                    }
+                `;
+                document.head.appendChild(style);
 
                 const scrollButton = document.createElement('button');
                 scrollButton.textContent = 'See More';
