@@ -54,15 +54,19 @@
         }
 
         .navbar a {
-            color: #ecf0f1; /* Light gray text color for navbar links */
+            color: #fff; /* White text color for navbar links */
             text-decoration: none;
             margin: 0 15px;
             font-size: 16px;
         }
+
         .result-container {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            background-color: #2980b9; /* Darker blue background color for the result container */
+            padding: 10px;
+            border-radius: 5px; /* Optional: Add border-radius for a rounded look */
         }
 
         .poster-image {
@@ -75,10 +79,12 @@
 <body>
     <br>
     
+    
+    <div id="navbar-container"></div>
+
     <div id="welcomeMessage"></div>
 
-    <!--container for navbar -->
-    <div id="navbar-container"></div>
+   
 
     <!-- container for navbar for independet stylizing -->
     <div class="search-bar">
