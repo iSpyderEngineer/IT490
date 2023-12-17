@@ -108,7 +108,6 @@
                 addToWatchedList();
             });
 
-            // Fetch media reviews when the page loads
             function fetchMediaReviews(mediaID) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
@@ -118,11 +117,12 @@
                         "movieTitle": mediaRequest[mediaType === 'movie' ? 'Title' : 'name'],
                     },
                     dataType: 'json',
-                    success: function (reviews) {
-                        $('#reviews-list').empty(); // clears the review list when nessacary
-                        if (reviews && reviews.length > 0) {
-                            reviews.forEach(review => {
-                                $('#reviews-list').append(`<li>${review.rating}/5 - ${review.review}</li>`);
+                    success: function (response) {
+                        $('#reviews-list').empty(); // Clear the review list
+
+                        if (response && response.returnCode === "1" && response.reviews.length > 0) {
+                            response.reviews.forEach(review => {
+                                $('#reviews-list').append(`<li>${review.Rating}/5 - ${review.Review}</li>`);
                             });
                         } else {
                             $('#reviews-list').append('<li>No reviews available</li>');
@@ -130,6 +130,7 @@
                     },
                     error: function () {
                         console.log('Error fetching reviews');
+                        $('#reviews-list').append('<li>Error fetching reviews</li>');
                     }
                 });
             }
