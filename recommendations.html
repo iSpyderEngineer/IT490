@@ -163,20 +163,16 @@
                     const movieBlock = document.createElement('div');
                     movieBlock.classList.add('movie-block');
 
-                    let mediaId = movie.MediaID || movie.MovieID;
-                    let poster = movie.PosterURL || movie.poster_path;
-                    let title = movie.Title || movie.title;
-
                     const movieTitle = document.createElement('h3');
-                    movieTitle.textContent = title;
+                    movieTitle.textContent = movie.Title || movie.title; // Use the correct property based on the data
                     movieTitle.classList.add('movie-title');
 
                     const anchor = document.createElement('a');
-                    anchor.href = `movie.html?movieID=${mediaId}&Type=${movie.MediaType}`;
+                    anchor.href = `movie.html?movieID=${movie.MediaID || movie.MovieID}&Type=${movie.MediaType}`;
 
                     const image = document.createElement('img');
                     image.classList.add('movie-image');
-                    image.src = poster;
+                    image.src = movie.PosterURL || movie.poster_path;
 
                     anchor.appendChild(image);
                     anchor.appendChild(movieTitle);
