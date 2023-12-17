@@ -56,7 +56,7 @@
             color: #fff;
             text-decoration: none;
             margin: 0 15px;
-            font-size: 20px; /* Increased font size for better readability */
+            font-size: 40px; /* Increased font size for better readability */
         }
 
         .result-container {
@@ -69,7 +69,7 @@
         }
 
         .poster-image {
-            width: 80px; /* Increased width for larger images */
+            width: 120px; /* Increased width for larger images */
             margin-right: 15px; /* Increased margin for better spacing */
             border-radius: 5px;
         }
@@ -223,7 +223,7 @@
                     .attr('src', posterURL)
                     .attr('alt', 'Movie Poster')
                     .on('error', function () {
-                    $(this).attr('src', 'not-found.jpg'); // Set a default image if the poster fails to load
+                        $(this).attr('src', 'not-found.jpg'); // Set a default image if the poster fails to load
                     })
                     .addClass('poster-image');
 
@@ -232,7 +232,7 @@
 
                 // This is the Event listener for titleLink that redirects to movie.html with the movieID parameter
                 titleLink.click(function () {
-                    let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString()).css('color', '#fff');
+                    titleLink.css('color', '#fff');
                 });
 
                 // Appends all of the elements to the result container
@@ -242,6 +242,7 @@
                 searchResultsDiv.append(resultContainer).append('<br>');
             });
         }
+
 
         // The event listener for the search button click
         $(document).ready(function () {

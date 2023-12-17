@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <title>Media Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -9,16 +6,15 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #ffffff; /* Changed background color */
+            color: #000000; /* Changed text color */
         }
 
         .banner {
             background-color: #3498db;
             padding: 20px;
             text-align: center;
-        }
-
-        .banner h1 {
-            color: #fff;
+            color: #fff; /* Changed text color */
         }
 
         .main-content {
@@ -55,6 +51,9 @@
             padding: 10px;
             margin: 5px;
             font-size: 16px;
+            background-color: #3498db; /* Changed button background color */
+            color: #fff; /* Changed button text color */
+            cursor: pointer; /* Added cursor pointer for better usability */
         }
     </style>
 </head>
@@ -87,8 +86,10 @@
         </form>
     </div>
 
-    <button id="add-to-watchlist">Add to Watchlist</button>
-    <button id="add-to-watched-list">Add to Watched List</button>
+    <div class="buttons-container"> <!-- Added a container div for buttons -->
+        <button id="add-to-watchlist">Add to Watchlist</button>
+        <button id="add-to-watched-list">Add to Watched List</button>
+    </div>
 
     <script>
         // declaring the variables to use throughout the page
