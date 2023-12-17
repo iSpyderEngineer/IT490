@@ -148,9 +148,10 @@
                     movieBlock.classList.add('movie-block');
 
                     let mediaId = movie.MediaID || movie.MovieID;
+                    let poster = movie.posterURL || movie.poster_path;
                     movieBlock.innerHTML = `
                         <a href="movie.html?Type=${movie.MediaType}&id=${mediaId}">
-                            <img class="movie-image" src="${movie.posterURL}" alt="${movie.title}">
+                            <img class="movie-image" src="${poster}">
                             <h3>${movie.movieTitle}</h3>
                         </a>
                     `;
