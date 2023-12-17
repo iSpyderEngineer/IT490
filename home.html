@@ -9,7 +9,8 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #ecf0f1; /* Light gray background color */
+            background-color: #2980b9; /* Updated to a darker blue background color */
+            color: #fff; /* Updated text color to white */
         }
 
         #navbar-container {
@@ -19,13 +20,12 @@
 
         #welcomeMessage {
             background-color: #3498db; /* Dark blue background color */
-            color: #fff;
             text-align: center;
             padding: 10px;
         }
 
         .search-bar {
-            background-color: #2980b9; /* Darker blue background color for the search bar */
+            background-color: #2980b9;
             padding: 10px;
             text-align: center;
         }
@@ -33,11 +33,11 @@
         .search-input {
             padding: 8px;
             margin-right: 5px;
-            font-size: 16px;
+            font-size: 20px; /* Increased font size for better readability */
         }
 
         #search-button {
-            padding: 10px;
+            padding: 14px; /* Increased padding for a larger button */
             font-size: 16px;
             cursor: pointer;
         }
@@ -46,33 +46,32 @@
             margin-top: 10px;
         }
 
-        /* Styles for the navbar (loaded from external file) */
         .navbar {
-            background-color: #2c3e50; /* Dark gray background color for the navbar */
-            padding: 10px;
+            background-color: #2c3e50;
+            padding: 15px; /* Increased padding for a thicker navbar */
             text-align: center;
         }
 
         .navbar a {
-            color: #fff; /* White text color for navbar links */
+            color: #fff;
             text-decoration: none;
             margin: 0 15px;
-            font-size: 16px;
+            font-size: 18px; /* Increased font size for better readability */
         }
 
         .result-container {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
-            background-color: #2980b9; /* Darker blue background color for the result container */
-            padding: 10px;
-            border-radius: 5px; /* Optional: Add border-radius for a rounded look */
+            background-color: #2980b9;
+            padding: 20px; /* Increased padding for better spacing */
+            border-radius: 5px;
         }
 
         .poster-image {
-            width: 50px; /* Adjust the width of the poster image as needed */
-            margin-right: 10px;
-            border-radius: 5px; /* Optional: Add border-radius for a rounded look */
+            width: 80px; /* Increased width for larger images */
+            margin-right: 15px; /* Increased margin for better spacing */
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -227,7 +226,7 @@
 
                 // This is the Event listener for titleLink that redirects to movie.html with the movieID parameter
                 titleLink.click(function () {
-                    location.href = 'movie.html?' + urlParams.toString();
+                    let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString()).css('color', '#fff');
                 });
 
                 // Appends all of the elements to the result container
