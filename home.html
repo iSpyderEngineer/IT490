@@ -59,6 +59,17 @@
             margin: 0 15px;
             font-size: 16px;
         }
+        .result-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .poster-image {
+            width: 50px; /* Adjust the width of the poster image as needed */
+            margin-right: 10px;
+            border-radius: 5px; /* Optional: Add border-radius for a rounded look */
+        }
     </style>
 </head>
 <body>
@@ -194,20 +205,30 @@
                 let title = item['Title'];
                 let movieID = item['ID'];
                 let Type = item['Type'];
+                let posterURL = item['PosterURL'];
 
                 // Adds the "Type" parameter to the URL
                 const urlParams = new URLSearchParams();
                 urlParams.set('movieID', movieID);
                 urlParams.set('Type', Type);
+                let resultContainer = $('<div>').addClass('result-container');
+
+                // Creates an image element for the poster
+                let posterImage = $('<img>').attr('src', posterURL).addClass('poster-image');
+
+                // Creates a link for the title
                 let titleLink = $('<a>').text(title).attr('href', 'movie.html?' + urlParams.toString());
-                
-                // event listener for titleLink that lets us do the redirecting to movie
+
+                // This is the Event listener for titleLink that redirects to movie.html with the movieID parameter
                 titleLink.click(function () {
-                    // Redirect to movie.html with the movieID parameter
                     location.href = 'movie.html?' + urlParams.toString();
                 });
 
-                searchResultsDiv.append(titleLink).append('<br>');
+                // Appends all of the elements to the result container
+                resultContainer.append(posterImage).append(titleLink);
+
+                // Appends the result container to the final searchResultsDiv
+                searchResultsDiv.append(resultContainer).append('<br>');
             });
         }
 
