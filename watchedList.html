@@ -5,43 +5,87 @@
     <title>Watchedlist Management</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        body {
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #watchedlist-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
         .movie-container {
             display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
+            flex-wrap: nowrap;
             margin-bottom: 10px;
+            justify-content: flex-start;
         }
 
         .movie-block {
             border: 1px solid #ccc;
             margin-right: 10px;
             padding: 10px;
-            width: 200px; /* Adjusts the width as needed */
+            width: 250px; /* Adjusts the width as needed */
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .movie-block a {
+            text-decoration: none;
+            color: inherit;
         }
 
         .movie-block img {
-            max-width: 100%;
-            height: auto;
+            width: 100%;
+            height: 200px; /* Set a fixed height for all images */
+            object-fit: cover; /* Maintain aspect ratio and cover the entire space */
+        }
+
+        .movie-details {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .movie-title {
+            margin: 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .delete-button {
             margin-top: 10px;
             cursor: pointer;
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            box-sizing: border-box;
             background-color: #ff0000;
             color: #ffffff;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
         }
 
-        .movie-block img {
-            max-width: 100%;
-            height: 200px; /* Set a fixed height for all images */
-            object-fit: cover; /* Maintain aspect ratio and cover the entire space */
+        .scroll-button {
+            display: block;
+            margin-top: 10px;
+            padding: 5px;
+            width: 100%;
+            text-align: center;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
         }
-       
     </style>
 </head>
 <body>
