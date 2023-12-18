@@ -110,13 +110,26 @@
             $('#poster-image').attr('src', mediaDetails.PosterURL); 
 
 
-            if (mediaDetails.streamingServices && mediaDetails.streamingServices.US) {
-                const usStreamingServices = mediaDetails.streamingServices.US;
-                // Display streaming service data as needed, e.g., update an HTML element
-                $('#streaming-services').html('<h3>Streaming Services (US)</h3><ul>' +
-                    usStreamingServices.flatrate.map(service => `<li>${service.provider_name} - ${service.link}</li>`).join('') +
-                    '</ul>');
+            if (mediaDetails.StreamingServices) {
+                // Loop through each country code
+                for (const countryCode in mediaDetails.StreamingServices) {
+                    const countryStreamingInfo = mediaDetails.StreamingServices[countryCode];
+                    
+                    // Check if the country has streaming services available
+                    if (countryStreamingInfo && countryStreamingInfo.flatrate) {
+                        // Extract streaming services for the country
+                        const streamingServices = countryStreamingInfo.flatrate;
+                        
+                        // Display or process the streaming services as needed
+                        console.log(`Streaming Services for ${countryCode}:`);
+                        
+                        streamingServices.forEach(service => {
+                            console.log(`- Provider: ${service.provider_name}, Link: ${service.link}`);
+                        });
+                    }
+                }
             }
+
 
         }
 
