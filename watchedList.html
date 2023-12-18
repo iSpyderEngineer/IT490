@@ -214,55 +214,54 @@
         }
 
        
-
         function createMovieBlock(movie) {
-            const movieBlock = document.createElement('div');
-            movieBlock.classList.add('movie-block');
+                const movieBlock = document.createElement('div');
+                movieBlock.classList.add('movie-block');
 
-            // Create the movie image
-            const movieImage = document.createElement('img');
-            movieImage.src = movie.PosterURL;
-            movieImage.alt = `${movie.MovieTitle} Poster`;
+                // Create the movie image
+                const movieImage = document.createElement('img');
+                movieImage.src = movie.PosterURL;
+                movieImage.alt = `${movie.MovieTitle} Poster`;
 
-            // Create the movie details container
-            const movieDetails = document.createElement('div');
-            movieDetails.classList.add('movie-details');
+                // Create the movie details container
+                const movieDetails = document.createElement('div');
+                movieDetails.classList.add('movie-details');
 
-            // Create a link for the movie title
-            const movieLink = document.createElement('a');
-            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
-            movieLink.classList.add('movie-link'); // Add a class to style the link if needed
+                // Create a link for the movie title
+                const movieLink = document.createElement('a');
+                movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
+                movieLink.classList.add('movie-link'); // Add a class to style the link if needed
 
-            // Create the movie title
-            const movieTitle = document.createElement('h3');
-            movieTitle.classList.add('movie-title');
-            movieTitle.textContent = movie.MovieTitle;
+                // Create the movie title
+                const movieTitle = document.createElement('h3');
+                movieTitle.classList.add('movie-title');
+                movieTitle.textContent = movie.MovieTitle;
 
-            // Create other details (year, buttons, etc.)
-            const movieYear = document.createElement('p');
-            movieYear.textContent = `Year: ${movie.Year}`;
+                // Create other details (year, delete button)
+                const movieYear = document.createElement('p');
+                movieYear.textContent = `Year: ${movie.Year}`;
 
-            const deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete-button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', function (event) {
-                event.stopPropagation(); // Stop propagation to prevent the link from being triggered
-                deleteFromwatchedlist(movie.ListID);
-            });
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function (event) {
+                    event.stopPropagation(); // Stop propagation to prevent the link from being triggered
+                    deleteFromwatchedlist(movie.ListID);
+                });
 
+                // Append elements to their respective parents
+                movieLink.appendChild(movieTitle);
+                movieDetails.appendChild(movieLink); // Attach the link to the movie details
+                movieDetails.appendChild(movieYear);
+                movieDetails.appendChild(deleteButton);
 
-            // Append elements to their respective parents
-            movieLink.appendChild(movieTitle);
-            movieDetails.appendChild(movieLink); // Attach the link to the movie details
-            movieDetails.appendChild(movieYear);
-            movieDetails.appendChild(deleteButton);
-            movieDetails.appendChild(moveTowatchededButton);
+                movieBlock.appendChild(movieImage);
+                movieBlock.appendChild(movieDetails); // Append the details directly to the movie block
 
-            movieBlock.appendChild(movieImage);
-            movieBlock.appendChild(movieDetails); // Append the details directly to the movie block
+                return movieBlock;
+            }
 
-            return movieBlock;
-        }
+        
         function displaywatchedlist(response) {
             const watchedlistContainer = document.getElementById('watchedlist-container');
             watchedlistContainer.innerHTML = '';
