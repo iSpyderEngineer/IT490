@@ -45,7 +45,7 @@
         .movie-block img {
             width: 100%;
             height: 200px; /* Set a fixed height for all images */
-            object-fit: cover; /* Maintain aspect ratio and cover the entire space */
+            object-fit: contain; 
         }
 
         .movie-details {
@@ -177,131 +177,103 @@
             }
         }
 
-        function deleteFromWatchedlist(listID) {
-            console.log("requesting delete from watchedlist");
-            const ListID = listID;
+        function displayWatchedlist(response) {
+            const watchedlistContainer = document.getElementById('watchedlist-container');
+            watchedlistContainer.innerHTML = '';
 
-            if (ListID) {
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: 'POST',
-                    data: {
-                        type: 'deleteFromWatchedList',
-                        watchedListID: ListID
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        console.log('Movie deleted from watchedlist:', response);
-                        // Refresh watchedlist after deleting a movie
-                        getWatchedlist(sessionStorage.getItem('username'));
-                    },
-                    error: function (error) {
-                        console.error('Error deleting movie from watchedlist:', error);
-                    }
+            if (response && response.length > 0) {
+                // Display watchedlist
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = 'Watchedlist';
+                watchedlistContainer.appendChild(sectionTitle);
+
+                // Create a container for the movie blocks with scrolling
+                const movieContainer = document.createElement('div');
+                movieContainer.classList.add('movie-container');
+                watchedlistContainer.appendChild(movieContainer);
+
+                response.forEach(movie => {
+                    const movieBlock = createMovieBlock(movie, true); // Pass true to indicate it's for the watched list
+                    movieContainer.appendChild(movieBlock);
                 });
+
+                // Add a button for scrolling to see more recommendations
+                const scrollButton = document.createElement('button');
+                scrollButton.textContent = 'See More';
+                scrollButton.addEventListener('click', function () {
+                    movieContainer.scrollLeft += 200; // Adjusts the scrolling distance as needed
+                });
+                watchedlistContainer.appendChild(scrollButton);
             } else {
-                console.error('Movie ID cannot be empty.');
+                // Handles the case where watchedlist is empty
+                console.log('Watchedlist is empty');
+                const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
+                if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
+                    const noWatchedlistMessage = document.createElement('p');
+                    noWatchedlistMessage.textContent = 'Watchedlist is empty.';
+                    watchedlistContainer.appendChild(noWatchedlistMessage);
+                } else {
+                    // In case of unexpected empty response
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'An error occurred while fetching the watchedlist.';
+                    watchedlistContainer.appendChild(errorMessage);
+                }
             }
         }
 
-        
-        function displayWatchedlist(response) {
-        const watchedlistContainer = document.getElementById('watchedlist-container');
-        watchedlistContainer.innerHTML = '';
+        function createMovieBlock(movie, isWatchedlist) {
+            const movieBlock = document.createElement('div');
+            movieBlock.classList.add('movie-block');
 
-        if (response && response.length > 0) {
-            // Display watchedlist
-            const sectionTitle = document.createElement('h2');
-            sectionTitle.textContent = 'Watchedlist';
-            watchedlistContainer.appendChild(sectionTitle);
+            // Create the link for the movie image and title
+            const movieLink = document.createElement('a');
+            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
 
-            // Create a container for the movie blocks with scrolling
-            const movieContainer = document.createElement('div');
-            movieContainer.classList.add('movie-container');
-            watchedlistContainer.appendChild(movieContainer);
+            // Create the movie image
+            const movieImage = document.createElement('img');
+            movieImage.src = movie.PosterURL;
+            movieImage.alt = `${movie.MovieTitle} Poster`;
 
-            response.forEach(movie => {
-                const movieBlock = document.createElement('div');
-                movieBlock.classList.add('movie-block');
-                
-                // Create the link for the movie image and title
-                const movieLink = document.createElement('a');
-                movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
-                
-                // Create the movie image
-                const movieImage = document.createElement('img');
-                movieImage.src = movie.PosterURL;
-                movieImage.alt = `${movie.MovieTitle} Poster`;
-                
-                // Create the movie details container
-                const movieDetails = document.createElement('div');
-                movieDetails.classList.add('movie-details');
-                
-                // Create the movie title
-                const movieTitle = document.createElement('h3');
-                movieTitle.classList.add('movie-title');
-                movieTitle.textContent = movie.MovieTitle;
-                
-                // Create other details (year, delete button)
-                const movieYear = document.createElement('p');
-                movieYear.textContent = `Year: ${movie.Year}`;
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('delete-button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', function (event) {
-                    event.stopPropagation(); // Prevent the click from reaching the parent (movieLink)
-                    deleteFromWatchedlist(movie.ListID);
-                });
+            // Create the movie details container
+            const movieDetails = document.createElement('div');
+            movieDetails.classList.add('movie-details');
 
-                // Append elements to their respective parents
-                movieDetails.appendChild(movieTitle);
-                movieDetails.appendChild(movieYear);
-                movieDetails.appendChild(deleteButton);
-                
+            // Create the movie title
+            const movieTitle = document.createElement('h3');
+            movieTitle.classList.add('movie-title');
+            movieTitle.textContent = movie.MovieTitle;
+
+            // Create other details (year, delete button)
+            const movieYear = document.createElement('p');
+            movieYear.textContent = `Year: ${movie.Year}`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent the click from reaching the parent (movieLink)
+                deleteFromWatchedlist(movie.ListID);
+            });
+
+            // Append elements to their respective parents
+            movieDetails.appendChild(movieTitle);
+            movieDetails.appendChild(movieYear);
+            movieDetails.appendChild(deleteButton);
+
+            if (isWatchedlist) {
+                // Only add the link and image if it's for the watched list
                 movieLink.appendChild(movieImage);
                 movieLink.appendChild(movieDetails);
-                
                 movieBlock.appendChild(movieLink);
-                
-                movieContainer.appendChild(movieBlock);
-            });
-
-            // Add style for movie title to limit its width and add ellipsis for overflow
-            const style = document.createElement('style');
-            style.textContent = `
-                .movie-title {
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    margin: 0;
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Add a button for scrolling to see more recommendations
-            const scrollButton = document.createElement('button');
-            scrollButton.textContent = 'See More';
-            scrollButton.addEventListener('click', function () {
-                movieContainer.scrollLeft += 200; // Adjusts the scrolling distance as needed
-            });
-            watchedlistContainer.appendChild(scrollButton);
-        } else {
-            // Handles the case where watchedlist is empty
-            console.log('Watchedlist is empty');
-            const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
-            if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
-                const noWatchedlistMessage = document.createElement('p');
-                noWatchedlistMessage.textContent = 'Watchedlist is empty.';
-                watchedlistContainer.appendChild(noWatchedlistMessage);
             } else {
-                // In case of unexpected empty response
-                const errorMessage = document.createElement('p');
-                errorMessage.textContent = 'An error occurred while fetching the watchedlist.';
-                watchedlistContainer.appendChild(errorMessage);
+                // Add everything to the movie block if it's not for the watched list
+                movieBlock.appendChild(movieImage);
+                movieBlock.appendChild(movieDetails);
             }
+
+            return movieBlock;
         }
-    }
+
     </script>
 </body>
 </html>
