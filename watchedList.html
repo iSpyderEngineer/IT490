@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Watchedlist Management</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -220,13 +219,10 @@
             }
         }
 
+       
         function createMovieBlock(movie, isWatchedlist) {
             const movieBlock = document.createElement('div');
             movieBlock.classList.add('movie-block');
-
-            // Create the link for the movie image and title
-            const movieLink = document.createElement('a');
-            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
 
             // Create the movie image
             const movieImage = document.createElement('img');
@@ -259,6 +255,10 @@
             movieDetails.appendChild(movieYear);
             movieDetails.appendChild(deleteButton);
 
+            // Create the link for the movie image and title
+            const movieLink = document.createElement('a');
+            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
+
             if (isWatchedlist) {
                 // Only add the link and image if it's for the watched list
                 movieLink.appendChild(movieImage);
@@ -272,6 +272,8 @@
 
             return movieBlock;
         }
+
+
 
     </script>
 </body>
