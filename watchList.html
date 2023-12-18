@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Watchlist Management</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -243,10 +242,6 @@
             const movieBlock = document.createElement('div');
             movieBlock.classList.add('movie-block');
 
-            // Create a link for the movie image and title
-            const movieLink = document.createElement('a');
-            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
-
             // Create the movie image
             const movieImage = document.createElement('img');
             movieImage.src = movie.PosterURL;
@@ -255,6 +250,11 @@
             // Create the movie details container
             const movieDetails = document.createElement('div');
             movieDetails.classList.add('movie-details');
+
+            // Create a link for the movie title
+            const movieLink = document.createElement('a');
+            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
+            movieLink.classList.add('movie-link'); // Add a class to style the link if needed
 
             // Create the movie title
             const movieTitle = document.createElement('h3');
@@ -268,32 +268,31 @@
             const deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-button');
             deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', function () {
+            deleteButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Stop propagation to prevent the link from being triggered
                 deleteFromWatchlist(movie.ListID);
             });
 
             const moveToWatchedButton = document.createElement('button');
             moveToWatchedButton.classList.add('move-to-watched-button');
             moveToWatchedButton.textContent = 'Move to Watched List';
-            moveToWatchedButton.addEventListener('click', function () {
+            moveToWatchedButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Stop propagation to prevent the link from being triggered
                 moveToWatchedList(movie.MovieID, movie.MovieTitle, movie.PosterURL, movie.Year, movie.MediaType);
             });
 
-
             // Append elements to their respective parents
-            movieDetails.appendChild(movieTitle);
+            movieLink.appendChild(movieTitle);
+            movieDetails.appendChild(movieLink); // Attach the link to the movie details
             movieDetails.appendChild(movieYear);
             movieDetails.appendChild(deleteButton);
             movieDetails.appendChild(moveToWatchedButton);
 
-            movieLink.appendChild(movieImage);
-            movieLink.appendChild(movieDetails);
-
-            movieBlock.appendChild(movieLink);
+            movieBlock.appendChild(movieImage);
+            movieBlock.appendChild(movieDetails); // Append the details directly to the movie block
 
             return movieBlock;
         }
-
         function displayWatchlist(response) {
             const watchlistContainer = document.getElementById('watchlist-container');
             watchlistContainer.innerHTML = '';
