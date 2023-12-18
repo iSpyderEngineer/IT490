@@ -206,72 +206,101 @@
 
         
         function displayWatchedlist(response) {
-            const watchedlistContainer = document.getElementById('watchedlist-container');
-            watchedlistContainer.innerHTML = '';
+        const watchedlistContainer = document.getElementById('watchedlist-container');
+        watchedlistContainer.innerHTML = '';
 
-            if (response && response.length > 0) {
-                // Display watchedlist
-                const sectionTitle = document.createElement('h2');
-                sectionTitle.textContent = 'Watchedlist';
-                watchedlistContainer.appendChild(sectionTitle);
+        if (response && response.length > 0) {
+            // Display watchedlist
+            const sectionTitle = document.createElement('h2');
+            sectionTitle.textContent = 'Watchedlist';
+            watchedlistContainer.appendChild(sectionTitle);
 
-                // Create a container for the movie blocks with scrolling
-                const movieContainer = document.createElement('div');
-                movieContainer.classList.add('movie-container');
-                watchedlistContainer.appendChild(movieContainer);
+            // Create a container for the movie blocks with scrolling
+            const movieContainer = document.createElement('div');
+            movieContainer.classList.add('movie-container');
+            watchedlistContainer.appendChild(movieContainer);
 
-                response.forEach(movie => {
-                    const movieBlock = document.createElement('div');
-                    movieBlock.classList.add('movie-block');
-                    movieBlock.innerHTML = `
-                        <a href="movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}">
-                            <img src="${movie.PosterURL}" alt="${movie.MovieTitle} Poster">
-                            <div class="movie-details">
-                                <h3 class="movie-title">${movie.MovieTitle}</h3>
-                                <p hidden id="list-id">${movie.ListID}</p>
-                                <p>Year: ${movie.Year}</p>
-                                <button class="delete-button" onclick="deleteFromWatchedlist(${movie.ListID})">Delete</button>
-                            </div>
-                        </a>
-                    `;
-                    movieContainer.appendChild(movieBlock);
+            response.forEach(movie => {
+                const movieBlock = document.createElement('div');
+                movieBlock.classList.add('movie-block');
+                
+                // Create the link for the movie image and title
+                const movieLink = document.createElement('a');
+                movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
+                
+                // Create the movie image
+                const movieImage = document.createElement('img');
+                movieImage.src = movie.PosterURL;
+                movieImage.alt = `${movie.MovieTitle} Poster`;
+                
+                // Create the movie details container
+                const movieDetails = document.createElement('div');
+                movieDetails.classList.add('movie-details');
+                
+                // Create the movie title
+                const movieTitle = document.createElement('h3');
+                movieTitle.classList.add('movie-title');
+                movieTitle.textContent = movie.MovieTitle;
+                
+                // Create other details (year, delete button)
+                const movieYear = document.createElement('p');
+                movieYear.textContent = `Year: ${movie.Year}`;
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function () {
+                    deleteFromWatchedlist(movie.ListID);
                 });
+                
+                // Append elements to their respective parents
+                movieDetails.appendChild(movieTitle);
+                movieDetails.appendChild(movieYear);
+                movieDetails.appendChild(deleteButton);
+                
+                movieLink.appendChild(movieImage);
+                movieLink.appendChild(movieDetails);
+                
+                movieBlock.appendChild(movieLink);
+                
+                movieContainer.appendChild(movieBlock);
+            });
 
-                // Add style for movie title to limit its width and add ellipsis for overflow
-                const style = document.createElement('style');
-                style.textContent = `
-                    .movie-title {
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        margin: 0;
-                    }
-                `;
-                document.head.appendChild(style);
-
-                // Add a button for scrolling to see more recommendations
-                const scrollButton = document.createElement('button');
-                scrollButton.textContent = 'See More';
-                scrollButton.addEventListener('click', function () {
-                    movieContainer.scrollLeft += 200; // Adjusts the scrolling distance as needed
-                });
-                watchedlistContainer.appendChild(scrollButton);
-            } else {
-                // Handles the case where watchedlist is empty
-                console.log('Watchedlist is empty');
-                const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
-                if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
-                    const noWatchedlistMessage = document.createElement('p');
-                    noWatchedlistMessage.textContent = 'Watchedlist is empty.';
-                    watchedlistContainer.appendChild(noWatchedlistMessage);
-                } else {
-                    // In case of unexpected empty response
-                    const errorMessage = document.createElement('p');
-                    errorMessage.textContent = 'An error occurred while fetching the watchedlist.';
-                    watchedlistContainer.appendChild(errorMessage);
+            // Add style for movie title to limit its width and add ellipsis for overflow
+            const style = document.createElement('style');
+            style.textContent = `
+                .movie-title {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin: 0;
                 }
+            `;
+            document.head.appendChild(style);
+
+            // Add a button for scrolling to see more recommendations
+            const scrollButton = document.createElement('button');
+            scrollButton.textContent = 'See More';
+            scrollButton.addEventListener('click', function () {
+                movieContainer.scrollLeft += 200; // Adjusts the scrolling distance as needed
+            });
+            watchedlistContainer.appendChild(scrollButton);
+        } else {
+            // Handles the case where watchedlist is empty
+            console.log('Watchedlist is empty');
+            const emptySetResponse = [{"returnCode":"2","message":"Empty Set"}];
+            if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
+                const noWatchedlistMessage = document.createElement('p');
+                noWatchedlistMessage.textContent = 'Watchedlist is empty.';
+                watchedlistContainer.appendChild(noWatchedlistMessage);
+            } else {
+                // In case of unexpected empty response
+                const errorMessage = document.createElement('p');
+                errorMessage.textContent = 'An error occurred while fetching the watchedlist.';
+                watchedlistContainer.appendChild(errorMessage);
             }
         }
+    }
     </script>
 </body>
 </html>

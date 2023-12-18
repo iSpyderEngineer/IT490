@@ -1,356 +1,357 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Watchlist Management</title>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
-            body {
-                padding: 20px;
-            }
-    
-            h1 {
-                text-align: center;
-            }
-    
-            #watchlist-container {
-                max-width: 100%;
-                overflow-x: auto;
-            }
-    
-            .movie-container {
-                display: flex;
-                flex-wrap: nowrap;
-                margin-bottom: 10px;
-                justify-content: flex-start;
-            }
-    
-            .movie-block {
-                border: 1px solid #ccc;
-                margin-right: 10px;
-                padding: 10px;
-                width: 250px; /* Adjusts the width as needed */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                overflow: hidden;
-            }
-    
-            .movie-block a {
-                text-decoration: none;
-                color: inherit;
-            }
-    
-            .movie-block img {
-                width: 100%;
-                height: 200px; /* Set a fixed height for all images */
-                object-fit: cover; /* Maintain aspect ratio and cover the entire space */
-            }
-    
-            .movie-details {
-                text-align: center;
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-            }
-    
-            .movie-title {
-                margin: 5px 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-    
-            .delete-button,
-            .move-to-watched-button {
-                margin-top: 10px;
-                cursor: pointer;
-                width: 100%;
-                padding: 5px;
-                border-radius: 5px;
-                box-sizing: border-box;
-            }
-    
-            .delete-button {
-                background-color: #ff0000;
-                color: #ffffff;
-                border: none;
-            }
-    
-            .move-to-watched-button {
-                background-color: #4285f4;
-                color: #ffffff;
-                border: none;
-            }
-    
-            .scroll-button {
-                display: block;
-                margin-top: 10px;
-                padding: 5px;
-                width: 100%;
-                text-align: center;
-                background-color: #007bff;
-                color: #ffffff;
-                border: none;
-                cursor: pointer;
-                border-radius: 5px;
-            }
-        </style>
-    </head>
-    
-    <body>
-        <h1>Watchlist Management</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchlist Management</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
 
-        <div id="navbar-container"></div>
+        h1 {
+            text-align: center;
+        }
 
-        <div id="watchlist-container">
-            
-        </div>
-        
-        <script>
-            function loadNavbar() {
-                const navbarContainer = document.getElementById('navbar-container');
-                const xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            navbarContainer.innerHTML = xhr.responseText;
-                        } else {
-                            console.error('Error loading navbar:', xhr.status);
-                        }
+        #watchlist-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .movie-container {
+            display: flex;
+            flex-wrap: nowrap;
+            margin-bottom: 10px;
+            justify-content: flex-start;
+        }
+
+        .movie-block {
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            padding: 10px;
+            width: 250px; /* Adjusts the width as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .movie-block a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .movie-block img {
+            width: 100%;
+            height: 200px; /* Set a fixed height for all images */
+            object-fit: cover; /* Maintain aspect ratio and cover the entire space */
+        }
+
+        .movie-details {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .movie-title {
+            margin: 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .delete-button,
+        .move-to-watched-button {
+            margin-top: 10px;
+            cursor: pointer;
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .delete-button {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+        }
+
+        .move-to-watched-button {
+            background-color: #4285f4;
+            color: #ffffff;
+            border: none;
+        }
+
+        .scroll-button {
+            display: block;
+            margin-top: 10px;
+            padding: 5px;
+            width: 100%;
+            text-align: center;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Watchlist Management</h1>
+
+    <div id="navbar-container"></div>
+
+    <div id="watchlist-container">
+
+    </div>
+
+    <script>
+        function loadNavbar() {
+            const navbarContainer = document.getElementById('navbar-container');
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        navbarContainer.innerHTML = xhr.responseText;
+                    } else {
+                        console.error('Error loading navbar:', xhr.status);
                     }
-                };
-                xhr.open('GET', 'components/navbar.html', true);
-                xhr.send();
+                }
+            };
+            xhr.open('GET', 'components/navbar.html', true);
+            xhr.send();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve username from sessionStorage
+            const username = sessionStorage.getItem('username');
+            console.log('Username in sessionStorage:', username);
+
+            loadNavbar();
+
+            // Checks if the username is available (makes sure it is set from storage session)
+            if (username) {
+                // Makes an AJAX request to get the watchlist
+                getWatchlist(username);
+            } else {
+                console.log("Username not found in sessionStorage");
             }
-        
-            document.addEventListener('DOMContentLoaded', function () {
-                // Retrieve username from sessionStorage
-                const username = sessionStorage.getItem('username');
-                console.log('Username in sessionStorage:', username);
-        
-                loadNavbar();
-        
-                // Checks if the username is available (makes sure it is set from storage session)
-                if (username) {
-                    // Makes an AJAX request to get the watchlist
-                    getWatchlist(username);
-                } else {
-                    console.log("Username not found in sessionStorage");
+        });
+
+        function getWatchlist(username) {
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'GET',
+                data: {
+                    type: 'getWatchList',
+                    username: username
+                },
+                dataType: 'json',
+                success: function (response) {
+                    displayWatchlist(response);
+                },
+                error: function (error) {
+                    console.error('Error fetching watchlist:', error);
                 }
             });
-        
-            function getWatchlist(username) {
-                $.ajax({
-                    url: 'RabbitMQ/dbConsumer.php',
-                    method: 'GET',
-                    data: {
-                        type: 'getWatchList',
-                        username: username
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        displayWatchlist(response);
-                    },
-                    error: function (error) {
-                        console.error('Error fetching watchlist:', error);
-                    }
-                });
-            }
-        
-            function addToWatchlist() {
-                const movieTitle = $('#movie-title').val();
-        
-                if (movieTitle) {
-                    $.ajax({
-                        url: 'RabbitMQ/dbConsumer.php',
-                        method: 'POST',
-                        data: {
-                            type: 'addToWatchList',
-                            username: sessionStorage.getItem('username'), // Retrieves username from sessionStorage
-                            movieTitle: movieTitle
-                        },
-                        dataType: 'json',
-                        success: function (response) {
-                            console.log('Movie added to watchlist:', response);
-                            // Refresh watchlist after adding a movie
-                            getWatchlist(sessionStorage.getItem('username'));
-                        },
-                        error: function (error) {
-                            console.error('Error adding a movie to the watchlist:', error);
-                        }
-                    });
-                } else {
-                    console.error('Movie title cannot be empty.');
-                }
-            }
-        
-            function deleteFromWatchlist(listID) {
-                console.log("requesting delete from the watchlist");
-                const ListID = listID;
-        
-                if (ListID) {
-                    $.ajax({
-                        url: 'RabbitMQ/dbConsumer.php',
-                        method: 'POST',
-                        data: {
-                            type: 'deleteFromWatchList',
-                            watchListID: ListID
-                        },
-                        dataType: 'json',
-                        success: function (response) {
-                            console.log('Movie deleted from the watchlist:', response);
-                            // Refresh the watchlist after deleting a movie so the user doesn't have to manually reload
-                            getWatchlist(sessionStorage.getItem('username'));
-                        },
-                        error: function (error) {
-                            console.error('Error deleting a movie from the watchlist:', error);
-                        }
-                    });
-                } else {
-                    console.error('Movie ID cannot be empty.');
-                }
-            }
-        
-            function moveToWatchedList(movieId, movieTitle, posterURL, year, mediaType) {
+        }
+
+        function addToWatchlist() {
+            const movieTitle = $('#movie-title').val();
+
+            if (movieTitle) {
                 $.ajax({
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
-                        type: 'addToWatchedListAndRemoveFromWatchList',
-                        username: sessionStorage.getItem('username'),
-                        MovieID: movieId,
-                        movieTitle: movieTitle,
-                        posterURL: posterURL,
-                        year: year,
-                        mediaType: mediaType
+                        type: 'addToWatchList',
+                        username: sessionStorage.getItem('username'), // Retrieves username from sessionStorage
+                        movieTitle: movieTitle
                     },
                     dataType: 'json',
                     success: function (response) {
-                        console.log('Movie moved to the watched list:', response);
-                        // Refresh the watchlist after moving a movie
+                        console.log('Movie added to watchlist:', response);
+                        // Refresh watchlist after adding a movie
                         getWatchlist(sessionStorage.getItem('username'));
                     },
                     error: function (error) {
-                        console.error('Error moving a movie to the watched list:', error);
+                        console.error('Error adding a movie to the watchlist:', error);
                     }
                 });
+            } else {
+                console.error('Movie title cannot be empty.');
             }
-        
-            function createMovieBlock(movie) {
-                const movieBlock = document.createElement('div');
-                movieBlock.classList.add('movie-block');
-        
-                // Create a link for the movie image and title
-                const movieLink = document.createElement('a');
-                movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
-        
-                // Create the movie image
-                const movieImage = document.createElement('img');
-                movieImage.src = movie.PosterURL;
-                movieImage.alt = `${movie.MovieTitle} Poster`;
-        
-                // Create the movie details container
-                const movieDetails = document.createElement('div');
-                movieDetails.classList.add('movie-details');
-        
-                // Create the movie title
-                const movieTitle = document.createElement('h3');
-                movieTitle.classList.add('movie-title');
-                movieTitle.textContent = movie.MovieTitle;
-        
-                // Create other details (year, buttons, etc.)
-                const movieYear = document.createElement('p');
-                movieYear.textContent = `Year: ${movie.Year}`;
-        
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('delete-button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', function (event) {
-                    event.stopPropagation(); // Prevent the click from reaching the parent (movieBlock)
-                    deleteFromWatchlist(movie.ListID);
+        }
+
+        function deleteFromWatchlist(listID) {
+            console.log("requesting delete from the watchlist");
+            const ListID = listID;
+
+            if (ListID) {
+                $.ajax({
+                    url: 'RabbitMQ/dbConsumer.php',
+                    method: 'POST',
+                    data: {
+                        type: 'deleteFromWatchList',
+                        watchListID: ListID
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('Movie deleted from the watchlist:', response);
+                        // Refresh the watchlist after deleting a movie so the user doesn't have to manually reload
+                        getWatchlist(sessionStorage.getItem('username'));
+                    },
+                    error: function (error) {
+                        console.error('Error deleting a movie from the watchlist:', error);
+                    }
                 });
-        
-                const moveToWatchedButton = document.createElement('button');
-                moveToWatchedButton.classList.add('move-to-watched-button');
-                moveToWatchedButton.textContent = 'Move to Watched List';
-                moveToWatchedButton.addEventListener('click', function (event) {
-                    event.stopPropagation(); // Prevent the click from reaching the parent (movieBlock)
-                    moveToWatchedList(movie.MovieID, movie.MovieTitle, movie.PosterURL, movie.Year, movie.MediaType);
-                });
-        
-                // Append elements to their respective parents
-                movieDetails.appendChild(movieTitle);
-                movieDetails.appendChild(movieYear);
-                movieDetails.appendChild(deleteButton);
-                movieDetails.appendChild(moveToWatchedButton);
-        
-                movieLink.appendChild(movieImage);
-                movieLink.appendChild(movieDetails);
-        
-                movieBlock.appendChild(movieLink);
-        
-                return movieBlock;
+            } else {
+                console.error('Movie ID cannot be empty.');
             }
-        
-            function displayWatchlist(response) {
-                const watchlistContainer = document.getElementById('watchlist-container');
-                watchlistContainer.innerHTML = '';
-        
-                if (response && response.length > 0) {
-                    // Display the watchlist
-                    const sectionTitle = document.createElement('h2');
-                    sectionTitle.textContent = 'Watchlist';
-                    watchlistContainer.appendChild(sectionTitle);
-        
-                    // Create a container for the movie blocks with scrolling
-                    const movieContainer = document.createElement('div');
-                    movieContainer.classList.add('movie-container');
-                    watchlistContainer.appendChild(movieContainer);
-        
-                    response.forEach(movie => {
-                        const movieBlock = createMovieBlock(movie);
-                        movieContainer.appendChild(movieBlock);
-                    });
-        
-                    // Add style for the movie title to limit its width and add ellipsis for overflow
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        .movie-title {
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            margin: 0;
-                        }
-                    `;
-                    document.head.appendChild(style);
-        
-                    // Add a button for scrolling to see more recommendations
-                    const scrollButton = document.createElement('button');
-                    scrollButton.textContent = 'See More';
-                    scrollButton.addEventListener('click', function () {
-                        movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
-                    });
-                    watchlistContainer.appendChild(scrollButton);
+        }
+
+        function moveToWatchedList(movieId, movieTitle, posterURL, year, mediaType) {
+            $.ajax({
+                url: 'RabbitMQ/dbConsumer.php',
+                method: 'POST',
+                data: {
+                    type: 'addToWatchedListAndRemoveFromWatchList',
+                    username: sessionStorage.getItem('username'),
+                    MovieID: movieId,
+                    movieTitle: movieTitle,
+                    posterURL: posterURL,
+                    year: year,
+                    mediaType: mediaType
+                },
+                dataType: 'json',
+                success: function (response) {
+                    console.log('Movie moved to the watched list:', response);
+                    // Refresh the watchlist after moving a movie
+                    getWatchlist(sessionStorage.getItem('username'));
+                },
+                error: function (error) {
+                    console.error('Error moving a movie to the watched list:', error);
+                }
+            });
+        }
+
+        function createMovieBlock(movie) {
+            const movieBlock = document.createElement('div');
+            movieBlock.classList.add('movie-block');
+
+            // Create a link for the movie image and title
+            const movieLink = document.createElement('a');
+            movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
+
+            // Create the movie image
+            const movieImage = document.createElement('img');
+            movieImage.src = movie.PosterURL;
+            movieImage.alt = `${movie.MovieTitle} Poster`;
+
+            // Create the movie details container
+            const movieDetails = document.createElement('div');
+            movieDetails.classList.add('movie-details');
+
+            // Create the movie title
+            const movieTitle = document.createElement('h3');
+            movieTitle.classList.add('movie-title');
+            movieTitle.textContent = movie.MovieTitle;
+
+            // Create other details (year, buttons, etc.)
+            const movieYear = document.createElement('p');
+            movieYear.textContent = `Year: ${movie.Year}`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent the click from reaching the parent (movieBlock)
+                deleteFromWatchlist(movie.ListID);
+            });
+
+            const moveToWatchedButton = document.createElement('button');
+            moveToWatchedButton.classList.add('move-to-watched-button');
+            moveToWatchedButton.textContent = 'Move to Watched List';
+            moveToWatchedButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent the click from reaching the parent (movieBlock)
+                moveToWatchedList(movie.MovieID, movie.MovieTitle, movie.PosterURL, movie.Year, movie.MediaType);
+            });
+
+            // Append elements to their respective parents
+            movieDetails.appendChild(movieTitle);
+            movieDetails.appendChild(movieYear);
+            movieDetails.appendChild(deleteButton);
+            movieDetails.appendChild(moveToWatchedButton);
+
+            movieLink.appendChild(movieImage);
+            movieLink.appendChild(movieDetails);
+
+            movieBlock.appendChild(movieLink);
+
+            return movieBlock;
+        }
+
+        function displayWatchlist(response) {
+            const watchlistContainer = document.getElementById('watchlist-container');
+            watchlistContainer.innerHTML = '';
+
+            if (response && response.length > 0) {
+                // Display the watchlist
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = 'Watchlist';
+                watchlistContainer.appendChild(sectionTitle);
+
+                // Create a container for the movie blocks with scrolling
+                const movieContainer = document.createElement('div');
+                movieContainer.classList.add('movie-container');
+                watchlistContainer.appendChild(movieContainer);
+
+                response.forEach(movie => {
+                    const movieBlock = createMovieBlock(movie);
+                    movieContainer.appendChild(movieBlock);
+                });
+
+                // Add style for the movie title to limit its width and add ellipsis for overflow
+                const style = document.createElement('style');
+                style.textContent = `
+                    .movie-title {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin: 0;
+                    }
+                `;
+                document.head.appendChild(style);
+
+                // Add a button for scrolling to see more recommendations
+                const scrollButton = document.createElement('button');
+                scrollButton.textContent = 'See More';
+                scrollButton.addEventListener('click', function () {
+                    movieContainer.scrollLeft += 200; // Adjust the scrolling distance as needed
+                });
+                watchlistContainer.appendChild(scrollButton);
+            } else {
+                // Handle the case where the watchlist is empty
+                console.log('Watchlist is empty');
+                const emptySetResponse = [{"returnCode": "2", "message": "Empty Set"}];
+                if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
+                    const noWatchlistMessage = document.createElement('p');
+                    noWatchlistMessage.textContent = 'Watchlist is empty.';
+                    watchlistContainer.appendChild(noWatchlistMessage);
                 } else {
-                    // Handle the case where the watchlist is empty
-                    console.log('Watchlist is empty');
-                    const emptySetResponse = [{"returnCode": "2", "message": "Empty Set"}];
-                    if (JSON.stringify(response) === JSON.stringify(emptySetResponse)) {
-                        const noWatchlistMessage = document.createElement('p');
-                        noWatchlistMessage.textContent = 'Watchlist is empty.';
-                        watchlistContainer.appendChild(noWatchlistMessage);
-                    } else {
-                        // In case of an unexpected empty response
-                        const errorMessage = document.createElement('p');
-                        errorMessage.textContent = 'An error occurred while fetching the watchlist.';
-                        watchlistContainer.appendChild(errorMessage);
-                    }
+                    // In case of an unexpected empty response
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'An error occurred while fetching the watchlist.';
+                    watchlistContainer.appendChild(errorMessage);
                 }
             }
-        </script>
-        
-        
-    </body>
-    </html>
+        }
+    </script>
+
+
+</body>
+</html>
