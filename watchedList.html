@@ -220,60 +220,6 @@
         }
 
        
-        function createMovieBlock(movie, isWatchedlist) {
-            const movieBlock = document.createElement('div');
-            movieBlock.classList.add('movie-block');
-
-            // Create the movie image
-            const movieImage = document.createElement('img');
-            movieImage.src = movie.PosterURL;
-            movieImage.alt = `${movie.MovieTitle} Poster`;
-
-            // Create the movie details container
-            const movieDetails = document.createElement('div');
-            movieDetails.classList.add('movie-details');
-
-            // Create the movie title
-            const movieTitle = document.createElement('h3');
-            movieTitle.classList.add('movie-title');
-            movieTitle.textContent = movie.MovieTitle;
-
-            // Create other details (year, delete button)
-            const movieYear = document.createElement('p');
-            movieYear.textContent = `Year: ${movie.Year}`;
-
-            const deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete-button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', function (event) {
-                event.stopPropagation(); // Prevent the click from reaching the parent (movieLink)
-                deleteFromWatchedlist(movie.ListID);
-            });
-
-            // Append elements to their respective parents
-            movieDetails.appendChild(movieTitle);
-            movieDetails.appendChild(movieYear);
-            movieDetails.appendChild(deleteButton);
-
-            if (isWatchedlist) {
-                // Create the link for the movie image and title
-                const movieLink = document.createElement('a');
-                movieLink.href = `movie.html?Type=${movie.MediaType}&movieID=${movie.MovieID}`;
-                movieLink.style.textDecoration = 'none';
-                movieLink.appendChild(movieTitle);
-
-                // Only add the link and image if it's for the watched list
-                movieBlock.appendChild(movieImage);
-                movieBlock.appendChild(movieDetails);
-                movieLink.appendChild(movieBlock);
-                return movieLink;
-            } else {
-                // Add everything to the movie block if it's not for the watched list
-                movieBlock.appendChild(movieImage);
-                movieBlock.appendChild(movieDetails);
-                return movieBlock;
-            }
-        }
 
 
     </script>
