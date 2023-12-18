@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>About username</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
     <link rel="stylesheet" href="styles.css"> 
@@ -46,16 +45,17 @@
         }
 
         #rate {
-            position: relative; /* Change from absolute to relative */
-            margin-top: 20px;   /* Add top margin to create space */
-            background-color: #3498db; /* Lighter blue */
+            margin-top: 20px;
+            background-color: #3498db;
             padding: 10px;
-            transform: rotate(45deg);
-            z-index: 0;
         }
 
         #rate-info {
             margin: 0;
+            transform: rotate(-45deg); /* Reverse the rotation */
+            display: inline-block; /* Display as inline block to prevent overflow issues */
+            position: relative; /* Position relative for z-index to work */
+            z-index: 1;
         }
 
         #edit-profile-button {
