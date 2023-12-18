@@ -146,7 +146,7 @@
                 url: 'RabbitMQ/dbConsumer.php',
                 method: 'GET',
                 data: {
-                    type: 'getwatchedList',
+                    type: 'getWatchedList',
                     username: username
                 },
                 dataType: 'json',
@@ -167,7 +167,7 @@
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
-                        type: 'addTowatchedList',
+                        type: 'addToWatchedList',
                         username: sessionStorage.getItem('username'), // Retrieves username from sessionStorage
                         movieTitle: movieTitle
                     },
@@ -195,7 +195,7 @@
                     url: 'RabbitMQ/dbConsumer.php',
                     method: 'POST',
                     data: {
-                        type: 'deleteFromwatchedList',
+                        type: 'deleteFromWatchedList',
                         watchedListID: ListID
                     },
                     dataType: 'json',
