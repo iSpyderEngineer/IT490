@@ -240,7 +240,6 @@
             deleteButton.classList.add('delete-button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', function (event) {
-                event.stopPropagation(); // Prevent the click from reaching the parent (movieLink)
                 deleteFromWatchedlist(movie.ListID);
             });
 
