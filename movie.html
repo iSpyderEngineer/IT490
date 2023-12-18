@@ -69,6 +69,7 @@
         <p><strong>Director:</strong> <span id="director"></span></p>
         <p><strong>Year:</strong> <span id="year"></span></p>
         <p><strong>Bio:</strong> <span id="bio"></span></p>
+        <p id="streaming-services"></p>
         <img src="" id="poster-image" alt="Media Poster">
     </div>
 
@@ -106,7 +107,6 @@
             $('#director').text(mediaDetails.Director);
             $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
             $('#bio').text(mediaDetails.Overview);
-            <p id="streaming-services"></p>
             $('#poster-image').attr('src', mediaDetails.PosterURL); 
 
 
