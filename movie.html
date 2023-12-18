@@ -107,34 +107,28 @@
             $('#director').text(mediaDetails.Director);
             $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
             $('#bio').text(mediaDetails.Overview);
-            $('#poster-image').attr('src', mediaDetails.PosterURL); 
-
+            $('#poster-image').attr('src', mediaDetails.PosterURL);
 
             if (mediaDetails.StreamingServices) {
                 const streamingServicesContainer = $('#streaming-services');
                 streamingServicesContainer.empty();
 
-                // Loop through each country code
-                for (const countryCode in mediaDetails.StreamingServices) {
-                    const countryStreamingInfo = mediaDetails.StreamingServices[countryCode];
+                // Display streaming services for "US" only
+                const usStreamingInfo = mediaDetails.StreamingServices['US'];
+                if (usStreamingInfo && usStreamingInfo.flatrate) {
+                    // Extract streaming services for the US
+                    const streamingServices = usStreamingInfo.flatrate;
 
-                    // Check if the country has streaming services available
-                    if (countryStreamingInfo && countryStreamingInfo.flatrate) {
-                        // Extract streaming services for the country
-                        const streamingServices = countryStreamingInfo.flatrate;
+                    // Display or process the streaming services as needed
+                    const servicesHtml = streamingServices.map(service => {
+                        return `<li>Provider: ${service.provider_name}</li>`;
+                    }).join('');
 
-                        // Display or process the streaming services as needed
-                        const servicesHtml = streamingServices.map(service => {
-                            return `<li>Provider: ${service.provider_name}, Link: ${service.link}</li>`;
-                        }).join('');
-
-                        streamingServicesContainer.append(`<p>Streaming Services for ${countryCode}:</p><ul>${servicesHtml}</ul>`);
-                    }
+                    streamingServicesContainer.append('<p>Streaming Services for US:</p><ul>' + servicesHtml + '</ul>');
                 }
             }
-
-
         }
+
 
         function addToWatchlist() {
             $.ajax({
