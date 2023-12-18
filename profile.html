@@ -52,10 +52,7 @@
 
         #rate-info {
             margin: 0;
-            transform: rotate(-45deg); /* Reverse the rotation */
             display: inline-block; /* Display as inline block to prevent overflow issues */
-            position: relative; /* Position relative for z-index to work */
-            z-index: 1;
         }
 
         #edit-profile-button {
@@ -172,6 +169,10 @@
     <script>
         $(document).ready(function () {
             // Loads the navbar component
+
+            $('#review-title').attr('readonly', true);
+            $('#review-rating').val('1').prop('readonly', true);
+
             $('#navbar-container').load('components/navbar.html', function () {
                 
 

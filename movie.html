@@ -106,7 +106,18 @@
             $('#director').text(mediaDetails.Director);
             $('#year').text(type === 'movie' ? mediaDetails.ReleaseDate.substring(0, 4) : mediaDetails.first_air_date.substring(0, 4));
             $('#bio').text(mediaDetails.Overview);
+            <p id="streaming-services"></p>
             $('#poster-image').attr('src', mediaDetails.PosterURL); 
+
+
+            if (mediaDetails.streamingServices && mediaDetails.streamingServices.US) {
+                const usStreamingServices = mediaDetails.streamingServices.US;
+                // Display streaming service data as needed, e.g., update an HTML element
+                $('#streaming-services').html('<h3>Streaming Services (US)</h3><ul>' +
+                    usStreamingServices.flatrate.map(service => `<li>${service.provider_name} - ${service.link}</li>`).join('') +
+                    '</ul>');
+            }
+
         }
 
         function addToWatchlist() {
