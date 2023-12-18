@@ -223,11 +223,6 @@
             const movieBlock = document.createElement('div');
             movieBlock.classList.add('movie-block');
 
-            // Create the movie image
-            const movieImage = document.createElement('img');
-            movieImage.src = movie.PosterURL;
-            movieImage.alt = `${movie.MovieTitle} Poster`;
-
             // Create the movie details container
             const movieDetails = document.createElement('div');
             movieDetails.classList.add('movie-details');
@@ -262,12 +257,16 @@
                 
                 // Append the details to the link
                 movieLink.appendChild(movieDetails);
-                movieLink.appendChild(movieTitle); // Append the title again to the link
 
                 // Append the link to the movie block
                 movieBlock.appendChild(movieLink);
             } else {
-                // Add everything to the movie block if it's not for the watched list
+                // Create the movie image
+                const movieImage = document.createElement('img');
+                movieImage.src = movie.PosterURL;
+                movieImage.alt = `${movie.MovieTitle} Poster`;
+
+                // Append the image, details, and link to the movie block
                 movieBlock.appendChild(movieImage);
                 movieBlock.appendChild(movieDetails);
             }
